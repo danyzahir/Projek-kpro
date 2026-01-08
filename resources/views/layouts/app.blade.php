@@ -2,6 +2,7 @@
 <html lang="id">
 
 <head>
+    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
     <title>
         @yield('title', 'Dashboard') 

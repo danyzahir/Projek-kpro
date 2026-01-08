@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
-    <title>Login XPRO</title>
+    <title>Login</title>
     @vite('resources/css/app.css')
 </head>
 
@@ -28,7 +29,7 @@
             <!-- LEFT IMAGE (NGIKUT CARD) -->
             <div class="hidden md:block relative">
                 <img
-                    src="{{ asset('images/poto1.jpg') }}"
+                    src="https://educ.gramedia.com/wp-content/uploads/2022/12/istockphoto-1154341677-170667a.jpg"
                     alt="Login Image"
                     class="absolute inset-0 w-full h-full object-cover"
                 >
@@ -86,7 +87,7 @@
                     <!-- BUTTON -->
                     <button
                         type="submit"
-                        class="w-full bg-blue-500 hover:bg-blue-600
+                        class="w-full bg-red-500 hover:bg-red-600
                                text-white py-3 rounded-full font-semibold"
                     >
                         Login

@@ -4,7 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {
@@ -31,6 +31,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/deployment/rekap', function () {
         return view('deployment.rekap');
     })->name('deployment.rekap');
+
+     // ✅ DEPLOYMENT - Upload
+    Route::get('/deployment/upload', function () {
+        return view('deployment.upload');
+    })->name('deployment.upload');
 
 });
 

@@ -1,47 +1,102 @@
-<x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Login XPRO</title>
+    @vite('resources/css/app.css')
+</head>
 
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
+<body class="min-h-screen relative overflow-hidden">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+    <!-- BACKGROUND IMAGE -->
+    <img
+        src="{{ asset('images/poto1.jpg') }}"
+        alt="Background"
+        class="absolute inset-0 w-full h-full object-cover"
+    >
+
+    <!-- BLUR OVERLAY -->
+    <div class="absolute inset-0 backdrop-blur-md bg-white/30"></div>
+
+    <!-- CONTENT -->
+    <div class="relative min-h-screen flex items-center justify-center">
+
+        <!-- CARD -->
+        <div class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden
+                    grid grid-cols-1 md:grid-cols-2 min-h-[520px]">
+
+            <!-- LEFT IMAGE (NGIKUT CARD) -->
+            <div class="hidden md:block relative">
+                <img
+                    src="{{ asset('images/poto1.jpg') }}"
+                    alt="Login Image"
+                    class="absolute inset-0 w-full h-full object-cover"
+                >
+            </div>
+
+            <!-- RIGHT FORM -->
+            <div class="p-12 flex flex-col justify-center">
+                <h2 class="text-2xl font-semibold mb-6 text-center">Login</h2>
+
+                <form method="POST"
+                      action="{{ route('login') }}"
+                      autocomplete="off"
+                      class="space-y-5">
+                    @csrf
+
+                    <!-- USERNAME -->
+                    <input
+                        type="email"
+                        name="email"
+                        placeholder="Username"
+                        value=""
+                        autocomplete="off"
+                        required
+                        class="w-full rounded-full px-5 py-3 bg-blue-50
+                               border border-blue-200
+                               focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+
+                    <!-- PASSWORD -->
+                    <input
+                        type="password"
+                        name="password"
+                        placeholder="Password"
+                        value=""
+                        autocomplete="new-password"
+                        required
+                        class="w-full rounded-full px-5 py-3 bg-blue-50
+                               border border-blue-200
+                               focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+
+                    <!-- REMEMBER ME -->
+                    <div class="flex items-center text-sm text-gray-600">
+                        <label class="flex items-center gap-2 cursor-pointer">
+                            <input
+                                type="checkbox"
+                                name="remember"
+                                class="rounded border-gray-300 text-blue-500
+                                       focus:ring-blue-400"
+                            >
+                            Remember me
+                        </label>
+                    </div>
+
+                    <!-- BUTTON -->
+                    <button
+                        type="submit"
+                        class="w-full bg-blue-500 hover:bg-blue-600
+                               text-white py-3 rounded-full font-semibold"
+                    >
+                        Login
+                    </button>
+
+                </form>
+            </div>
+
         </div>
+    </div>
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+</body>
+</html>

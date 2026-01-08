@@ -70,8 +70,8 @@
 
             <!-- ================= SUBMENU ================= -->
             <div x-show="open" x-cloak class="ml-8 mt-2 space-y-1">
- <!-- UPLOAD -->
-                <a href=""
+            <!-- UPLOAD -->
+                <a href="{{ route('deployment.upload') }}"
                    @click="sidebarOpen = false"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg
                    {{ request()->routeIs('development.upload')

@@ -18,7 +18,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
 
         <!-- UPLOAD -->
-        <a href="#"
+        <a href="{{ route('deployment.upload') }}"
            class="group relative bg-white rounded-2xl p-6 shadow-sm
                   hover:shadow-xl hover:-translate-y-1
                   transition-all duration-300">
@@ -70,7 +70,7 @@
         </a>
 
         <!-- REKAP -->
-        <a href="#"
+        <a href="{{ route('deployment.rekap') }}"
            class="group relative bg-white rounded-2xl p-6 shadow-sm
                   hover:shadow-xl hover:-translate-y-1
                   transition-all duration-300">

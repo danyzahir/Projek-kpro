@@ -73,35 +73,47 @@
             </div>
 
             <!-- TABLE -->
-            <div class="overflow-x-auto rounded-xl shadow-sm">
-                <table class="min-w-full text-sm text-left">
+            <div class="bg-white rounded-xl shadow-sm p-6">
 
-                    <thead class="bg-red-600 text-white">
-                        <tr>
-                            <th class="px-4 py-3">NDE JT</th>
-                            <th class="px-4 py-3">Starclick / NCX</th>
-                            <th class="px-4 py-3">Track ID</th>
-                            <th class="px-4 py-3">Nama</th>
-                            <th class="px-4 py-3">Alamat</th>
-                            <th class="px-4 py-3">Telepon</th>
-                            <th class="px-4 py-3">Tikor</th>
-                            <th class="px-4 py-3">Datel</th>
-                            <th class="px-4 py-3">STO</th>
-                            <th class="px-4 py-3">Status Alokasi Alpro</th>
-                            <th class="px-4 py-3">Status Order</th>
-                            <th class="px-4 py-3">iHLD LoP ID</th>
-                            <th class="px-4 py-3">Tipe Desain</th>
-                            <th class="px-4 py-3">Total BOQ</th>
-                            <th class="px-4 py-3">Jenis Program</th>
-                            <th class="px-4 py-3">Nama CFU</th>
-                            <th class="px-4 py-3">Progress</th>
-                        </tr>
-                    </thead>
+                <!-- 👉 SCROLL AREA (HANYA TABEL) -->
+                <div class="overflow-x-auto">
 
-                    <tbody class="divide-y bg-white">
-                        @for ($i = 1; $i <= 5; $i++)
+                    <table class="min-w-[2000px] text-sm text-left border-collapse">
+
+                        <!-- HEADER -->
+                        <thead class="bg-red-600 text-white sticky top-0 z-10">
+                            <tr>
+                                <th class="px-4 py-3 font-medium sticky left-0 bg-red-600 z-20">
+                                    NDE JT
+                                </th>
+                                <th class="px-4 py-3 font-medium">Starclick / NCX</th>
+                                <th class="px-4 py-3 font-medium">Track ID</th>
+                                <th class="px-4 py-3 font-medium">Nama</th>
+                                <th class="px-4 py-3 font-medium">Alamat</th>
+                                <th class="px-4 py-3 font-medium">Telepon</th>
+                                <th class="px-4 py-3 font-medium">Tikor</th>
+                                <th class="px-4 py-3 font-medium">Datel</th>
+                                <th class="px-4 py-3 font-medium">STO</th>
+                                <th class="px-4 py-3 font-medium">Status Alokasi Alpro</th>
+                                <th class="px-4 py-3 font-medium">Status Order</th>
+                                <th class="px-4 py-3 font-medium">iHLD LoP ID</th>
+                                <th class="px-4 py-3 font-medium">Tipe Desain</th>
+                                <th class="px-4 py-3 font-medium">Total BOQ</th>
+                                <th class="px-4 py-3 font-medium">Jenis Program</th>
+                                <th class="px-4 py-3 font-medium">Nama CFU</th>
+                                <th class="px-4 py-3 font-medium">Progress</th>
+                            </tr>
+                        </thead>
+
+                        <!-- BODY -->
+                        <tbody class="divide-y">
+                            @for ($i = 1; $i <= 10; $i++)
                             <tr class="hover:bg-slate-50">
-                                <td class="px-4 py-3">NDE-00{{ $i }}</td>
+
+                                <td class="px-4 py-3 sticky left-0 bg-white font-medium">
+                                    NDE-00{{ $i }}
+                                </td>
+
                                 <td class="px-4 py-3">SC-10{{ $i }}</td>
                                 <td class="px-4 py-3">TRK-{{ 1000 + $i }}</td>
                                 <td class="px-4 py-3">Pelanggan {{ $i }}</td>
@@ -110,22 +122,26 @@
                                 <td class="px-4 py-3">{{ -6.7 + $i * 0.01 }}, 108.5{{ $i }}</td>
                                 <td class="px-4 py-3">CIREBON</td>
                                 <td class="px-4 py-3">ARJAWINANGUN</td>
+
                                 <td class="px-4 py-3">
                                     <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
                                         Success Alpro Allocation
                                     </span>
                                 </td>
+
                                 <td class="px-4 py-3">
                                     <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
                                         Completed Order PT1
                                     </span>
                                 </td>
+
                                 <td class="px-4 py-3">11172936</td>
                                 <td class="px-4 py-3">PT2-AERIAL</td>
                                 <td class="px-4 py-3">2099481</td>
                                 <td class="px-4 py-3">EBIS-DBS</td>
                                 <td class="px-4 py-3">EBIS</td>
                                 <td class="px-4 py-3">
+                                    
                                     <div class="relative w-36">
                                         <button onclick="toggleDropdown(this)"
                                             class="status-btn w-full rounded-2xl px-3 py-3 text-sm font-semibold
@@ -151,13 +167,16 @@
                                         </div>
                                     </div>
                                 </td>
-
+                                
+                               
                             </tr>
-                        @endfor
-                    </tbody>
+                            @endfor
+                        </tbody>
 
-                </table>
+                    </table>
+                </div>
             </div>
+           
 
         </div>
     </div>

@@ -1,39 +1,43 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
-    <title>
-        @yield('title', 'Dashboard') 
-    </title>
-
+    <title>@yield('title', 'Dashboard')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Alpine JS -->
+    <!-- Alpine -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
-<body class="bg-gray-100">
+<!-- ❗ BODY TIDAK BOLEH SCROLL -->
+<body class="bg-gray-100 h-screen overflow-hidden">
 
-    <div x-data="{ sidebarOpen: true }" class="flex">
-        <!-- Sidebar -->
-        <x-sidebar />
+<div x-data="{ sidebarOpen: true }" class="flex h-full">
 
-        <!-- Main Content -->
-        <div :class="sidebarOpen ? 'ml-64' : 'ml-0'" class="flex-1 flex flex-col transition-all duration-300">
-            <!-- Navbar -->
+    <!-- SIDEBAR (STAY) -->
+    <x-sidebar />
+
+    <!-- CONTENT AREA -->
+    <div
+        :class="sidebarOpen ? 'ml-64' : 'ml-0'"
+        class="flex flex-col flex-1 transition-all duration-300 overflow-hidden"
+    >
+
+        <!-- 🔒 NAVBAR STAY -->
+        <header class="sticky top-0 z-50">
             <x-navbar />
+        </header>
 
-            <!-- Page Content -->
-            <main class="p-6">
-                @yield('content')
-            </main>
-        </div>
+        <!-- ✅ MAIN CONTENT SCROLL DI SINI -->
+        <main class="flex-1 overflow-y-auto overflow-x-hidden p-6">
+            @yield('content')
+        </main>
+
     </div>
+</div>
 
 </body>
-
 </html>

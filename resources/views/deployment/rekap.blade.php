@@ -34,7 +34,7 @@
     <div class="bg-white rounded-xl shadow-sm p-6">
 
         <!-- 👉 SCROLL AREA (HANYA TABEL) -->
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto rounded-xl border">
 
             <table class="min-w-[2000px] text-sm text-left border-collapse">
 

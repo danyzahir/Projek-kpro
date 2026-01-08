@@ -1,186 +1,167 @@
 @extends('layouts.app')
 
-@section('title', 'input data')
+@section('title', 'Input Data')
 
 @section('content')
-    <div class="flex flex-col">
+<div class="flex flex-col gap-6">
 
-        <!-- BREADCRUMB -->
-        <div class="flex items-center gap-4 text-lg text-slate-500 mb-6">
+    <!-- ================= BREADCRUMB ================= -->
+     <div class="flex items-center gap-4 text-lg text-slate-500">
+        <a href="{{ route('dashboard') }}"
+           class="flex items-center gap-2 hover:text-red-600 transition">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="w-6 h-6 text-slate-400"
+                 fill="none" viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
+            </svg>
+        </a>
 
-            <!-- HOME -->
-            <a href="{{ route('dashboard') }}" class="flex items-center gap-2 hover:text-red-600 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-slate-400" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
-                </svg>
-            </a>
+        <span class="text-slate-400">›</span>
 
-            <span class="text-slate-400">›</span>
+        <a href="{{ route('deployment.b2b') }}"
+           class="font-medium hover:text-red-600 transition">
+            B2B
+        </a>
 
-            <!-- B2B -->
-            <a href="{{ route('deployment.b2b') }}" class="font-medium hover:text-red-600 transition">
-                B2B
-            </a>
+        <span class="text-slate-400">›</span>
 
-            <span class="text-slate-400">›</span>
+        <span class="font-semibold text-slate-800">Upload</span>
+    </div>
 
-            <!-- CURRENT -->
-            <span class="font-semibold text-slate-800">
-                Upload
-            </span>
+    <!-- ================= CARD ================= -->
+<div class="bg-white rounded-xl shadow-sm">
+
+    <!-- TOOLBAR -->
+    <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
+        <input type="text"
+               placeholder="Cari data..."
+               class="w-64 rounded-lg border border-slate-300 px-3 py-2 text-sm
+                      focus:ring-2 focus:ring-red-500 focus:outline-none">
+
+        <div class="flex gap-2">
+            <button class="px-4 py-2 text-sm rounded-lg bg-slate-100 hover:bg-slate-200">
+                Import
+            </button>
+            <button class="px-4 py-2 text-sm rounded-lg bg-green-600 text-white hover:bg-green-700">
+                Export
+            </button>
         </div>
+    </div>
 
-        <!-- CARD -->
-        <div class="bg-white rounded-xl shadow-sm p-6">
+    <!-- TABLE AREA (ADA PADDING) -->
+    <div class="p-4">
 
-            <!-- TOOLBAR -->
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+        <!-- SCROLL HANYA DI SINI -->
+        <div class="overflow-x-auto rounded-xl border">
 
-                <!-- BUTTON -->
-                <div class="flex gap-3">
-                    <button
-                        class="px-5 py-2 rounded-lg border border-slate-300
-                           bg-white text-slate-700 text-sm font-medium
-                           shadow-sm hover:bg-slate-100 transition">
-                        Import Data
-                    </button>
+            <table class="min-w-[2200px] text-sm text-left">
 
-                    <button
-                        class="px-5 py-2 rounded-lg border border-slate-300
-                           bg-white text-slate-700 text-sm font-medium
-                           shadow-sm hover:bg-slate-100 transition">
-                        Export Data
-                    </button>
-                </div>
+                <!-- HEADER -->
+                <thead class="bg-red-600 text-white">
+                    <tr>
+                        <th class="sticky left-0 z-30 bg-red-600 px-4 py-3">
+                            NDE JT
+                        </th>
+                        <th class="px-4 py-3">Starclick / NCX</th>
+                        <th class="px-4 py-3">Track ID</th>
+                        <th class="px-4 py-3">Nama</th>
+                        <th class="px-4 py-3">Alamat</th>
+                        <th class="px-4 py-3">Telepon</th>
+                        <th class="px-4 py-3">Tikor</th>
+                        <th class="px-4 py-3">Datel</th>
+                        <th class="px-4 py-3">STO</th>
+                        <th class="px-4 py-3">Status Alokasi Alpro</th>
+                        <th class="px-4 py-3">Status Order</th>
+                        <th class="px-4 py-3">iHLD LoP ID</th>
+                        <th class="px-4 py-3">Tipe Desain</th>
+                        <th class="px-4 py-3">Total BOQ</th>
+                        <th class="px-4 py-3">Jenis Program</th>
+                        <th class="px-4 py-3">Nama CFU</th>
+                        <th class="px-4 py-3">Progress</th>
+                    </tr>
+                </thead>
 
-                <!-- SEARCH -->
-                <div class="relative w-full md:w-72">
-                    <input type="text" placeholder="Cari Data"
-                        class="w-full rounded-lg border border-slate-300
-                           pl-10 pr-4 py-2 text-sm
-                           focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                    <svg xmlns="http://www.w3.org/2000/svg"
-                        class="absolute left-3 top-1/2 -translate-y-1/2
-                            w-5 h-5 text-slate-400"
-                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M21 21l-4.35-4.35M16 10a6 6 0 11-12 0 6 6 0 0112 0z" />
-                    </svg>
-                </div>
+                <!-- BODY -->
+                <tbody class="divide-y text-slate-700">
+                @for ($i = 1; $i <= 10; $i++)
+                    <tr class="hover:bg-slate-50">
+                        <td class="sticky left-0 z-20 bg-white px-4 py-3 font-medium">
+                            NDE-00{{ $i }}
+                        </td>
+                        <td class="px-4 py-3">SC-10{{ $i }}</td>
+                        <td class="px-4 py-3">TRK-{{ 1000 + $i }}</td>
+                        <td class="px-4 py-3">Pelanggan {{ $i }}</td>
+                        <td class="px-4 py-3">Jl. Contoh Alamat {{ $i }}</td>
+                        <td class="px-4 py-3">08{{ rand(10000000, 99999999) }}</td>
+                        <td class="px-4 py-3">{{ -6.7 + $i * 0.01 }}, 108.5{{ $i }}</td>
+                        <td class="px-4 py-3">CIREBON</td>
+                        <td class="px-4 py-3">ARJAWINANGUN</td>
 
-            </div>
+                        <td class="px-4 py-3">
+                            <span class="px-3 py-1 rounded-md text-xs bg-green-100 text-green-700">
+                                Success Alpro Allocation
+                            </span>
+                        </td>
 
-            <!-- TABLE -->
-            <div class="bg-white rounded-xl shadow-sm p-6">
+                        <td class="px-4 py-3">
+                            <span class="px-3 py-1 rounded-md text-xs bg-blue-100 text-blue-700">
+                                Completed Order PT1
+                            </span>
+                        </td>
 
-                <!-- 👉 SCROLL AREA (HANYA TABEL) -->
-                <div class="overflow-x-auto">
+                        <td class="px-4 py-3">11172936</td>
+                        <td class="px-4 py-3">PT2-AERIAL</td>
+                        <td class="px-4 py-3">2099481</td>
+                        <td class="px-4 py-3">EBIS-DBS</td>
+                        <td class="px-4 py-3">EBIS</td>
 
-                    <table class="min-w-[2000px] text-sm text-left border-collapse">
+                        <!-- PROGRESS -->
+                        <td class="px-4 py-3">
+                            <div class="relative w-36">
+                                <button onclick="toggleDropdown(this)"
+                                    class="status-btn w-full h-9 box-border
+                                           flex items-center justify-between gap-2
+                                           rounded-full px-4
+                                           text-xs font-semibold leading-none
+                                           bg-green-200 text-green-900
+                                           border border-green-400 shadow-sm">
+                                    <span class="truncate">Completed PS</span>
+                                    <svg class="w-4 h-4 shrink-0"
+                                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                              d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
 
-                        <!-- HEADER -->
-                        <thead class="bg-red-600 text-white sticky top-0 z-10">
-                            <tr>
-                                <th class="px-4 py-3 font-medium sticky left-0 bg-red-600 z-20">
-                                    NDE JT
-                                </th>
-                                <th class="px-4 py-3 font-medium">Starclick / NCX</th>
-                                <th class="px-4 py-3 font-medium">Track ID</th>
-                                <th class="px-4 py-3 font-medium">Nama</th>
-                                <th class="px-4 py-3 font-medium">Alamat</th>
-                                <th class="px-4 py-3 font-medium">Telepon</th>
-                                <th class="px-4 py-3 font-medium">Tikor</th>
-                                <th class="px-4 py-3 font-medium">Datel</th>
-                                <th class="px-4 py-3 font-medium">STO</th>
-                                <th class="px-4 py-3 font-medium">Status Alokasi Alpro</th>
-                                <th class="px-4 py-3 font-medium">Status Order</th>
-                                <th class="px-4 py-3 font-medium">iHLD LoP ID</th>
-                                <th class="px-4 py-3 font-medium">Tipe Desain</th>
-                                <th class="px-4 py-3 font-medium">Total BOQ</th>
-                                <th class="px-4 py-3 font-medium">Jenis Program</th>
-                                <th class="px-4 py-3 font-medium">Nama CFU</th>
-                                <th class="px-4 py-3 font-medium">Progress</th>
-                            </tr>
-                        </thead>
-
-                        <!-- BODY -->
-                        <tbody class="divide-y">
-                            @for ($i = 1; $i <= 10; $i++)
-                            <tr class="hover:bg-slate-50">
-
-                                <td class="px-4 py-3 sticky left-0 bg-white font-medium">
-                                    NDE-00{{ $i }}
-                                </td>
-
-                                <td class="px-4 py-3">SC-10{{ $i }}</td>
-                                <td class="px-4 py-3">TRK-{{ 1000 + $i }}</td>
-                                <td class="px-4 py-3">Pelanggan {{ $i }}</td>
-                                <td class="px-4 py-3">Jl. Contoh Alamat {{ $i }}</td>
-                                <td class="px-4 py-3">08{{ rand(10000000, 99999999) }}</td>
-                                <td class="px-4 py-3">{{ -6.7 + $i * 0.01 }}, 108.5{{ $i }}</td>
-                                <td class="px-4 py-3">CIREBON</td>
-                                <td class="px-4 py-3">ARJAWINANGUN</td>
-
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                                        Success Alpro Allocation
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
-                                        Completed Order PT1
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-3">11172936</td>
-                                <td class="px-4 py-3">PT2-AERIAL</td>
-                                <td class="px-4 py-3">2099481</td>
-                                <td class="px-4 py-3">EBIS-DBS</td>
-                                <td class="px-4 py-3">EBIS</td>
-                                <td class="px-4 py-3">
-                                    
-                                    <div class="relative w-36">
-                                        <button onclick="toggleDropdown(this)"
-                                            class="status-btn w-full rounded-2xl px-3 py-3 text-sm font-semibold
-               bg-green-200 text-green-900 border border-green-400
-               flex items-center justify-between shadow-sm">
-                                            <span data-value="completed">Completed PS</span>
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M19 9l-7 7-7-7" />
-                                            </svg>
-                                        </button>
-
-                                        <div
-                                            class="status-menu hidden absolute z-20 mt-2 w-full rounded-2xl shadow-lg border bg-white overflow-hidden">
-                                            <div onclick="selectStatus(this, 'completed')"
-                                                class="px-3 py-2 cursor-pointer bg-green-200 text-green-900 hover:bg-green-300">
-                                                Completed PS
-                                            </div>
-                                            <div onclick="selectStatus(this, 'kendala')"
-                                                class="px-3 py-2 cursor-pointer bg-yellow-200 text-yellow-900 hover:bg-yellow-300">
-                                                Kendala
-                                            </div>
-                                        </div>
+                                <div
+                                    class="status-menu hidden absolute z-30 mt-2 w-full
+                                           rounded-xl overflow-hidden border bg-white shadow-lg">
+                                    <div onclick="selectStatus(this,'completed')"
+                                         class="px-4 py-2 text-xs cursor-pointer bg-green-200">
+                                        Completed PS
                                     </div>
-                                </td>
-                                
-                               
-                            </tr>
-                            @endfor
-                        </tbody>
+                                    <div onclick="selectStatus(this,'kendala')"
+                                         class="px-4 py-2 text-xs cursor-pointer bg-yellow-200">
+                                        Kendala
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                @endfor
+                </tbody>
 
-                    </table>
-                </div>
-            </div>
-           
+            </table>
 
         </div>
     </div>
+</div>
+
+</div>
 @endsection
+
 <script>
 function toggleDropdown(btn) {
     btn.nextElementSibling.classList.toggle('hidden');
@@ -192,10 +173,9 @@ function selectStatus(el, value) {
     const label = button.querySelector('span');
     const menu = wrapper.querySelector('.status-menu');
 
-    // reset
     button.className =
-        'status-btn w-full rounded-2xl px-3 py-3 text-sm font-semibold ' +
-        'flex items-center justify-between shadow-sm border';
+        'status-btn w-full h-9 box-border flex items-center justify-between gap-2 ' +
+        'rounded-full px-4 text-xs font-semibold leading-none shadow-sm border';
 
     if (value === 'completed') {
         button.classList.add('bg-green-200','text-green-900','border-green-400');
@@ -205,8 +185,14 @@ function selectStatus(el, value) {
         label.textContent = 'Kendala';
     }
 
-    label.dataset.value = value;
     menu.classList.add('hidden');
 }
-</script>
 
+// SEARCH
+document.getElementById('tableSearch').addEventListener('keyup', function () {
+    const value = this.value.toLowerCase();
+    document.querySelectorAll('#dataTable tbody tr').forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(value) ? '' : 'none';
+    });
+});
+</script>

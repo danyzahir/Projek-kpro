@@ -28,7 +28,7 @@
 
             <!-- CURRENT -->
             <span class="font-semibold text-slate-800">
-                Rekap
+                Upload
             </span>
         </div>
 

@@ -18,10 +18,9 @@
            @click="sidebarOpen = false"
            class="flex items-center gap-3 px-4 py-2 rounded-lg font-medium
            {{ request()->routeIs('dashboard')
-                ? 'bg-red-50 text-red-600'
+                ? 'bg-red-50 text-red-600 shadow-sm'
                 : 'hover:bg-gray-100 text-gray-700' }}">
 
-            <!-- Dashboard Icon -->
             <svg xmlns="http://www.w3.org/2000/svg"
                  class="w-5 h-5"
                  fill="none" viewBox="0 0 24 24"
@@ -35,18 +34,17 @@
 
         <!-- ================= B2B ================= -->
         <div
-            x-data="{ open: {{ request()->routeIs('development.*') ? 'true' : 'false' }} }"
+            x-data="{ open: {{ request()->routeIs('deployment.*') ? 'true' : 'false' }} }"
         >
             <button
                 @click="open = !open"
                 class="flex items-center justify-between w-full
                        px-4 py-2 rounded-lg font-medium
-                {{ request()->routeIs('development.*')
-                    ? 'bg-red-50 text-red-600'
+                {{ request()->routeIs('deployment.*')
+                    ? 'bg-red-50 text-red-600 shadow-sm'
                     : 'hover:bg-gray-100 text-gray-700' }}">
 
                 <span class="flex items-center gap-3">
-                    <!-- Folder Icon -->
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="w-5 h-5"
                          fill="none" viewBox="0 0 24 24"
@@ -57,7 +55,6 @@
                     <span>B2B</span>
                 </span>
 
-                <!-- Chevron -->
                 <svg xmlns="http://www.w3.org/2000/svg"
                      class="w-4 h-4 transform transition"
                      :class="open ? 'rotate-180' : ''"
@@ -70,15 +67,15 @@
 
             <!-- ================= SUBMENU ================= -->
             <div x-show="open" x-cloak class="ml-8 mt-2 space-y-1">
-            <!-- UPLOAD -->
+
+                <!-- UPLOAD -->
                 <a href="{{ route('deployment.upload') }}"
                    @click="sidebarOpen = false"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg
-                   {{ request()->routeIs('development.upload')
-                        ? 'bg-red-100 text-red-600 font-medium'
+                   {{ request()->routeIs('deployment.upload')
+                        ? 'bg-red-100 text-red-600 font-medium shadow'
                         : 'hover:bg-gray-100 text-gray-700' }}">
 
-                    <!-- Upload Icon -->
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="w-4 h-4"
                          fill="none" viewBox="0 0 24 24"
@@ -89,15 +86,15 @@
 
                     <span>Upload</span>
                 </a>
+
                 <!-- INPUT -->
                 <a href="{{ route('deployment.input') }}"
                    @click="sidebarOpen = false"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg
                    {{ request()->routeIs('deployment.input')
-                        ? 'bg-red-100 text-red-600 font-medium'
+                        ? 'bg-red-100 text-red-600 font-medium shadow'
                         : 'hover:bg-gray-100 text-gray-700' }}">
 
-                    <!-- Pencil Icon -->
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="w-4 h-4"
                          fill="none" viewBox="0 0 24 24"
@@ -109,17 +106,14 @@
                     <span>Input</span>
                 </a>
 
-               
-
                 <!-- REKAP -->
                 <a href="{{ route('deployment.rekap') }}"
                    @click="sidebarOpen = false"
                    class="flex items-center gap-3 px-3 py-2 rounded-lg
                    {{ request()->routeIs('deployment.rekap')
-                        ? 'bg-red-100 text-red-600 font-medium'
+                        ? 'bg-red-100 text-red-600 font-medium shadow'
                         : 'hover:bg-gray-100 text-gray-700' }}">
 
-                    <!-- Report Icon -->
                     <svg xmlns="http://www.w3.org/2000/svg"
                          class="w-4 h-4"
                          fill="none" viewBox="0 0 24 24"

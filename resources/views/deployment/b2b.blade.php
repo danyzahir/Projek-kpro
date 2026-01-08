@@ -7,7 +7,7 @@
     <!-- Page Header -->
     <div class="mb-10">
         <h1 class="text-3xl font-semibold text-slate-800">
-            Development – B2B
+            Deployment – B2B
         </h1>
         <p class="text-slate-500 mt-1">
             Kelola proses upload, input, dan rekap data B2B

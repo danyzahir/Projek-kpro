@@ -126,17 +126,31 @@
                                 <td class="px-4 py-3">EBIS-DBS</td>
                                 <td class="px-4 py-3">EBIS</td>
                                 <td class="px-4 py-3">
-                                    <div class="relative inline-block w-32">
-                                        <select onchange="updateStatus(this)"
-                                            class="status-select w-full appearance-none rounded-2xl
-               px-2 py-3 text-sm font-semibold border shadow-sm cursor-pointer
-               bg-green-200 text-green-900 border-green-400
-               focus:outline-none focus:ring-2 focus:ring-blue-500
-               transition-colors duration-300">
-                                            <option value="completed" selected>Completed PS</option>
-                                            <option value="kendala">Kendala</option>
-                                        </select>
+                                    <div class="relative w-36">
+                                        <button onclick="toggleDropdown(this)"
+                                            class="status-btn w-full rounded-2xl px-3 py-3 text-sm font-semibold
+               bg-green-200 text-green-900 border border-green-400
+               flex items-center justify-between shadow-sm">
+                                            <span data-value="completed">Completed PS</span>
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </button>
+
+                                        <div
+                                            class="status-menu hidden absolute z-20 mt-2 w-full rounded-2xl shadow-lg border bg-white overflow-hidden">
+                                            <div onclick="selectStatus(this, 'completed')"
+                                                class="px-3 py-2 cursor-pointer bg-green-200 text-green-900 hover:bg-green-300">
+                                                Completed PS
+                                            </div>
+                                            <div onclick="selectStatus(this, 'kendala')"
+                                                class="px-3 py-2 cursor-pointer bg-yellow-200 text-yellow-900 hover:bg-yellow-300">
+                                                Kendala
+                                            </div>
+                                        </div>
                                     </div>
+
 
                                 </td>
 
@@ -151,20 +165,31 @@
     </div>
 @endsection
 <script>
-function updateStatus(select) {
-    select.classList.remove(
-        'bg-green-200','text-green-900','border-green-400',
-        'bg-yellow-200','text-yellow-900','border-yellow-400'
-    );
+function toggleDropdown(btn) {
+    btn.nextElementSibling.classList.toggle('hidden');
+}
 
-    if (select.value === 'completed') {
-        select.classList.add(
-            'bg-green-200','text-green-900','border-green-400'
-        );
-    } else if (select.value === 'kendala') {
-        select.classList.add(
-            'bg-yellow-200','text-yellow-900','border-yellow-400'
-        );
+function selectStatus(el, value) {
+    const wrapper = el.closest('.relative');
+    const button = wrapper.querySelector('.status-btn');
+    const label = button.querySelector('span');
+    const menu = wrapper.querySelector('.status-menu');
+
+    // reset
+    button.className =
+        'status-btn w-full rounded-2xl px-3 py-3 text-sm font-semibold ' +
+        'flex items-center justify-between shadow-sm border';
+
+    if (value === 'completed') {
+        button.classList.add('bg-green-200','text-green-900','border-green-400');
+        label.textContent = 'Completed PS';
+    } else {
+        button.classList.add('bg-yellow-200','text-yellow-900','border-yellow-400');
+        label.textContent = 'Kendala';
     }
+
+    label.dataset.value = value;
+    menu.classList.add('hidden');
 }
 </script>
+

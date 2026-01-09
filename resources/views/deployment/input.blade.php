@@ -147,7 +147,7 @@
                         class="w-full bg-red-600 hover:bg-red-700
                        text-white text-sm font-medium
                        px-6 py-2 rounded-lg transition">
-                        Search
+                        Submit
                     </button>
                 </div>
 

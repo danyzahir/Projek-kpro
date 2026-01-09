@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\EbisPlanningController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -37,6 +38,15 @@ Route::middleware('auth')->group(function () {
         return view('deployment.upload');
     })->name('deployment.upload');
 
+Route::post('/ebis/import', [EbisPlanningController::class, 'import'])
+    ->name('ebis.import');
+
+Route::get('/ebis/export', [EbisPlanningController::class, 'export'])
+    ->name('ebis.export');
+
+    //menampilkan deployment upload
+Route::get('/deployment/upload', [EbisPlanningController::class, 'index'])
+    ->name('deployment.upload');
 });
 
 require __DIR__.'/auth.php';

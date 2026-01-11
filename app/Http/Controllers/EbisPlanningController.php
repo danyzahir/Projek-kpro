@@ -44,7 +44,7 @@ class EbisPlanningController extends Controller
         'total_boq',
         'jenis_program',
         'nama_cfu'
-    )->latest()->paginate(400);
+    )->latest()->paginate(100);
 
     return view('deployment.upload', compact('rows'));
 }

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EbisPlanningController;
+use App\Http\Controllers\EbisManualInputController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -48,5 +49,16 @@ Route::get('/ebis/export', [EbisPlanningController::class, 'export'])
 Route::get('/deployment/upload', [EbisPlanningController::class, 'index'])
     ->name('deployment.upload');
 });
+
+Route::get('/ebis/manual/input', [EbisManualInputController::class, 'index'])->name('deployment.input');
+Route::post('/ebis/manual/store', [EbisManualInputController::class, 'store'])->name('ebis.manual.store');
+Route::get('/ebis/manual/list', [EbisManualInputController::class, 'list'])->name('deployment.input');
+Route::delete('/ebis/manual/{id}', [EbisManualInputController::class, 'destroy'])->name('ebis.manual.delete');
+
+Route::get('/deployment/input', [EbisManualInputController::class, 'index'])
+    ->name('ebis.manual.input');
+
+Route::post('/deployment/input', [EbisManualInputController::class, 'store'])
+    ->name('ebis.manual.store');
 
 require __DIR__.'/auth.php';

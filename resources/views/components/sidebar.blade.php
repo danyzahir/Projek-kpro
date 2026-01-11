@@ -105,6 +105,23 @@
 
                     <span>Input</span>
                 </a>
+                <a href="#"
+                   @click="sidebarOpen = false"
+                   class="flex items-center gap-3 px-3 py-2 rounded-lg
+                   {{ request()->routeIs('#')
+                        ? 'bg-red-100 text-red-600 font-medium shadow'
+                        : 'hover:bg-gray-100 text-gray-700' }}">
+
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                         class="w-4 h-4"
+                         fill="none" viewBox="0 0 24 24"
+                         stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M16.862 3.487a2.121 2.121 0 013 3L7.5 18.85l-4 1 1-4L16.862 3.487z" />
+                    </svg>
+
+                    <span>Update</span>
+                </a>
 
                 <!-- REKAP -->
                 <a href="{{ route('deployment.rekap') }}"

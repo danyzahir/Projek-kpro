@@ -34,20 +34,28 @@ Route::middleware('auth')->group(function () {
         return view('deployment.rekap');
     })->name('deployment.rekap');
 
-     // ✅ DEPLOYMENT - Upload
-    Route::get('/deployment/upload', function () {
-        return view('deployment.upload');
-    })->name('deployment.upload');
+    Route::get('/deployment/update', [EbisPlanningController::class, 'updateList'])
+        ->name('deployment.update.list');
 
-Route::post('/ebis/import', [EbisPlanningController::class, 'import'])
-    ->name('ebis.import');
+    // ================= DEPLOYMENT - EDIT & UPDATE =================
+    Route::get('/deployment/{id}/edit', [EbisPlanningController::class, 'edit'])
+        ->name('deployment.edit');
 
-Route::get('/ebis/export', [EbisPlanningController::class, 'export'])
-    ->name('ebis.export');
+    Route::put('/deployment/{id}', [EbisPlanningController::class, 'update'])
+        ->name('deployment.update');
+
+
+
+
+    Route::post('/ebis/import', [EbisPlanningController::class, 'import'])
+        ->name('ebis.import');
+
+    Route::get('/ebis/export', [EbisPlanningController::class, 'export'])
+        ->name('ebis.export');
 
     //menampilkan deployment upload
-Route::get('/deployment/upload', [EbisPlanningController::class, 'index'])
-    ->name('deployment.upload');
+    Route::get('/deployment/upload', [EbisPlanningController::class, 'index'])
+        ->name('deployment.upload');
 });
 
 Route::get('/ebis/manual/input', [EbisManualInputController::class, 'index'])->name('deployment.input');
@@ -61,4 +69,4 @@ Route::get('/deployment/input', [EbisManualInputController::class, 'index'])
 Route::post('/deployment/input', [EbisManualInputController::class, 'store'])
     ->name('ebis.manual.store');
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

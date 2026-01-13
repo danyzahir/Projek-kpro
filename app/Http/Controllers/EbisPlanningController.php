@@ -7,6 +7,8 @@ use App\Imports\EbisPlanningImport;
 use App\Exports\EbisPlanningExport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\EbisPlanningOrder;
+use App\Helpers\DropdownHelper;
+
 
 
 class EbisPlanningController extends Controller
@@ -48,4 +50,44 @@ class EbisPlanningController extends Controller
 
     return view('deployment.upload', compact('rows'));
 }
+
+public function updateList()
+{
+    $rows = EbisPlanningOrder::latest()->get();
+    return view('deployment.update', compact('rows'));
+}
+
+public function edit($id)
+{
+    $data = EbisPlanningOrder::findOrFail($id);
+
+    $datels = DropdownHelper::datels();
+    $stos   = DropdownHelper::stos();
+
+    return view('deployment.edit', compact(
+        'data',
+        'datels',
+        'stos'
+    ));
+}
+
+
+public function update(Request $request, $id)
+{
+    $validated = $request->validate([
+        'track_id'      => 'required|string|max:100',
+        'datel'         => 'required|string|max:50',
+        'sto'           => 'required|string|max:50',
+        'status_order'  => 'required|string|max:50',
+        'tipe_desain'   => 'required|string|max:50',
+        'jenis_program' => 'required|string|max:50',
+    ]);
+
+    EbisPlanningOrder::where('id', $id)->update($validated);
+
+    return redirect()
+        ->route('deployment.update.list')
+        ->with('success', 'Data berhasil diperbarui');
+}
+
 }

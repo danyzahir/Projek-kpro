@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\EbisManualInput;
+use App\Helpers\DropdownHelper;
 
 class EbisManualInputController extends Controller
 {
@@ -13,22 +14,8 @@ class EbisManualInputController extends Controller
     public function index()
     {
         // dropdown (sesuai enum di migration)
-        $datels = [
-            'CIREBON',
-            'INDRAMAYU',
-            'MAJALENGKA',
-            'KUNINGAN',
-            'SUBANG'
-        ];
-
-        $stos = [
-            'ARJAWINANGUN','BALONGAN','CIREBON','CIKIJING','HAURGEULIS',
-            'INDRAMAYU','JAMBLANG','JATIBARANG','JATIWANGI','KADIPATEN',
-            'KANCI','KARANGAMPEL','KARYAMULIA','KUNINGAN','CILIMUS',
-            'LOSARANG','LOSARI','MAJALENGKA','PABUARAN','PATROL',
-            'PLERED','RAJAGALUH','SINDANGLAUT','SUBANG','JALANCAGAK',
-            'PAMANUKAN','PAGADEN','KALIJATI','CIASEM'
-        ];
+        $datels = DropdownHelper::datels();
+        $stos   = DropdownHelper::stos();
 
         // data table
         $rows = EbisManualInput::latest()->get();

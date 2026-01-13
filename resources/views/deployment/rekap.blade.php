@@ -5,29 +5,19 @@
 @section('content')
 <div class="flex flex-col gap-6">
 
-    <!-- BREADCRUMB -->
-    <div class="flex items-center gap-4 text-lg text-slate-500">
+      <!-- ================= BREADCRUMB ================= -->
+    <div class="flex items-center gap-3 text-sm text-slate-500">
         <a href="{{ route('dashboard') }}"
-           class="flex items-center gap-2 hover:text-red-600 transition">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="w-6 h-6 text-slate-400"
-                 fill="none" viewBox="0 0 24 24"
-                 stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5"/>
-            </svg>
+           class="hover:text-red-600 transition">
+            Dashboard
         </a>
-
-        <span class="text-slate-400">›</span>
-
+        <span>›</span>
         <a href="{{ route('deployment.b2b') }}"
-           class="font-medium hover:text-red-600 transition">
+           class="hover:text-red-600 transition">
             B2B
         </a>
-
-        <span class="text-slate-400">›</span>
-
-        <span class="font-semibold text-slate-800">Rekap</span>
+        <span>›</span>
+        <span class="font-semibold text-slate-800">Rekap Data</span>
     </div>
 
     <!-- CARD -->

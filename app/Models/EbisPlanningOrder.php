@@ -14,4 +14,14 @@ class EbisPlanningOrder extends Model
 
     // Boleh mass assignment (pemula aman)
     protected $guarded = [];
+
+    protected $fillable = [
+    'track_id',
+    'datel',
+    'sto',
+    'status_order',
+    'tipe_desain',
+    'jenis_program',
+];
+
 }

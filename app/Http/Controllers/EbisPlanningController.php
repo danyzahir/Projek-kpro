@@ -38,7 +38,7 @@ class EbisPlanningController extends Controller
             'nama_odp_alokasi_alpro',
             'reservation_id_alokasi_alpro',
             'nama_pengguna_melakukan_alokasi_alpro',
-            'username_nik_alokasi_alpro',
+            'username_nik_melakukan_alokasi_alpro',
             'latitude',
             'longitude',
             'sales_code',
@@ -74,10 +74,11 @@ class EbisPlanningController extends Controller
             'capex_per_port',
             'odp_total',
             'total_port',
+            'jenis_program',
             'batch_program',
             'status_eproposal',
             'status_tomps',
-            'status_tomps_last_update',
+            'status_tomps_last_activity',
             'status_sap',
             'status_proyek',
             'odp_go_live',
@@ -96,7 +97,8 @@ class EbisPlanningController extends Controller
             'revenue_plan',
             'nama_cfu',
             'tahun',
-            'jenis_program',
+            'kategori'
+            
         )
             ->latest()
             ->paginate(500);

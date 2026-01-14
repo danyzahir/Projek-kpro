@@ -62,7 +62,7 @@ class EbisPlanningOrder extends Model
         'batch_program',
         'status_eproposal',
         'status_tomps',
-        'status_tomps_last_update',
+        'status_tomps_last_activity',
         'status_sap',
         'status_proyek',
         'odp_go_live',
@@ -79,5 +79,6 @@ class EbisPlanningOrder extends Model
         'nama_cfu',
         'tahun',
         'jenis_program',
+        'kategori',
     ];
 }

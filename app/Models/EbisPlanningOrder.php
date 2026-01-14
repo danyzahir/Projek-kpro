@@ -65,6 +65,7 @@ class EbisPlanningOrder extends Model
         'status_tomps_last_activity',
         'status_sap',
         'status_proyek',
+        'jenis_program',
         'odp_go_live',
         'tanggal_waiting_caring',
         'tanggal_submitted_to_eproposal',
@@ -78,7 +79,6 @@ class EbisPlanningOrder extends Model
         'revenue_plan',
         'nama_cfu',
         'tahun',
-        'jenis_program',
         'kategori',
     ];
 }

@@ -3,159 +3,246 @@
 @section('title', 'Input Data')
 
 @section('content')
-<div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
 
-     <!-- ================= BREADCRUMB ================= -->
-    <div class="flex items-center gap-3 text-sm text-slate-500">
-        <a href="{{ route('dashboard') }}"
-           class="hover:text-red-600 transition">
-            Dashboard
-        </a>
-        <span>›</span>
-        <a href="{{ route('deployment.b2b') }}"
-           class="hover:text-red-600 transition">
-            B2B
-        </a>
-        <span>›</span>
-        <span class="font-semibold text-slate-800">Upload</span>
-    </div>
+        <!-- ================= BREADCRUMB ================= -->
+        <div class="flex items-center gap-3 text-sm text-slate-500">
+            <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">
+                Dashboard
+            </a>
+            <span>›</span>
+            <a href="{{ route('deployment.b2b') }}" class="hover:text-red-600 transition">
+                B2B
+            </a>
+            <span>›</span>
+            <span class="font-semibold text-slate-800">Upload</span>
+        </div>
 
-    <!-- ================= CARD ================= -->
-    <div class="bg-white rounded-xl shadow-sm">
+        <!-- ================= CARD ================= -->
+        <div class="bg-white rounded-xl shadow-sm">
 
-        <!-- TOOLBAR -->
-        <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
-            <input type="text" placeholder="Cari data..."
-                class="w-64 rounded-lg border border-slate-300 px-3 py-2 text-sm
+            <!-- TOOLBAR -->
+            <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
+                <input type="text" placeholder="Cari data..."
+                    class="w-64 rounded-lg border border-slate-300 px-3 py-2 text-sm
                       focus:ring-2 focus:ring-red-500 focus:outline-none">
 
-            <div class="flex gap-2">
+                <div class="flex gap-2">
 
-                <!-- IMPORT -->
-                <form action="{{ route('ebis.import') }}" method="POST" enctype="multipart/form-data">
-                    @csrf
-                    <label
-                        class="flex items-center gap-2
+                    <!-- IMPORT -->
+                    <form action="{{ route('ebis.import') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <label
+                            class="flex items-center gap-2
                    px-4 py-2 text-sm rounded-lg
                    bg-slate-100 hover:bg-slate-200
                    cursor-pointer transition">
 
-                        <!-- ICON UPLOAD -->
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
-                        </svg>
+                            <!-- ICON UPLOAD -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
+                            </svg>
 
-                        <span>Import</span>
+                            <span>Import</span>
 
-                        <input type="file" name="file" class="hidden" onchange="this.form.submit()" required>
-                    </label>
-                </form>
+                            <input type="file" name="file" class="hidden" onchange="this.form.submit()" required>
+                        </label>
+                    </form>
+
+                </div>
+
 
             </div>
 
+            <!-- TABLE AREA (ADA PADDING) -->
+            <div class="p-4">
 
-        </div>
+                <!-- SCROLL HANYA DI SINI -->
+                <div class="overflow-x-auto rounded-xl border">
 
-        <!-- TABLE AREA (ADA PADDING) -->
-        <div class="p-4">
+                    <table class="min-w-[2200px] text-sm text-left">
 
-            <!-- SCROLL HANYA DI SINI -->
-            <div class="overflow-x-auto rounded-xl border">
-
-                <table class="min-w-[2200px] text-sm text-left">
-
-                    <!-- HEADER -->
-                    <thead class="bg-red-600 text-white">
-                        <tr>
-                            <th class="sticky left-0 z-30 bg-red-600 px-4 py-3">Star Click ID</th>
-                            <th class="px-4 py-3">Track ID</th>
-                            <th class="px-4 py-3">Status Alokasi Alpro</th>
-                            <th class="px-4 py-3">Datel</th>
-                            <th class="px-4 py-3">STO</th>
-                            <th class="px-4 py-3">Nama Customer</th>
-                            <th class="px-4 py-3">Status Order</th>
-                            <th class="px-4 py-3">iHLD LoP ID</th>
-                            <th class="px-4 py-3">Tipe Desain</th>
-                            <th class="px-4 py-3">Total BOQ</th>
-                            <th class="px-4 py-3">Jenis Program</th>
-                            <th class="px-4 py-3">Nama CFU</th>
-                        </tr>
-                    </thead>
-
-
-                    <!-- BODY -->
-                    <tbody class="divide-y text-slate-700">
-
-                        @if ($rows->count())
-                        @foreach ($rows as $row)
-                        <tr class="hover:bg-slate-50">
-
-                            <td class="sticky left-0 z-20 bg-white px-4 py-3 font-medium">
-                                {{ $row->star_click_id }}
-                            </td>
-                            <td class="px-4 py-3">
-                                {{ $row->track_id }}
-
-                            <td class="px-4 py-3">
-                                {{ $row->status_alokasi_alpro }}
-                            </td>
-                            <td class="px-4 py-3">
-                                {{ $row->datel }}
-                            </td>
-                            <td class="px-4 py-3">
-                                {{ $row->sto }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                {{ $row->nama_customer }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                {{ $row->status_order }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                {{ $row->ihld_lop_id }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                {{ $row->tipe_desain }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                {{ $row->total_boq }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                {{ $row->jenis_program }}
-                            </td>
-
-                            <td class="px-4 py-3">
-                                {{ $row->nama_cfu }}
-                            </td>
-
-                        </tr>
-                        @endforeach
-                        @else
-                        <tr>
-                            <td colspan="9" class="text-center py-8 text-slate-400">
-                                Belum ada data
-                            </td>
-                        </tr>
-                        @endif
-
-                    </tbody>
+                        <!-- HEADER -->
+                        <thead class="bg-red-600 text-white">
+                            <tr>
+                                <th class="sticky left-0 z-30 bg-red-600 px-4 py-3">Star Click ID</th>
+                                <th class="px-4 py-3">Track ID</th>
+                                <th class="px-4 py-3">Ticket ID</th>
+                                <th class="px-4 py-3">Star Click Status</th>
+                                <th class="px-4 py-3">Status Alokasi Alpro</th>
+                                <th class="px-4 py-3">ID ODP Alokasi</th>
+                                <th class="px-4 py-3">Nama ODP Alokasi</th>
+                                <th class="px-4 py-3">Reservation ID Alokasi</th>
+                                <th class="px-4 py-3">Nama Pengguna Alokasi</th>
+                                <th class="px-4 py-3">Username/NIK Alokasi</th>
+                                <th class="px-4 py-3">Latitude</th>
+                                <th class="px-4 py-3">Longitude</th>
+                                <th class="px-4 py-3">Sales Code</th>
+                                <th class="px-4 py-3">Remark</th>
+                                <th class="px-4 py-3">Segment</th>
+                                <th class="px-4 py-3">CFU</th>
+                                <th class="px-4 py-3">Source App</th>
+                                <th class="px-4 py-3">Disurvey Pada</th>
+                                <th class="px-4 py-3">Estimasi Go Live</th>
+                                <th class="px-4 py-3">Real Go Live</th>
+                                <th class="px-4 py-3">Initial Date</th>
+                                <th class="px-4 py-3">Finish Install Date</th>
+                                <th class="px-4 py-3">Regional</th>
+                                <th class="px-4 py-3">Witel</th>
+                                <th class="px-4 py-3">Witel Lama</th>
+                                <th class="px-4 py-3">Datel</th>
+                                <th class="px-4 py-3">STO</th>
+                                <th class="px-4 py-3">WOK</th>
+                                <th class="px-4 py-3">Nama Customer</th>
+                                <th class="px-4 py-3">Telkomsel Area</th>
+                                <th class="px-4 py-3">Telkomsel Regional</th>
+                                <th class="px-4 py-3">Telkomsel Branch</th>
+                                <th class="px-4 py-3">Telkomsel Cluster</th>
+                                <th class="px-4 py-3">Status Order</th>
+                                <th class="px-4 py-3">Validasi Planning</th>
+                                <th class="px-4 py-3">iHLD LoP ID</th>
+                                <th class="px-4 py-3">eProposal LoP ID</th>
+                                <th class="px-4 py-3">eProposal Parent ID</th>
+                                <th class="px-4 py-3">Kode Program</th>
+                                <th class="px-4 py-3">Nama Proyek</th>
+                                <th class="px-4 py-3">Tipe Desain</th>
+                                <th class="px-4 py-3">Total BOQ</th>
+                                <th class="px-4 py-3">Capex / Port</th>
+                                <th class="px-4 py-3">ODP Total</th>
+                                <th class="px-4 py-3">Total Port</th>
+                                <th class="px-4 py-3">Batch Program</th>
+                                <th class="px-4 py-3">Status eProposal</th>
+                                <th class="px-4 py-3">Status TOMPS</th>
+                                <th class="px-4 py-3">TOMPS Last Activity</th>
+                                <th class="px-4 py-3">Status SAP</th>
+                                <th class="px-4 py-3">Status Proyek</th>
+                                <th class="px-4 py-3">Jenis Program</th>
+                                <th class="px-4 py-3">ODP Go Live</th>
+                                <th class="px-4 py-3">Tanggal Waiting Caring</th>
+                                <th class="px-4 py-3">Tanggal Submitted eProposal</th>
+                                <th class="px-4 py-3">Tanggal Inisiasi TOMPS</th>
+                                <th class="px-4 py-3">Tanggal Validasi ABD</th>
+                                <th class="px-4 py-3">Tanggal Go Live TOMPS</th>
+                                <th class="px-4 py-3">Ditambahkan Pada</th>
+                                <th class="px-4 py-3">Username Pembuat</th>
+                                <th class="px-4 py-3">Kategori Mitra</th>
+                                <th class="px-4 py-3">Nama Mitra</th>
+                                <th class="px-4 py-3">Revenue Plan</th>
+                                <th class="px-4 py-3">Nama CFU</th>
+                                <th class="px-4 py-3">Tahun</th>
+                                <th class="px-4 py-3">Kategori</th>
+                            </tr>
+                        </thead>
 
 
-                </table>
 
+                        <!-- BODY -->
+                        <tbody class="divide-y text-slate-700">
+                            @if ($rows->count())
+                                @foreach ($rows as $row)
+                                    <tr class="hover:bg-slate-50">
+
+                                        <td class="sticky left-0 z-20 bg-white px-4 py-3 font-medium">
+                                            {{ $row->star_click_id }}</td>
+                                        <td class="px-4 py-3">{{ $row->track_id }}</td>
+                                        <td class="px-4 py-3">{{ $row->ticket_id }}</td>
+                                        <td class="px-4 py-3">{{ $row->star_click_status }}</td>
+                                        <td class="px-4 py-3">{{ $row->status_alokasi_alpro }}</td>
+                                        <td class="px-4 py-3">{{ $row->id_odp_alokasi_alpro }}</td>
+                                        <td class="px-4 py-3">{{ $row->nama_odp_alokasi_alpro }}</td>
+                                        <td class="px-4 py-3">{{ $row->reservation_id_alokasi_alpro }}</td>
+                                        <td class="px-4 py-3">{{ $row->nama_pengguna_melakukan_alokasi_alpro }}</td>
+                                        <td class="px-4 py-3">{{ $row->username_nik_alokasi_alpro }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->latitude }}</td>
+                                        <td class="px-4 py-3">{{ $row->longitude }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->sales_code }}</td>
+                                        <td class="px-4 py-3">{{ $row->remark }}</td>
+                                        <td class="px-4 py-3">{{ $row->segment }}</td>
+                                        <td class="px-4 py-3">{{ $row->cfu }}</td>
+                                        <td class="px-4 py-3">{{ $row->source_app }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->disurvey_pada }}</td>
+                                        <td class="px-4 py-3">{{ $row->estimasi_go_live }}</td>
+                                        <td class="px-4 py-3">{{ $row->real_go_live }}</td>
+                                        <td class="px-4 py-3">{{ $row->initial_date }}</td>
+                                        <td class="px-4 py-3">{{ $row->finish_install_date }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->regional }}</td>
+                                        <td class="px-4 py-3">{{ $row->witel }}</td>
+                                        <td class="px-4 py-3">{{ $row->witel_lama }}</td>
+                                        <td class="px-4 py-3">{{ $row->datel }}</td>
+                                        <td class="px-4 py-3">{{ $row->sto }}</td>
+                                        <td class="px-4 py-3">{{ $row->wok }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->nama_customer }}</td>
+                                        <td class="px-4 py-3">{{ $row->telkomsel_area }}</td>
+                                        <td class="px-4 py-3">{{ $row->telkomsel_regional }}</td>
+                                        <td class="px-4 py-3">{{ $row->telkomsel_branch }}</td>
+                                        <td class="px-4 py-3">{{ $row->telkomsel_cluster }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->status_order }}</td>
+                                        <td class="px-4 py-3">{{ $row->validasi_planning }}</td>
+                                        <td class="px-4 py-3">{{ $row->ihld_lop_id }}</td>
+                                        <td class="px-4 py-3">{{ $row->eproposal_lop_id }}</td>
+                                        <td class="px-4 py-3">{{ $row->eproposal_lop_parent_id }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->kode_program }}</td>
+                                        <td class="px-4 py-3">{{ $row->nama_proyek }}</td>
+                                        <td class="px-4 py-3">{{ $row->tipe_desain }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->total_boq }}</td>
+                                        <td class="px-4 py-3">{{ $row->capex_per_port }}</td>
+                                        <td class="px-4 py-3">{{ $row->odp_total }}</td>
+                                        <td class="px-4 py-3">{{ $row->total_port }}</td>
+                                        <td class="px-4 py-3">{{ $row->batch_program }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->status_eproposal }}</td>
+                                        <td class="px-4 py-3">{{ $row->status_tomps }}</td>
+                                        <td class="px-4 py-3">{{ $row->status_tomps_last_activity }}</td>
+                                        <td class="px-4 py-3">{{ $row->status_sap }}</td>
+                                        <td class="px-4 py-3">{{ $row->status_proyek }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->jenis_program }}</td>
+                                        <td class="px-4 py-3">{{ $row->odp_go_live }}</td>
+                                        <td class="px-4 py-3">{{ $row->tanggal_waiting_caring }}</td>
+                                        <td class="px-4 py-3">{{ $row->tanggal_submitted_to_eproposal }}</td>
+                                        <td class="px-4 py-3">{{ $row->tanggal_inisiasi_tomps }}</td>
+                                        <td class="px-4 py-3">{{ $row->tanggal_validasi_abd_tomps }}</td>
+                                        <td class="px-4 py-3">{{ $row->tanggal_go_live_tomps }}</td>
+
+                                        <td class="px-4 py-3">{{ $row->ditambahkan_pada }}</td>
+                                        <td class="px-4 py-3">{{ $row->username_nik_pembuat }}</td>
+                                        <td class="px-4 py-3">{{ $row->kategori_mitra }}</td>
+                                        <td class="px-4 py-3">{{ $row->nama_mitra }}</td>
+                                        <td class="px-4 py-3">{{ $row->revenue_plan }}</td>
+                                        <td class="px-4 py-3">{{ $row->nama_cfu }}</td>
+                                        <td class="px-4 py-3">{{ $row->tahun }}</td>
+                                        <td class="px-4 py-3">{{ $row->kategori }}</td>
+
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    <td colspan="70" class="text-center py-8 text-slate-400">
+                                        Belum ada data
+                                    </td>
+                                </tr>
+                            @endif
+                        </tbody>
+
+
+
+                    </table>
+
+                </div>
             </div>
         </div>
+
     </div>
-
-</div>
 @endsection
 
 <script>

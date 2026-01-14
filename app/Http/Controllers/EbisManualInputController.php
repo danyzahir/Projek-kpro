@@ -13,12 +13,13 @@ class EbisManualInputController extends Controller
      */
     public function index()
     {
-        // dropdown (sesuai enum di migration)
+        // dropdown
         $datels = DropdownHelper::datels();
         $stos   = DropdownHelper::stos();
 
-        // data table
-        $rows = EbisManualInput::latest()->get();
+    
+        $rows = EbisManualInput::orderBy('created_at', 'desc')
+                    ->paginate(10);
 
         return view('deployment.input', compact(
             'datels',
@@ -32,20 +33,23 @@ class EbisManualInputController extends Controller
      */
     public function store(Request $request)
     {
-        EbisManualInput::create([
-            'nde_jt'             => $request->nde_jt,
-            'star_click_id'      => $request->star_click_id,
-            'nama_customer'      => $request->nama_customer,
-            'alamat_pelanggan'   => $request->alamat_pelanggan,
-            'telepon_pelanggan'  => $request->telepon_pelanggan,
-            'tikor_pelanggan'    => $request->tikor_pelanggan,
-            'datel'              => $request->datel,
-            'sto'                => $request->sto,
+       
+        $validated = $request->validate([
+            'nde_jt'            => 'required|string|max:50',
+            'star_click_id'     => 'required|string|max:50',
+            'nama_customer'     => 'required|string|max:255',
+            'alamat_pelanggan'  => 'nullable|string|max:255',
+            'telepon_pelanggan' => 'nullable|string|max:30',
+            'tikor_pelanggan'   => 'nullable|string|max:50',
+            'datel'             => 'required|string|max:50',
+            'sto'               => 'required|string|max:50', 
         ]);
 
-        return redirect()->back()->with('success', 'Data berhasil disimpan');
+        // ✅ SIMPAN DATA
+        EbisManualInput::create($validated);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Data berhasil disimpan');
     }
-
-   
-
 }

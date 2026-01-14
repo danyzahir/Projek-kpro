@@ -30,9 +30,8 @@ Route::middleware('auth')->group(function () {
     })->name('deployment.input');
 
     // ✅ DEPLOYMENT - Rekap
-    Route::get('/deployment/rekap', function () {
-        return view('deployment.rekap');
-    })->name('deployment.rekap');
+    Route::get('/deployment/rekap', [EbisPlanningController::class, 'rekap'])
+    ->name('deployment.rekap');
 
     Route::get('/deployment/update', [EbisPlanningController::class, 'updateList'])
         ->name('deployment.update.list');

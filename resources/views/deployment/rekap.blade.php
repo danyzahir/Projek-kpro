@@ -22,6 +22,72 @@
 
     <!-- CARD -->
     <div class="bg-white rounded-xl shadow-sm p-6">
+        <!-- ================= FILTER ================= -->
+        <form method="GET" action="{{ route('deployment.b2b') }}"
+            class="mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
+
+            <input type="text" name="starclick"
+                value="{{ request('starclick') }}"
+                placeholder="Starclick / NCX"
+                class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
+
+            <input type="text" name="nama"
+                value="{{ request('nama') }}"
+                placeholder="Nama Pelanggan"
+                class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
+
+            <select name="status_order"
+                    class="px-3 py-2 border rounded-lg text-sm">
+                <option value="">Status Order</option>
+                <option value="Completed Order PT1" {{ request('status_order')=='Completed Order PT1'?'selected':'' }}>
+                    Completed Order PT1
+                </option>
+                <option value="On Progress" {{ request('status_order')=='On Progress'?'selected':'' }}>
+                    On Progress
+                </option>
+            </select>
+
+            <select name="tipe_desain"
+                    class="px-3 py-2 border rounded-lg text-sm">
+                <option value="">Tipe Desain</option>
+                <option value="PT2-AERIAL" {{ request('tipe_desain')=='PT2-AERIAL'?'selected':'' }}>
+                    PT2-AERIAL
+                </option>
+                <option value="PT1" {{ request('tipe_desain')=='PT1'?'selected':'' }}>
+                    PT1
+                </option>
+            </select>
+
+            <select name="jenis_program"
+                    class="px-3 py-2 border rounded-lg text-sm">
+                <option value="">Jenis Program</option>
+                <option value="EBIS-DBS" {{ request('jenis_program')=='EBIS-DBS'?'selected':'' }}>
+                    EBIS-DBS
+                </option>
+            </select>
+
+            <select name="sto"
+                    class="px-3 py-2 border rounded-lg text-sm">
+                <option value="">STO</option>
+                <option value="ARJAWINANGUN" {{ request('sto')=='ARJAWINANGUN'?'selected':'' }}>
+                    ARJAWINANGUN
+                </option>
+            </select>
+
+            <!-- BUTTON -->
+            <div class="md:col-span-6 flex gap-2">
+                <button type="submit"
+                        class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
+                    Filter
+                </button>
+
+                <a href="{{ route('deployment.b2b') }}"
+                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
+                    Reset
+                </a>
+            </div>
+        </form>
+
 
         <!-- 👉 SCROLL AREA (HANYA TABEL) -->
         <div class="overflow-x-auto rounded-xl border">
@@ -54,42 +120,50 @@
 
                 <!-- BODY -->
                 <tbody class="divide-y">
-                    @for ($i = 1; $i <= 10; $i++)
+                    @forelse ($filtered as $row)
                     <tr class="hover:bg-slate-50">
 
                         <td class="px-4 py-3 sticky left-0 bg-white font-medium">
-                            NDE-00{{ $i }}
+                            {{ $row['nde'] ?? '-' }}
                         </td>
 
-                        <td class="px-4 py-3">SC-10{{ $i }}</td>
-                        <td class="px-4 py-3">TRK-{{ 1000 + $i }}</td>
-                        <td class="px-4 py-3">Pelanggan {{ $i }}</td>
-                        <td class="px-4 py-3">Jl. Contoh Alamat {{ $i }}</td>
-                        <td class="px-4 py-3">08{{ rand(10000000, 99999999) }}</td>
-                        <td class="px-4 py-3">{{ -6.7 + $i * 0.01 }}, 108.5{{ $i }}</td>
-                        <td class="px-4 py-3">CIREBON</td>
-                        <td class="px-4 py-3">ARJAWINANGUN</td>
+                        <td class="px-4 py-3">{{ $row['starclick'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['track_id'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['nama'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['alamat'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['telepon'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['tikor'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['datel'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['sto'] ?? '-' }}</td>
 
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                                Success Alpro Allocation
+                                {{ $row['status_alpro'] ?? '-' }}
                             </span>
                         </td>
 
                         <td class="px-4 py-3">
                             <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
-                                Completed Order PT1
+                                {{ $row['status_order'] ?? '-' }}
                             </span>
                         </td>
 
-                        <td class="px-4 py-3">11172936</td>
-                        <td class="px-4 py-3">PT2-AERIAL</td>
-                        <td class="px-4 py-3">2099481</td>
-                        <td class="px-4 py-3">EBIS-DBS</td>
-                        <td class="px-4 py-3">EBIS</td>
+                        <td class="px-4 py-3">{{ $row['ihld'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['tipe_desain'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['boq'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['jenis_program'] ?? '-' }}</td>
+                        <td class="px-4 py-3">{{ $row['cfu'] ?? '-' }}</td>
+
                     </tr>
-                    @endfor
+                    @empty
+                    <tr>
+                        <td colspan="16" class="py-6 text-center text-slate-500">
+                            Data tidak ditemukan
+                        </td>
+                    </tr>
+                    @endforelse
                 </tbody>
+
 
             </table>
         </div>

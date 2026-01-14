@@ -23,75 +23,85 @@
     <!-- ================= CARD ================= -->
     <div class="bg-white rounded-2xl shadow-sm">
 
-        <!-- TOOLBAR -->
-        <div class="px-5 py-4 border-b flex items-center justify-between">
+        <!-- ================= TOOLBAR ================= -->
+        <div class="px-6 py-4 border-b flex items-center justify-between">
             <input
                 type="text"
                 id="tableSearch"
                 placeholder="Cari data..."
-                class="w-64 rounded-xl border border-slate-300
-                       px-3 py-2 text-sm
+                class="w-72 rounded-xl border border-slate-300
+                       px-4 py-2 text-sm
                        focus:ring-2 focus:ring-red-500
                        focus:outline-none">
         </div>
 
-        <!-- TABLE WRAPPER -->
-        <div class="p-5">
-            <div class="overflow-x-auto border rounded-xl max-w-6xl mx-auto">
+        <!-- ================= TABLE ================= -->
+        <div class="p-6">
+            <div class="overflow-x-auto border rounded-xl max-w-7xl mx-auto">
 
                 <table id="dataTable"
-                       class="table-fixed text-sm w-full">
+                       class="table-fixed w-full text-sm leading-relaxed">
 
                     <!-- HEADER -->
                     <thead class="bg-red-600 text-white text-xs uppercase tracking-wide">
                         <tr>
-                            <th class="px-3 py-3 text-left w-56">Track ID</th>
-                            <th class="px-3 py-3 text-left w-28">Datel</th>
-                            <th class="px-3 py-3 text-left w-20">STO</th>
-                            <th class="px-3 py-3 text-left w-36">Status Order</th>
-                            <th class="px-3 py-3 text-left w-36">Tipe Desain</th>
-                            <th class="px-3 py-3 text-left w-32">Jenis Program</th>
-                            <th class="px-2 py-3 text-center w-16">Action</th>
+                            <th class="px-4 py-3 text-left w-40">Star Click ID</th>
+                            <th class="px-4 py-3 text-left w-64">Nama Pelanggan</th>
+                            <th class="px-4 py-3 text-left w-24">Datel</th>
+                            <th class="px-4 py-3 text-center w-32">STO</th>
+                            <th class="px-4 py-3 text-left w-40">Status Order</th>
+                            <th class="px-4 py-3 text-left w-32">Tipe Desain</th>
+                            <th class="px-4 py-3 text-left w-24">Progres</th>
+                            <th class="px-4 py-3 text-left w-32">Tanggal Update</th>
+                            <th class="px-4 py-3 text-center w-20">Action</th>
                         </tr>
                     </thead>
 
                     <!-- BODY -->
-                    <tbody class="divide-y text-slate-700">
+                    <tbody class="divide-y divide-slate-200 text-slate-700">
 
                         @forelse ($rows as $row)
                         <tr class="hover:bg-red-50 transition">
 
-                            <td class="px-3 py-2 w-56 font-medium truncate">
-                                {{ $row->track_id ?? '-' }}
+                            <td class="px-4 py-3 font-medium whitespace-nowrap">
+                                {{ $row->star_click_id ?? '-' }}
                             </td>
 
-                            <td class="px-3 py-2 w-28">
+                            <td class="px-4 py-3 break-words leading-snug">
+                                {{ $row->nama_customer }}
+                            </td>
+
+                            <td class="px-4 py-3 whitespace-nowrap">
                                 {{ $row->datel }}
                             </td>
 
-                            <td class="px-3 py-2 w-20">
+                            <td class="px-4 py-3 text-center whitespace-nowrap">
                                 {{ $row->sto }}
                             </td>
 
-                            <td class="px-3 py-2 w-36 truncate">
+                            <td class="px-4 py-3">
                                 {{ $row->status_order }}
                             </td>
 
-                            <td class="px-3 py-2 w-36 truncate">
-                                {{ $row->tipe_desain }}
+                            <td class="px-4 py-3 truncate">
+                                {{ $row->tipe_desain ?? '-' }}
                             </td>
 
-                            <td class="px-3 py-2 w-32 truncate">
-                                {{ $row->jenis_program ?? '-' }}
+                            <td class="px-4 py-3">
+                                {{ $row->progres ?? '-' }}
+                            </td>
+
+                            <td class="px-4 py-3 whitespace-nowrap">
+                                {{ $row->tanggal_update ?? '-' }}
                             </td>
 
                             <!-- ACTION -->
-                            <td class="px-2 py-2 w-16 text-center">
+                            <td class="px-4 py-3 text-center">
                                 <a href="{{ route('deployment.edit', $row->id) }}"
-                                   class="inline-flex items-center
-                                          px-2.5 py-1 text-xs font-medium
+                                   class="inline-flex items-center justify-center
+                                          px-3 py-1.5 text-xs font-medium
                                           bg-blue-600 text-white
-                                          rounded-md
+                                          rounded-lg
                                           hover:bg-blue-700 transition">
                                     Edit
                                 </a>
@@ -100,8 +110,8 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="6"
-                                class="text-center py-10 text-slate-400">
+                            <td colspan="9"
+                                class="text-center py-12 text-slate-400">
                                 Tidak ada data
                             </td>
                         </tr>

@@ -46,7 +46,7 @@ class EbisPlanningController extends Controller
         'total_boq',
         'jenis_program',
         'nama_cfu'
-    )->latest()->paginate(100);
+    )->latest()->paginate(500);
 
     return view('deployment.upload', compact('rows'));
 }
@@ -89,5 +89,34 @@ public function update(Request $request, $id)
         ->route('deployment.update.list')
         ->with('success', 'Data berhasil diperbarui');
 }
+
+public function rekap(Request $request)
+{
+    $data = collect([
+        [
+            'nde' => 'NDE-001',
+            'starclick' => 'SC-101',
+            'track_id' => 'TRK-1001',
+            'nama' => 'Pelanggan 1',
+            'sto' => 'ARJAWINANGUN',
+            'status_order' => 'Completed Order PT1',
+            'tipe_desain' => 'PT2-AERIAL',
+            'jenis_program' => 'EBIS-DBS',
+        ],
+    ]);
+
+    $filtered = $data->filter(function ($item) use ($request) {
+        return
+            (!$request->starclick || str_contains($item['starclick'], $request->starclick)) &&
+            (!$request->nama || str_contains(strtolower($item['nama']), strtolower($request->nama))) &&
+            (!$request->status_order || $item['status_order'] == $request->status_order) &&
+            (!$request->tipe_desain || $item['tipe_desain'] == $request->tipe_desain) &&
+            (!$request->jenis_program || $item['jenis_program'] == $request->jenis_program) &&
+            (!$request->sto || $item['sto'] == $request->sto);
+    });
+
+    return view('deployment.rekap', compact('filtered'));
+}
+
 
 }

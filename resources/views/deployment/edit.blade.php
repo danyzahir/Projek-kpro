@@ -10,7 +10,7 @@
             Edit Data Upload
         </h1>
         <p class="text-sm text-slate-500">
-            
+
         </p>
     </div>
 
@@ -36,14 +36,14 @@
 
             <div>
                 <label class="block text-sm font-medium">
-                    Track ID
+                    Nama Pelanggan
                 </label>
                 <input type="text"
                     name="track_id"
                     value="{{ old('track_id', $data->track_id) }}"
                     class="w-full mt-1 rounded-lg border px-3 py-2
                               focus:ring-2 focus:ring-red-500 focus:outline-none">
-                @error('track_id')
+                @error('nama_customer')
                 <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                 @enderror
             </div>
@@ -58,10 +58,10 @@
                     <select name="datel" class="w-full mt-1 rounded-lg border px-3 py-2">
                         <option value="">-- Pilih Datel --</option>
                         @foreach ($datels as $datel)
-                            <option value="{{ $datel }}"
-                                {{ old('datel', $data->datel) == $datel ? 'selected' : '' }}>
-                                {{ $datel }}
-                            </option>
+                        <option value="{{ $datel }}"
+                            {{ old('datel', $data->datel) == $datel ? 'selected' : '' }}>
+                            {{ $datel }}
+                        </option>
                         @endforeach
                     </select>
                     @error('datel')
@@ -77,10 +77,10 @@
                     <select name="sto" class="w-full mt-1 rounded-lg border px-3 py-2">
                         <option value="">-- Pilih STO --</option>
                         @foreach ($stos as $sto)
-                            <option value="{{ $sto }}"
-                                {{ old('sto', $data->sto) == $sto ? 'selected' : '' }}>
-                                {{ $sto }}
-                            </option>
+                        <option value="{{ $sto }}"
+                            {{ old('sto', $data->sto) == $sto ? 'selected' : '' }}>
+                            {{ $sto }}
+                        </option>
                         @endforeach
                     </select>
                     @error('sto')
@@ -120,7 +120,7 @@
 
             <div>
                 <label class="block text-sm font-medium">
-                    Jenis Program
+                    Progress
                 </label>
                 <input type="text"
                     name="jenis_program"
@@ -131,6 +131,24 @@
                 <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                 @enderror
             </div>
+
+            <div>
+                <label class="block text-sm font-medium">
+                    Tanggal Update
+                </label>
+
+                <input
+                    type="date"
+                    name="tanggal_update"
+                    value="{{ old('tanggal_update', optional($data->tanggal_update)->format('Y-m-d')) }}"
+                    class="w-full mt-1 rounded-lg border px-3 py-2
+                        focus:ring-2 focus:ring-red-500 focus:outline-none">
+
+                @error('tanggal_update')
+                    <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                @enderror
+            </div>
+
 
             <div class="flex justify-end gap-3 pt-6 border-t">
                 <a href="{{ route('deployment.update.list') }}"

@@ -10,6 +10,9 @@ class EbisPlanningOrder extends Model
     use HasFactory;
 
     protected $table = 'ebis_planning_orders';
+    protected $casts = [
+        'tanggal_update_progres' => 'datetime',
+    ];
 
     protected $guarded = [];
 

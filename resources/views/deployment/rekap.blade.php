@@ -3,170 +3,153 @@
 @section('title', 'Rekap B2B')
 
 @section('content')
-<div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
 
-      <!-- ================= BREADCRUMB ================= -->
-    <div class="flex items-center gap-3 text-sm text-slate-500">
-        <a href="{{ route('dashboard') }}"
-           class="hover:text-red-600 transition">
-            Dashboard
-        </a>
-        <span>›</span>
-        <a href="{{ route('deployment.b2b') }}"
-           class="hover:text-red-600 transition">
-            B2B
-        </a>
-        <span>›</span>
-        <span class="font-semibold text-slate-800">Rekap Data</span>
-    </div>
+        <!-- ================= BREADCRUMB ================= -->
+        <div class="flex items-center gap-3 text-sm text-slate-500">
+            <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">
+                Dashboard
+            </a>
+            <span>›</span>
+            <a href="{{ route('deployment.b2b') }}" class="hover:text-red-600 transition">
+                B2B
+            </a>
+            <span>›</span>
+            <span class="font-semibold text-slate-800">Rekap Data</span>
+        </div>
 
-    <!-- CARD -->
-    <div class="bg-white rounded-xl shadow-sm p-6">
-        <!-- ================= FILTER ================= -->
-        <form method="GET" action="{{ route('deployment.b2b') }}"
-            class="mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
+        <!-- ================= CARD ================= -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
 
-            <input type="text" name="starclick"
-                value="{{ request('starclick') }}"
-                placeholder="Starclick / NCX"
-                class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
+            <!-- ================= FILTER (MANUAL INPUT) ================= -->
+            <form method="GET" action="{{ route('deployment.rekap') }}" class="mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
 
-            <input type="text" name="nama"
-                value="{{ request('nama') }}"
-                placeholder="Nama Pelanggan"
-                class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
+                <input type="text" name="star_click_id" value="{{ request('star_click_id') }}"
+                    placeholder="Starclick / NCX" class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-            <select name="status_order"
-                    class="px-3 py-2 border rounded-lg text-sm">
-                <option value="">Status Order</option>
-                <option value="Completed Order PT1" {{ request('status_order')=='Completed Order PT1'?'selected':'' }}>
-                    Completed Order PT1
-                </option>
-                <option value="On Progress" {{ request('status_order')=='On Progress'?'selected':'' }}>
-                    On Progress
-                </option>
-            </select>
+                <input type="text" name="nama_customer" value="{{ request('nama_customer') }}"
+                    placeholder="Nama Pelanggan" class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-            <select name="tipe_desain"
-                    class="px-3 py-2 border rounded-lg text-sm">
-                <option value="">Tipe Desain</option>
-                <option value="PT2-AERIAL" {{ request('tipe_desain')=='PT2-AERIAL'?'selected':'' }}>
-                    PT2-AERIAL
-                </option>
-                <option value="PT1" {{ request('tipe_desain')=='PT1'?'selected':'' }}>
-                    PT1
-                </option>
-            </select>
+                <input type="text" name="status_order" value="{{ request('status_order') }}" placeholder="Status Order"
+                    class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-            <select name="jenis_program"
-                    class="px-3 py-2 border rounded-lg text-sm">
-                <option value="">Jenis Program</option>
-                <option value="EBIS-DBS" {{ request('jenis_program')=='EBIS-DBS'?'selected':'' }}>
-                    EBIS-DBS
-                </option>
-            </select>
+                <input type="text" name="tipe_desain" value="{{ request('tipe_desain') }}" placeholder="Tipe Desain"
+                    class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-            <select name="sto"
-                    class="px-3 py-2 border rounded-lg text-sm">
-                <option value="">STO</option>
-                <option value="ARJAWINANGUN" {{ request('sto')=='ARJAWINANGUN'?'selected':'' }}>
-                    ARJAWINANGUN
-                </option>
-            </select>
+                <input type="text" name="jenis_program" value="{{ request('jenis_program') }}"
+                    placeholder="Jenis Program" class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-            <!-- BUTTON -->
-            <div class="md:col-span-6 flex gap-2">
-                <button type="submit"
-                        class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
-                    Filter
-                </button>
+                <input type="text" name="sto" value="{{ request('sto') }}" placeholder="STO"
+                    class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-                <a href="{{ route('deployment.b2b') }}"
-                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-                    Reset
-                </a>
+                <!-- BUTTON -->
+                <div class="md:col-span-6 flex gap-2">
+                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
+                        Filter
+                    </button>
+
+                    <a href="{{ route('deployment.rekap') }}"
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
+                        Reset
+                    </a>
+                </div>
+            </form>
+
+            <!-- ================= TABLE ================= -->
+            <div class="overflow-x-auto rounded-xl border">
+                <table class="min-w-[2000px] text-sm text-left border-collapse">
+
+                    <!-- HEADER -->
+                    <thead class="bg-red-600 text-white sticky top-0 z-10">
+                        <tr>
+                            <th class="px-4 py-3 sticky left-0 bg-red-600 z-20">NDE JT</th>
+                            <th class="px-4 py-3">Starclick / NCX</th>
+                          
+                            <th class="px-4 py-3">Nama</th>
+                            <th class="px-4 py-3">Alamat</th>
+                            <th class="px-4 py-3">Telepon</th>
+                            <th class="px-4 py-3">Tikor</th>
+                            <th class="px-4 py-3">Datel</th>
+                            <th class="px-4 py-3">STO</th>
+                            <th class="px-4 py-3">Status Alokasi Alpro</th>
+                            <th class="px-4 py-3">Status Order</th>
+                            <th class="px-4 py-3">iHLD LoP ID</th>
+                            <th class="px-4 py-3">Tipe Desain</th>
+                            <th class="px-4 py-3">Total BOQ</th>
+                            <th class="px-4 py-3">Jenis Program</th>
+                            <th class="px-4 py-3">Nama CFU</th>
+                            <th class="px-4 py-3">Progres</th>
+                            <th class="px-4 py-3">Tanggal Update</th>
+                        </tr>
+                    </thead>
+
+                    <!-- BODY -->
+                    <tbody class="divide-y">
+                        @forelse ($rows as $row)
+                            <tr class="hover:bg-slate-50">
+
+                                <!-- DATA INPUT (ebis_manual_inputs) -->
+                                <td class="px-4 py-3 sticky left-0 bg-white font-medium">
+                                    {{ $row->nde_jt ?? '-' }}
+                                </td>
+
+                                <td class="px-4 py-3">{{ $row->star_click_id ?? '-' }}</td>
+                    
+                                <td class="px-4 py-3">{{ $row->nama_customer ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $row->alamat_pelanggan ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $row->telepon_pelanggan ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $row->tikor_pelanggan ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $row->datel ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $row->sto ?? '-' }}</td>
+
+                                <!-- DATA UPLOAD (ebis_planning_orders) -->
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
+                                        {{ optional($row->planning)->status_alokasi_alpro ?? '-' }}
+                                    </span>
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
+                                        {{ optional($row->planning)->status_order ?? '-' }}
+                                    </span>
+                                </td>
+
+                                <td class="px-4 py-3">{{ optional($row->planning)->ihld_lop_id ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ optional($row->planning)->tipe_desain ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ optional($row->planning)->total_boq ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ optional($row->planning)->jenis_program ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ optional($row->planning)->nama_cfu ?? '-' }}</td>
+                                <td class="px-4 py-3">
+                                    <span
+                                        class="px-2 py-1 text-xs rounded
+        {{ optional($row->planning)->progres === 'COMPLETED PS'
+            ? 'bg-green-100 text-green-700'
+            : 'bg-yellow-100 text-yellow-700' }}">
+                                        {{ optional($row->planning)->progres ?? '-' }}
+                                    </span>
+                                </td>
+
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    {{ optional($row->planning)->tanggal_update_progres
+                                        ? optional($row->planning)->tanggal_update_progres->format('d-m-Y')
+                                        : '-' }}
+                                </td>
+
+
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="16" class="py-6 text-center text-slate-500">
+                                    Data tidak ditemukan
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+
+
+                </table>
             </div>
-        </form>
-
-
-        <!-- 👉 SCROLL AREA (HANYA TABEL) -->
-        <div class="overflow-x-auto rounded-xl border">
-
-            <table class="min-w-[2000px] text-sm text-left border-collapse">
-
-                <!-- HEADER -->
-                <thead class="bg-red-600 text-white sticky top-0 z-10">
-                    <tr>
-                        <th class="px-4 py-3 font-medium sticky left-0 bg-red-600 z-20">
-                            NDE JT
-                        </th>
-                        <th class="px-4 py-3 font-medium">Starclick / NCX</th>
-                        <th class="px-4 py-3 font-medium">Track ID</th>
-                        <th class="px-4 py-3 font-medium">Nama</th>
-                        <th class="px-4 py-3 font-medium">Alamat</th>
-                        <th class="px-4 py-3 font-medium">Telepon</th>
-                        <th class="px-4 py-3 font-medium">Tikor</th>
-                        <th class="px-4 py-3 font-medium">Datel</th>
-                        <th class="px-4 py-3 font-medium">STO</th>
-                        <th class="px-4 py-3 font-medium">Status Alokasi Alpro</th>
-                        <th class="px-4 py-3 font-medium">Status Order</th>
-                        <th class="px-4 py-3 font-medium">iHLD LoP ID</th>
-                        <th class="px-4 py-3 font-medium">Tipe Desain</th>
-                        <th class="px-4 py-3 font-medium">Total BOQ</th>
-                        <th class="px-4 py-3 font-medium">Jenis Program</th>
-                        <th class="px-4 py-3 font-medium">Nama CFU</th>
-                    </tr>
-                </thead>
-
-                <!-- BODY -->
-                <tbody class="divide-y">
-                    @forelse ($filtered as $row)
-                    <tr class="hover:bg-slate-50">
-
-                        <td class="px-4 py-3 sticky left-0 bg-white font-medium">
-                            {{ $row['nde'] ?? '-' }}
-                        </td>
-
-                        <td class="px-4 py-3">{{ $row['starclick'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['track_id'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['nama'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['alamat'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['telepon'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['tikor'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['datel'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['sto'] ?? '-' }}</td>
-
-                        <td class="px-4 py-3">
-                            <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                                {{ $row['status_alpro'] ?? '-' }}
-                            </span>
-                        </td>
-
-                        <td class="px-4 py-3">
-                            <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
-                                {{ $row['status_order'] ?? '-' }}
-                            </span>
-                        </td>
-
-                        <td class="px-4 py-3">{{ $row['ihld'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['tipe_desain'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['boq'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['jenis_program'] ?? '-' }}</td>
-                        <td class="px-4 py-3">{{ $row['cfu'] ?? '-' }}</td>
-
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="16" class="py-6 text-center text-slate-500">
-                            Data tidak ditemukan
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-
-
-            </table>
         </div>
     </div>
-</div>
 @endsection

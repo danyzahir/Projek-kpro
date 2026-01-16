@@ -68,4 +68,10 @@ Route::get('/deployment/input', [EbisManualInputController::class, 'index'])
 Route::post('/deployment/input', [EbisManualInputController::class, 'store'])
     ->name('ebis.manual.store');
 
+    Route::get('/deployment/{id}/edit', [EbisPlanningController::class, 'edit'])
+    ->name('deployment.edit');
+
+Route::put('/deployment/{id}', [EbisPlanningController::class, 'update'])
+    ->name('deployment.update');
+
 require __DIR__ . '/auth.php';

@@ -243,9 +243,44 @@
         </div>
 
     </div>
-@endsection
 
+    <div id="loadingOverlay"
+        class="fixed inset-0 z-50 hidden items-center justify-center
+            bg-black/40 backdrop-blur-sm">
+
+        <div class="bg-white rounded-xl p-6 w-80 text-center shadow-xl">
+            <p class="text-sm font-semibold mb-4 text-slate-700">
+                Mengimpor data, mohon tunggu...
+            </p>
+
+            <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                <div class="bg-red-600 h-2 rounded-full animate-loading"></div>
+            </div>
+        </div>
+    </div>
+@endsection
+@push('scripts')
+    <style>
+        @keyframes loading {
+            0% {
+                width: 0%;
+            }
+
+            50% {
+                width: 80%;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
+
+        .animate-loading {
+            animation: loading 2s ease-in-out infinite;
+        }
+    </style>
 <script>
+    /* ================= DROPDOWN ================= */
     function toggleDropdown(btn) {
         btn.nextElementSibling.classList.toggle('hidden');
     }
@@ -261,21 +296,52 @@
             'rounded-full px-4 text-xs font-semibold leading-none shadow-sm border';
 
         if (value === 'completed') {
-            button.classList.add('bg-green-200', 'text-green-900', 'border-green-400');
+            button.classList.add(
+                'bg-green-200',
+                'text-green-900',
+                'border-green-400'
+            );
             label.textContent = 'Completed PS';
         } else {
-            button.classList.add('bg-yellow-200', 'text-yellow-900', 'border-yellow-400');
+            button.classList.add(
+                'bg-yellow-200',
+                'text-yellow-900',
+                'border-yellow-400'
+            );
             label.textContent = 'Kendala';
         }
 
         menu.classList.add('hidden');
     }
 
-    // SEARCH
-    document.getElementById('tableSearch').addEventListener('keyup', function() {
-        const value = this.value.toLowerCase();
-        document.querySelectorAll('#dataTable tbody tr').forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(value) ? '' : 'none';
-        });
+    /* ================= SEARCH TABLE ================= */
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('tableSearch');
+
+        if (searchInput) {
+            searchInput.addEventListener('keyup', function () {
+                const value = this.value.toLowerCase();
+                document.querySelectorAll('#dataTable tbody tr').forEach(row => {
+                    row.style.display = row.innerText.toLowerCase().includes(value)
+                        ? ''
+                        : 'none';
+                });
+            });
+        }
     });
+
+    /* ================= IMPORT LOADING ================= */
+    function submitImport() {
+        const overlay = document.getElementById('loadingOverlay');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        }
+
+        const form = document.getElementById('importForm');
+        if (form) {
+            form.submit();
+        }
+    }
 </script>
+

@@ -20,6 +20,7 @@
 
         <!-- ================= CARD ================= -->
         <div class="bg-white rounded-xl shadow-sm">
+            
 
             <!-- TOOLBAR -->
             <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
@@ -60,14 +61,15 @@
             <div class="p-4">
 
                 <!-- SCROLL HANYA DI SINI -->
-                <div class="overflow-x-auto rounded-xl border">
-
-                    <table class="min-w-[2200px] text-sm text-left">
+                <div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
+                    <table class="min-w-[1400px] text-sm text-slate-700">
 
                         <!-- HEADER -->
-                        <thead class="bg-red-600 text-white">
-                            <tr>
-                                <th class="sticky left-0 z-30 bg-red-600 px-4 py-3">Star Click ID</th>
+                        <thead class="sticky top-0 z-20 bg-slate-100 border-b">
+                            <tr class="text-xs font-semibold uppercase tracking-wide text-slate-600">
+                                <th class="sticky left-0 z-30 bg-slate-100 px-4 py-3 border-r">
+                                    Star Click ID
+                                </th>
                                 <th class="px-4 py-3">Track ID</th>
                                 <th class="px-4 py-3">Ticket ID</th>
                                 <th class="px-4 py-3">Star Click Status</th>
@@ -243,16 +245,17 @@
         </div>
 
     </div>
+    <div class="mt-6 flex justify-center">
+        {{ $rows->links('components.pagination') }}
+    </div>
 
     <div id="loadingOverlay"
         class="fixed inset-0 z-50 hidden items-center justify-center
             bg-black/40 backdrop-blur-sm">
-
-        <div class="bg-white rounded-xl p-6 w-80 text-center shadow-xl">
+        <div class="bg-white rounded-2xl p-6 w-80 text-center shadow-xl">
             <p class="text-sm font-semibold mb-4 text-slate-700">
                 Mengimpor data, mohon tunggu...
             </p>
-
             <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                 <div class="bg-red-600 h-2 rounded-full animate-loading"></div>
             </div>
@@ -279,69 +282,68 @@
             animation: loading 2s ease-in-out infinite;
         }
     </style>
-<script>
-    /* ================= DROPDOWN ================= */
-    function toggleDropdown(btn) {
-        btn.nextElementSibling.classList.toggle('hidden');
-    }
-
-    function selectStatus(el, value) {
-        const wrapper = el.closest('.relative');
-        const button = wrapper.querySelector('.status-btn');
-        const label = button.querySelector('span');
-        const menu = wrapper.querySelector('.status-menu');
-
-        button.className =
-            'status-btn w-full h-9 box-border flex items-center justify-between gap-2 ' +
-            'rounded-full px-4 text-xs font-semibold leading-none shadow-sm border';
-
-        if (value === 'completed') {
-            button.classList.add(
-                'bg-green-200',
-                'text-green-900',
-                'border-green-400'
-            );
-            label.textContent = 'Completed PS';
-        } else {
-            button.classList.add(
-                'bg-yellow-200',
-                'text-yellow-900',
-                'border-yellow-400'
-            );
-            label.textContent = 'Kendala';
+    <script>
+        /* ================= DROPDOWN ================= */
+        function toggleDropdown(btn) {
+            btn.nextElementSibling.classList.toggle('hidden');
         }
 
-        menu.classList.add('hidden');
-    }
+        function selectStatus(el, value) {
+            const wrapper = el.closest('.relative');
+            const button = wrapper.querySelector('.status-btn');
+            const label = button.querySelector('span');
+            const menu = wrapper.querySelector('.status-menu');
 
-    /* ================= SEARCH TABLE ================= */
-    document.addEventListener('DOMContentLoaded', function () {
-        const searchInput = document.getElementById('tableSearch');
+            button.className =
+                'status-btn w-full h-9 box-border flex items-center justify-between gap-2 ' +
+                'rounded-full px-4 text-xs font-semibold leading-none shadow-sm border';
 
-        if (searchInput) {
-            searchInput.addEventListener('keyup', function () {
-                const value = this.value.toLowerCase();
-                document.querySelectorAll('#dataTable tbody tr').forEach(row => {
-                    row.style.display = row.innerText.toLowerCase().includes(value)
-                        ? ''
-                        : 'none';
+            if (value === 'completed') {
+                button.classList.add(
+                    'bg-green-200',
+                    'text-green-900',
+                    'border-green-400'
+                );
+                label.textContent = 'Completed PS';
+            } else {
+                button.classList.add(
+                    'bg-yellow-200',
+                    'text-yellow-900',
+                    'border-yellow-400'
+                );
+                label.textContent = 'Kendala';
+            }
+
+            menu.classList.add('hidden');
+        }
+
+        /* ================= SEARCH TABLE ================= */
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('tableSearch');
+
+            if (searchInput) {
+                searchInput.addEventListener('keyup', function() {
+                    const value = this.value.toLowerCase();
+                    document.querySelectorAll('#dataTable tbody tr').forEach(row => {
+                        row.style.display = row.innerText.toLowerCase().includes(value) ?
+                            '' :
+                            'none';
+                    });
                 });
-            });
-        }
-    });
+            }
+        });
 
-    /* ================= IMPORT LOADING ================= */
-    function submitImport() {
-        const overlay = document.getElementById('loadingOverlay');
-        if (overlay) {
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-        }
+        /* ================= IMPORT LOADING ================= */
+        function submitImport() {
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+            }
 
-        const form = document.getElementById('importForm');
-        if (form) {
-            form.submit();
+            const form = document.getElementById('importForm');
+            if (form) {
+                form.submit();
+            }
         }
-    }
-</script>
-
+    </script>

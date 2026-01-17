@@ -64,7 +64,7 @@
                         <tr>
                             <th class="px-4 py-3 sticky left-0 bg-red-600 z-20">NDE JT</th>
                             <th class="px-4 py-3">Starclick / NCX</th>
-                          
+
                             <th class="px-4 py-3">Nama</th>
                             <th class="px-4 py-3">Alamat</th>
                             <th class="px-4 py-3">Telepon</th>
@@ -94,7 +94,7 @@
                                 </td>
 
                                 <td class="px-4 py-3">{{ $row->star_click_id ?? '-' }}</td>
-                    
+
                                 <td class="px-4 py-3">{{ $row->nama_customer ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $row->alamat_pelanggan ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $row->telepon_pelanggan ?? '-' }}</td>
@@ -123,9 +123,9 @@
                                 <td class="px-4 py-3">
                                     <span
                                         class="px-2 py-1 text-xs rounded
-        {{ optional($row->planning)->progres === 'COMPLETED PS'
-            ? 'bg-green-100 text-green-700'
-            : 'bg-yellow-100 text-yellow-700' }}">
+                                             {{ optional($row->planning)->progres === 'COMPLETED PS'
+                                                 ? 'bg-green-100 text-green-700'
+                                                 : 'bg-yellow-100 text-yellow-700' }}">
                                         {{ optional($row->planning)->progres ?? '-' }}
                                     </span>
                                 </td>
@@ -152,4 +152,8 @@
             </div>
         </div>
     </div>
+    <div class="mt-6 flex justify-center">
+        {{ $rows->links('components.pagination') }}
+    </div>
+
 @endsection

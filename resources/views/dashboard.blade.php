@@ -1,90 +1,114 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
-<script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<body class="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200">
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-10">
+    <!-- HEADER -->
+    <header class="w-full bg-white shadow-sm">
+        <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-gray-800">
+                    Sistem Monitoring 
+                </h1>
+                <p class="text-sm text-gray-500">
+                    Unit Optima – PT Telkom 
+                </p>
+            </div>
+        </div>
+    </header>
 
-        <!-- CARD QE -->
-        <div
-            class="relative w-60 h-60
-                   bg-gradient-to-br from-green-500 to-green-700
-                   rounded-3xl shadow-lg
-                   p-6 flex flex-col justify-between
-                   overflow-hidden
-                   transform transition-all duration-300
-                   hover:-translate-y-2 hover:shadow-2xl cursor-pointer">
+    <!-- CONTENT -->
+    <main class="max-w-6xl mx-auto px-6 py-12">
 
-            <!-- Background Logo / Watermark -->
-            <svg class="absolute -right-6 -bottom-6 w-40 h-40 text-white opacity-10"
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 17v-2a4 4 0 014-4h4" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M17 9V7a4 4 0 00-4-4H9" />
-            </svg>
+        <h2 class="text-lg font-semibold text-gray-700 mb-8">
+            Dashboard Menu
+        </h2>
 
-            <!-- Icon -->
-            <div class="text-white">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                    class="w-10 h-10"
-                    fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+
+            <!-- CARD QE -->
+            <div
+                class="relative h-56
+                       bg-gradient-to-br from-green-500 to-green-700
+                       rounded-3xl shadow-lg
+                       p-6 flex flex-col justify-between
+                       overflow-hidden
+                       transform transition-all duration-300
+                       hover:scale-105 hover:shadow-2xl cursor-pointer">
+
+                <!-- Watermark -->
+                <svg class="absolute -right-8 -bottom-8 w-44 h-44 text-white opacity-10"
+                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         d="M9 17v-2a4 4 0 014-4h4" />
                 </svg>
+
+                <!-- Icon -->
+                <div class="text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-10 h-10"
+                        fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 17v-2a4 4 0 014-4h4" />
+                    </svg>
+                </div>
+
+                <!-- Text -->
+                <div>
+                    <h3 class="text-xl font-semibold text-white">QE</h3>
+                    <p class="text-sm text-white/80 mt-1">
+                        Quality Evaluation
+                    </p>
+                </div>
             </div>
 
-            <!-- Title -->
-            <span class="text-white text-xl font-semibold tracking-wide">
-                QE
-            </span>
-        </div>
+            <!-- CARD DEPLOYMENT -->
+            <a href="{{ route('deployment.b2b') }}"
+                class="relative h-56
+                       bg-gradient-to-br from-orange-400 to-orange-600
+                       rounded-3xl shadow-lg
+                       p-6 flex flex-col justify-between
+                       overflow-hidden
+                       transform transition-all duration-300
+                       hover:scale-105 hover:shadow-2xl">
 
-        <!-- CARD DEPLOYMENT -->
-        <a href="{{ route('deployment.b2b') }}"
-            class="relative w-60 h-60
-                   bg-gradient-to-br from-orange-400 to-orange-600
-                   rounded-3xl shadow-lg
-                   p-6 flex flex-col justify-between
-                   overflow-hidden
-                   transform transition-all duration-300
-                   hover:-translate-y-2 hover:shadow-2xl">
-
-            <!-- Background Logo / Watermark -->
-            <svg class="absolute -right-6 -bottom-6 w-40 h-40 text-white opacity-10"
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M3 7h18M3 12h18M3 17h18" />
-            </svg>
-
-            <!-- Icon -->
-            <div class="text-white">
-                <svg xmlns="http://www.w3.org/2000/svg"
-                    class="w-10 h-10"
-                    fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
+                <!-- Watermark -->
+                <svg class="absolute -right-8 -bottom-8 w-44 h-44 text-white opacity-10"
+                    xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        d="M3 7h18M3 12h18M3 17h18" />
                 </svg>
-            </div>
 
-            <!-- Title -->
-            <span class="text-white text-xl font-semibold tracking-wide">
-                Deployment
-            </span>
-        </a>
+                <!-- Icon -->
+                <div class="text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-10 h-10"
+                        fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                </div>
 
-    </div>
+                <!-- Text -->
+                <div>
+                    <h3 class="text-xl font-semibold text-white">Deployment</h3>
+                    <p class="text-sm text-white/80 mt-1">
+                        Monitoring & Manajemen Data
+                    </p>
+                </div>
+            </a>
+
+        </div>
+    </main>
 
 </body>
-
 </html>

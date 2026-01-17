@@ -38,10 +38,7 @@ class EbisPlanningController extends Controller
      */
     public function export()
     {
-        return Excel::download(
-            new EbisPlanningExport(),
-            'ebis_planning_export.xlsx'
-        );
+        return Excel::download(new EbisPlanningExport(), 'ebis_planning_export.xlsx');
     }
 
     /**
@@ -96,7 +93,7 @@ class EbisPlanningController extends Controller
             // SORT + PAGINATION
             // =============================
             ->latest()
-            ->paginate(500)
+            ->paginate(5)
             ->withQueryString();
 
         return view('deployment.upload', compact('rows'));
@@ -109,7 +106,8 @@ class EbisPlanningController extends Controller
      */
     public function updateList()
     {
-        $rows = EbisPlanningOrder::latest()->get();
+        $rows = EbisPlanningOrder::latest()->paginate(5);
+
         return view('deployment.update', compact('rows'));
     }
 
@@ -123,13 +121,9 @@ class EbisPlanningController extends Controller
         $data = EbisPlanningOrder::findOrFail($id);
 
         $datels = DropdownHelper::datels();
-        $stos   = DropdownHelper::stos();
+        $stos = DropdownHelper::stos();
 
-        return view('deployment.edit', compact(
-            'data',
-            'datels',
-            'stos'
-        ));
+        return view('deployment.edit', compact('data', 'datels', 'stos'));
     }
 
     /**
@@ -140,21 +134,19 @@ class EbisPlanningController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'track_id'               => 'required|string|max:100',
-            'datel'                  => 'required|string|max:50',
-            'sto'                    => 'required|string|max:50',
-            'status_order'           => 'required|string|max:50',
-            'tipe_desain'            => 'required|string|max:50',
-            'jenis_program'          => 'nullable|string|max:50',
-            'progres'                => 'nullable|string|max:30',
+            'track_id' => 'required|string|max:100',
+            'datel' => 'required|string|max:50',
+            'sto' => 'required|string|max:50',
+            'status_order' => 'required|string|max:50',
+            'tipe_desain' => 'required|string|max:50',
+            'jenis_program' => 'nullable|string|max:50',
+            'progres' => 'nullable|string|max:30',
             'tanggal_update_progres' => 'nullable|date',
         ]);
 
         EbisPlanningOrder::where('id', $id)->update($validated);
 
-        return redirect()
-            ->route('deployment.update.list')
-            ->with('success', 'Data berhasil diperbarui');
+        return redirect()->route('deployment.update.list')->with('success', 'Data berhasil diperbarui');
     }
 
     /**
@@ -162,60 +154,61 @@ class EbisPlanningController extends Controller
      * REKAP DATA (MANUAL + UPLOAD)
      * =============================
      */
-    public function rekap(Request $request)
-    {
-        $rows = EbisManualInput::with('planning')
+   public function rekap(Request $request)
+{
+    $rows = EbisManualInput::with('planning')
 
-            ->when($request->star_click_id, function ($q) use ($request) {
-                $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
-            })
+        ->when($request->star_click_id, function ($q) use ($request) {
+            $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
+        })
 
-            ->when($request->nama_customer, function ($q) use ($request) {
-                $q->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
-            })
+        ->when($request->nama_customer, function ($q) use ($request) {
+            $q->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
+        })
 
-            ->when($request->sto, function ($q) use ($request) {
-                $q->where('sto', 'like', '%' . $request->sto . '%');
-            })
+        ->when($request->sto, function ($q) use ($request) {
+            $q->where('sto', 'like', '%' . $request->sto . '%');
+        })
 
-            ->when(
-                $request->status_order ||
-                $request->tipe_desain ||
-                $request->jenis_program,
-                function ($q) use ($request) {
-                    $q->whereHas('planning', function ($p) use ($request) {
+        ->when(
+            $request->status_order || $request->tipe_desain || $request->jenis_program,
+            function ($q) use ($request) {
+                $q->whereHas('planning', function ($p) use ($request) {
 
-                        if ($request->status_order) {
-                            $p->where('status_order', 'like', '%' . $request->status_order . '%');
-                        }
+                    if ($request->status_order) {
+                        $p->where('status_order', 'like', '%' . $request->status_order . '%');
+                    }
 
-                        if ($request->tipe_desain) {
-                            $p->where('tipe_desain', 'like', '%' . $request->tipe_desain . '%');
-                        }
+                    if ($request->tipe_desain) {
+                        $p->where('tipe_desain', 'like', '%' . $request->tipe_desain . '%');
+                    }
 
-                        if ($request->jenis_program) {
-                            $p->where('jenis_program', 'like', '%' . $request->jenis_program . '%');
-                        }
-                    });
-                }
-            )
+                    if ($request->jenis_program) {
+                        $p->where('jenis_program', 'like', '%' . $request->jenis_program . '%');
+                    }
+                });
+            }
+        )
 
-            ->latest()
-            ->get();
+        ->latest()
+        ->paginate(10)          
+        ->withQueryString();    
 
-        $totalOrders = EbisPlanningOrder::count();
+  
+    $totalOrders = EbisPlanningOrder::count();
 
-        $ordersByStatus = EbisPlanningOrder::select(
-                'status_order',
-                DB::raw('count(*) as total')
-            )
-            ->groupBy('status_order')
-            ->get();
+    $ordersByStatus = EbisPlanningOrder::select(
+            'status_order',
+            DB::raw('count(*) as total')
+        )
+        ->groupBy('status_order')
+        ->get();
 
-        return view('deployment.rekap', compact(
-            'rows',
-            'totalOrders',
-            'ordersByStatus'
-        ));
-    }
+    return view('deployment.rekap', compact(
+        'rows',
+        'totalOrders',
+        'ordersByStatus'
+    ));
+}
+
 }

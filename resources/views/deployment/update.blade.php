@@ -103,7 +103,7 @@
                                           bg-blue-600 text-white
                                           rounded-lg
                                           hover:bg-blue-700 transition">
-                                    Edit
+                                    Update
                                 </a>
                             </td>
 
@@ -123,6 +123,9 @@
         </div>
     </div>
 </div>
+ <div class="mt-6 flex justify-center">
+        {{ $rows->links('components.pagination') }}
+    </div>
 @endsection
 
 @push('scripts')

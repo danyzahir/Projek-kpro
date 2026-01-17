@@ -1,48 +1,53 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <script src="https://cdn.tailwindcss.com"></script>
     <meta charset="UTF-8">
     <title>Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     @vite('resources/css/app.css')
 </head>
 
-<body class="min-h-screen relative overflow-hidden">
+<body class="min-h-screen relative overflow-hidden font-sans">
 
-    <!-- BACKGROUND IMAGE -->
+    <!-- BACKGROUND -->
     <img
         src="{{ asset('images/poto1.jpg') }}"
-        alt="Background"
         class="absolute inset-0 w-full h-full object-cover"
+        alt="Background"
     >
 
-    <!-- BLUR OVERLAY -->
-    <div class="absolute inset-0 backdrop-blur-md bg-white/30"></div>
+    <!-- OVERLAY -->
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm"></div>
 
     <!-- CONTENT -->
-    <div class="relative min-h-screen flex items-center justify-center">
+    <div class="relative min-h-screen flex items-center justify-center px-4">
 
         <!-- CARD -->
-        <div class="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden
-                    grid grid-cols-1 md:grid-cols-2 min-h-[560px]">
+        <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2
+                    bg-white/80 backdrop-blur-xl
+                    rounded-3xl shadow-2xl overflow-hidden">
 
             <!-- LEFT IMAGE -->
             <div class="hidden md:block relative">
                 <img
                     src="https://educ.gramedia.com/wp-content/uploads/2022/12/istockphoto-1154341677-170667a.jpg"
-                    alt="Register Image"
                     class="absolute inset-0 w-full h-full object-cover"
+                    alt="Register Visual"
                 >
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
             </div>
 
             <!-- RIGHT FORM -->
-            <div class="p-12 flex flex-col justify-center">
-                <h2 class="text-2xl font-semibold mb-6 text-center">Register</h2>
+            <div class="p-10 md:p-14 flex flex-col justify-center">
 
-                <form method="POST"
-                      action="{{ route('register') }}"
-                      autocomplete="off"
-                      class="space-y-5">
+                <h2 class="text-3xl font-bold text-gray-800 text-center mb-2">
+                    Create Account
+                </h2>
+                <p class="text-gray-500 text-center mb-8 text-sm">
+                    Daftarkan akun untuk mengakses sistem
+                </p>
+
+                <form method="POST" action="{{ route('register') }}" class="space-y-5">
                     @csrf
 
                     <!-- NAME -->
@@ -54,9 +59,10 @@
                             value="{{ old('name') }}"
                             required
                             autofocus
-                            class="w-full rounded-full px-5 py-3 bg-blue-50
-                                   border border-blue-200
-                                   focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            class="w-full px-5 py-3 rounded-full
+                                   bg-white border border-gray-300
+                                   focus:ring-2 focus:ring-red-400
+                                   focus:outline-none"
                         >
                         @error('name')
                             <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
@@ -71,9 +77,10 @@
                             placeholder="Email"
                             value="{{ old('email') }}"
                             required
-                            class="w-full rounded-full px-5 py-3 bg-blue-50
-                                   border border-blue-200
-                                   focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            class="w-full px-5 py-3 rounded-full
+                                   bg-white border border-gray-300
+                                   focus:ring-2 focus:ring-red-400
+                                   focus:outline-none"
                         >
                         @error('email')
                             <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
@@ -87,9 +94,10 @@
                             name="password"
                             placeholder="Password"
                             required
-                            class="w-full rounded-full px-5 py-3 bg-blue-50
-                                   border border-blue-200
-                                   focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            class="w-full px-5 py-3 rounded-full
+                                   bg-white border border-gray-300
+                                   focus:ring-2 focus:ring-red-400
+                                   focus:outline-none"
                         >
                         @error('password')
                             <p class="text-sm text-red-500 mt-1">{{ $message }}</p>
@@ -103,33 +111,34 @@
                             name="password_confirmation"
                             placeholder="Konfirmasi Password"
                             required
-                            class="w-full rounded-full px-5 py-3 bg-blue-50
-                                   border border-blue-200
-                                   focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            class="w-full px-5 py-3 rounded-full
+                                   bg-white border border-gray-300
+                                   focus:ring-2 focus:ring-red-400
+                                   focus:outline-none"
                         >
                     </div>
 
                     <!-- BUTTON -->
                     <button
                         type="submit"
-                        class="w-full bg-red-500 hover:bg-red-600
-                               text-white py-3 rounded-full font-semibold"
+                        class="w-full py-3 rounded-full font-semibold
+                               bg-red-500 hover:bg-red-600
+                               transition text-white shadow-lg"
                     >
                         Register
                     </button>
 
-                    <!-- LINK LOGIN -->
+                    <!-- LOGIN LINK -->
                     <p class="text-sm text-center text-gray-600">
                         Sudah punya akun?
                         <a href="{{ route('login') }}"
-                           class="text-red-500 hover:underline font-semibold">
+                           class="text-red-500 font-semibold hover:underline">
                             Login
                         </a>
                     </p>
 
                 </form>
             </div>
-
         </div>
     </div>
 

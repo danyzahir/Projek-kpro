@@ -24,33 +24,52 @@
 
             <!-- TOOLBAR -->
             <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
-                <input type="text" placeholder="Cari data..."
-                    class="w-64 rounded-lg border border-slate-300 px-3 py-2 text-sm
-                      focus:ring-2 focus:ring-red-500 focus:outline-none">
+               <form method="GET" action="{{ route('deployment.upload') }}">
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ request('search') }}"
+                        placeholder="Cari data..."
+                        class="w-64 rounded-lg border px-3 py-2 text-sm">
+                </form>
 
                 <div class="flex gap-2">
 
                     <!-- IMPORT -->
-                    <form action="{{ route('ebis.import') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        <label
-                            class="flex items-center gap-2
-                   px-4 py-2 text-sm rounded-lg
-                   bg-slate-100 hover:bg-slate-200
-                   cursor-pointer transition">
+                    <form id="importForm"
+      action="{{ route('ebis.import') }}"
+      method="POST"
+      enctype="multipart/form-data">
+    @csrf
 
-                            <!-- ICON UPLOAD -->
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
-                            </svg>
+    <label
+        class="flex items-center gap-2
+               px-4 py-2 text-sm rounded-lg
+               bg-slate-100 hover:bg-slate-200
+               cursor-pointer transition">
 
-                            <span>Import</span>
+        <!-- ICON UPLOAD -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-4 h-4 text-slate-600"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
+        </svg>
 
-                            <input type="file" name="file" class="hidden" onchange="this.form.submit()" required>
-                        </label>
-                    </form>
+        <span>Import</span>
+
+        <input type="file"
+               name="file"
+               class="hidden"
+               required
+               onchange="submitImport()">
+    </label>
+</form>
+
 
                 </div>
 
@@ -137,8 +156,6 @@
                                 <th class="px-4 py-3">Kategori</th>
                             </tr>
                         </thead>
-
-
 
                         <!-- BODY -->
                         <tbody class="divide-y text-slate-700">
@@ -236,8 +253,6 @@
                             @endif
                         </tbody>
 
-
-
                     </table>
 
                 </div>
@@ -249,18 +264,23 @@
         {{ $rows->links('components.pagination') }}
     </div>
 
-    <div id="loadingOverlay"
-        class="fixed inset-0 z-50 hidden items-center justify-center
-            bg-black/40 backdrop-blur-sm">
-        <div class="bg-white rounded-2xl p-6 w-80 text-center shadow-xl">
-            <p class="text-sm font-semibold mb-4 text-slate-700">
-                Mengimpor data, mohon tunggu...
-            </p>
-            <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                <div class="bg-red-600 h-2 rounded-full animate-loading"></div>
-            </div>
+   <div id="loadingOverlay"
+     class="fixed inset-0 z-50 hidden items-center justify-center
+            bg-transparent  pointer-events-auto">
+    
+    <div class="bg-white rounded-2xl p-6 w-80 text-center
+                shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] ring-1 ring-black/5">
+        
+        <p class="text-sm font-semibold mb-4 text-slate-700">
+            Mengimpor data, mohon tunggu...
+        </p>
+
+        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+            <div class="bg-red-600 h-2 rounded-full animate-loading"></div>
         </div>
     </div>
+</div>
+
 @endsection
 @push('scripts')
     <style>

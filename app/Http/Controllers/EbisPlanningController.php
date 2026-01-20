@@ -48,10 +48,38 @@ class EbisPlanningController extends Controller
      */
     public function index(Request $request)
     {
+        $searchableColumns = [
+            'star_click_id',
+            'track_id',
+            'ticket_id',
+            'nama_customer',
+            'status_order',
+            'tipe_desain',
+            'jenis_program',
+            'datel',
+            'sto',
+            'nama_pengguna_melakukan_alokasi_alpro'
+        ];
         $rows = EbisPlanningOrder::query()
 
             // =============================
-            // FILTERING
+            // GLOBAL SEARCH (MULTI KOLOM)
+            // =============================
+            ->when($request->search, function ($query) use ($request, $searchableColumns) {
+                $keywords = preg_split('/[\s,]+/', $request->search, -1, PREG_SPLIT_NO_EMPTY);
+
+                // 2. Setiap keyword WAJIB cocok
+                foreach ($keywords as $keyword) {
+                    $query->where(function ($q) use ($keyword, $searchableColumns) {
+                        foreach ($searchableColumns as $column) {
+                            $q->orWhere($column, 'like', "%{$keyword}%");
+                        }
+                    });
+                }
+            })
+
+            // =============================
+            // FILTERING (SPESIFIK)
             // =============================
             ->when($request->star_click_id, function ($q) use ($request) {
                 $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
@@ -99,17 +127,36 @@ class EbisPlanningController extends Controller
         return view('deployment.upload', compact('rows'));
     }
 
+
+
     /**
      * =============================
      * LIST UPDATE DATA
      * =============================
      */
-    public function updateList()
-    {
-        $rows = EbisPlanningOrder::latest()->paginate(5);
+    public function updateList(Request $request)
+{
+    $rows = EbisPlanningOrder::select([
+            'id',
+            'star_click_id',
+            'nama_customer',
+            'datel',
+            'sto',
+            'status_order',
+            'tipe_desain',
+            'progres'
+        ])
+        ->where(function ($q) {
+            $q->whereNull('progres')
+              ->orWhere('progres', '-');
+        })
+        ->orderBy('id', 'desc')
+        ->paginate(5);
 
-        return view('deployment.update', compact('rows'));
-    }
+    return view('deployment.update', compact('rows'));
+}
+
+
 
     /**
      * =============================
@@ -154,61 +201,60 @@ class EbisPlanningController extends Controller
      * REKAP DATA (MANUAL + UPLOAD)
      * =============================
      */
-   public function rekap(Request $request)
-{
-    $rows = EbisManualInput::with('planning')
+    public function rekap(Request $request)
+    {
+        $rows = EbisManualInput::with('planning')
 
-        ->when($request->star_click_id, function ($q) use ($request) {
-            $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
-        })
+            ->when($request->star_click_id, function ($q) use ($request) {
+                $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
+            })
 
-        ->when($request->nama_customer, function ($q) use ($request) {
-            $q->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
-        })
+            ->when($request->nama_customer, function ($q) use ($request) {
+                $q->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
+            })
 
-        ->when($request->sto, function ($q) use ($request) {
-            $q->where('sto', 'like', '%' . $request->sto . '%');
-        })
+            ->when($request->sto, function ($q) use ($request) {
+                $q->where('sto', 'like', '%' . $request->sto . '%');
+            })
 
-        ->when(
-            $request->status_order || $request->tipe_desain || $request->jenis_program,
-            function ($q) use ($request) {
-                $q->whereHas('planning', function ($p) use ($request) {
+            ->when(
+                $request->status_order || $request->tipe_desain || $request->jenis_program,
+                function ($q) use ($request) {
+                    $q->whereHas('planning', function ($p) use ($request) {
 
-                    if ($request->status_order) {
-                        $p->where('status_order', 'like', '%' . $request->status_order . '%');
-                    }
+                        if ($request->status_order) {
+                            $p->where('status_order', 'like', '%' . $request->status_order . '%');
+                        }
 
-                    if ($request->tipe_desain) {
-                        $p->where('tipe_desain', 'like', '%' . $request->tipe_desain . '%');
-                    }
+                        if ($request->tipe_desain) {
+                            $p->where('tipe_desain', 'like', '%' . $request->tipe_desain . '%');
+                        }
 
-                    if ($request->jenis_program) {
-                        $p->where('jenis_program', 'like', '%' . $request->jenis_program . '%');
-                    }
-                });
-            }
-        )
+                        if ($request->jenis_program) {
+                            $p->where('jenis_program', 'like', '%' . $request->jenis_program . '%');
+                        }
+                    });
+                }
+            )
 
-        ->latest()
-        ->paginate(10)          
-        ->withQueryString();    
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-  
-    $totalOrders = EbisPlanningOrder::count();
 
-    $ordersByStatus = EbisPlanningOrder::select(
+        $totalOrders = EbisPlanningOrder::count();
+
+        $ordersByStatus = EbisPlanningOrder::select(
             'status_order',
             DB::raw('count(*) as total')
         )
-        ->groupBy('status_order')
-        ->get();
+            ->groupBy('status_order')
+            ->get();
 
-    return view('deployment.rekap', compact(
-        'rows',
-        'totalOrders',
-        'ordersByStatus'
-    ));
-}
-
+        return view('deployment.rekap', compact(
+            'rows',
+            'totalOrders',
+            'ordersByStatus'
+        ));
+    }
 }

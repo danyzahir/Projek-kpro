@@ -52,7 +52,6 @@
                             <th class="px-4 py-3 text-left w-40">Status Order</th>
                             <th class="px-4 py-3 text-left w-32">Tipe Desain</th>
                             <th class="px-4 py-3 text-left w-24">Progres</th>
-                            <th class="px-4 py-3 text-left w-32">Tanggal Update</th>
                             <th class="px-4 py-3 text-center w-20">Action</th>
                         </tr>
                     </thead>
@@ -68,31 +67,27 @@
                             </td>
 
                             <td class="px-4 py-3 break-words leading-snug">
-                                {{ $row->nama_customer }}
+                                {{ $row->nama_customer ?? '-'  }}
                             </td>
 
                             <td class="px-4 py-3 whitespace-nowrap">
-                                {{ $row->datel }}
+                                {{ $row->datel ?? '-'}}
                             </td>
 
                             <td class="px-4 py-3 text-center whitespace-nowrap">
-                                {{ $row->sto }}
+                                {{ $row->sto ?? '-'}}
                             </td>
 
                             <td class="px-4 py-3">
-                                {{ $row->status_order }}
+                                {{ optional($row->planning)->status_order ?? '-'  }}
                             </td>
 
                             <td class="px-4 py-3 truncate">
-                                {{ $row->tipe_desain ?? '-' }}
+                                {{  optional($row->planning)->tipe_desain ?? '-'}}
                             </td>
 
                             <td class="px-4 py-3">
                                 {{ $row->progres ?? '-' }}
-                            </td>
-
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                {{ optional($row->tanggal_update_progres)->format('d-m-Y') ?? '-' }}
                             </td>
 
                             <!-- ACTION -->

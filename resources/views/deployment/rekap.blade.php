@@ -47,11 +47,7 @@
                     <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
                         Filter
                     </button>
-
-                    <a href="{{ route('deployment.rekap') }}"
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200">
-                        Reset
-                    </a>
+                    
                 </div>
             </form>
 

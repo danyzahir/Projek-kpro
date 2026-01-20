@@ -57,7 +57,6 @@
                                focus:ring-2 focus:ring-red-500 focus:outline-none"
                         placeholder="Masukkan Starclick ID / NCX">
                 </div>
-
             </div>
 
             <!-- ================= PELANGGAN ================= -->
@@ -75,7 +74,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-slate-600 mb-1">
-                        Telepon Pelanggan <span class="text-red-600">*</span>
+                        Telepon Pelanggan <span class="text-red-600">*</an>
                     </label>
                     <input name="telepon_pelanggan" type="text" required
                         class="w-full rounded-lg border px-3 py-2 text-sm
@@ -85,24 +84,26 @@
 
             </div>
 
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">
-                    Alamat Pelanggan <span class="text-red-600">*</span>
-                </label>
-                <input name="alamat_pelanggan" type="text" required
-                    class="w-full rounded-lg border px-3 py-2 text-sm
-                           focus:ring-2 focus:ring-red-500 focus:outline-none"
-                    placeholder="Alamat lengkap pelanggan">
-            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">
+                        Alamat Pelanggan <span class="text-red-600">*</span>
+                    </label>
+                    <input name="alamat_pelanggan" type="text" required
+                        class="w-full rounded-lg border px-3 py-2 text-spsm
+                            focus:ring-2 focus:ring-red-500 focus:outline-none"
+                        placeholder="Alamat lengkap pelanggan">
+                </div>
 
-            <div>
-                <label class="block text-sm font-medium text-slate-600 mb-1">
-                    Titik Koordinat (Tikor) <span class="text-red-600">*</span>
-                </label>
-                <input name="tikor_pelanggan" type="text" required
-                    class="w-full rounded-lg border px-3 py-2 text-sm
-                           focus:ring-2 focus:ring-red-500 focus:outline-none"
-                    placeholder="-6.xxxxx, 108.xxxxx">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600 mb-1">
+                        Titik Koordinat (Tikor) <span class="text-red-600">*</span>
+                    </label>
+                    <input name="tikor_pelanggan" type="text" required
+                        class="w-full rounded-lg border px-3 py-2 text-sm
+                            focus:ring-2 focus:ring-red-500 focus:outline-none"
+                        placeholder="-6.xxxxx, 108.xxxxx">
+                </div>
             </div>
 
             <!-- ================= LOKASI ================= -->

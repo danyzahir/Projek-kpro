@@ -60,6 +60,9 @@ Route::middleware('auth')->group(function () {
         //route ebis manual store
     Route::post('/ebis/manual/store', [EbisManualInputController::class, 'store'])
         ->name('ebis.manual.store');
+    //route deployment.update.list
+    Route::get('/deployment/update/list', [EbisManualInputController::class, 'updateList'])
+        ->name('deployment.update.list');
 });
 
 require __DIR__.'/auth.php';

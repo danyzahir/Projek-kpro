@@ -46,6 +46,11 @@ class EbisPlanningController extends Controller
      * LIST DATA UPLOAD + FILTER
      * =============================
      */
+    /**
+     * =============================
+     * LIST DATA UPLOAD + FILTER
+     * =============================
+     */
     public function index(Request $request)
     {
         $searchableColumns = [
@@ -60,15 +65,15 @@ class EbisPlanningController extends Controller
             'sto',
             'nama_pengguna_melakukan_alokasi_alpro'
         ];
+
         $rows = EbisPlanningOrder::query()
 
             // =============================
-            // GLOBAL SEARCH (MULTI KOLOM)
+            // GLOBAL SEARCH (MULTI KEYWORD)
             // =============================
             ->when($request->search, function ($query) use ($request, $searchableColumns) {
                 $keywords = preg_split('/[\s,]+/', $request->search, -1, PREG_SPLIT_NO_EMPTY);
 
-                // 2. Setiap keyword WAJIB cocok
                 foreach ($keywords as $keyword) {
                     $query->where(function ($q) use ($keyword, $searchableColumns) {
                         foreach ($searchableColumns as $column) {
@@ -79,7 +84,7 @@ class EbisPlanningController extends Controller
             })
 
             // =============================
-            // FILTERING (SPESIFIK)
+            // FILTERING SPESIFIK
             // =============================
             ->when($request->star_click_id, function ($q) use ($request) {
                 $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
@@ -124,8 +129,18 @@ class EbisPlanningController extends Controller
             ->paginate(5)
             ->withQueryString();
 
+        /**
+         * =============================
+         * JIKA REQUEST AJAX (LIVE SEARCH)
+         * =============================
+         */
+        if ($request->ajax()) {
+            return view('deployment.partials.table', compact('rows'))->render();
+        }
+
         return view('deployment.upload', compact('rows'));
     }
+
 
 
 
@@ -135,8 +150,8 @@ class EbisPlanningController extends Controller
      * =============================
      */
     public function updateList(Request $request)
-{
-    $rows = EbisPlanningOrder::select([
+    {
+        $rows = EbisPlanningOrder::select([
             'id',
             'star_click_id',
             'nama_customer',
@@ -146,15 +161,15 @@ class EbisPlanningController extends Controller
             'tipe_desain',
             'progres'
         ])
-        ->where(function ($q) {
-            $q->whereNull('progres')
-              ->orWhere('progres', '-');
-        })
-        ->orderBy('id', 'desc')
-        ->paginate(5);
+            ->where(function ($q) {
+                $q->whereNull('progres')
+                    ->orWhere('progres', '-');
+            })
+            ->orderBy('id', 'desc')
+            ->paginate(5);
 
-    return view('deployment.update', compact('rows'));
-}
+        return view('deployment.update', compact('rows'));
+    }
 
 
 

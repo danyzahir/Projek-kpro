@@ -62,6 +62,7 @@
                             <th class="px-4 py-3">Starclick / NCX</th>
 
                             <th class="px-4 py-3">Nama</th>
+                            <th class="px-4 py-3">Nama Mitra</th>
                             <th class="px-4 py-3">Alamat</th>
                             <th class="px-4 py-3">Telepon</th>
                             <th class="px-4 py-3">Tikor</th>
@@ -76,6 +77,7 @@
                             <th class="px-4 py-3">Nama CFU</th>
                             <th class="px-4 py-3">Progres</th>
                             <th class="px-4 py-3">Tanggal Update</th>
+                            <th class="px-4 py-3">Catatan</th>
                         </tr>
                     </thead>
 
@@ -92,6 +94,7 @@
                                 <td class="px-4 py-3">{{ $row->star_click_id ?? '-' }}</td>
 
                                 <td class="px-4 py-3">{{ $row->nama_customer ?? '-' }}</td>
+                                <td class="px-4 py-3">{{ $row->nama_mitra ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $row->alamat_pelanggan ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $row->telepon_pelanggan ?? '-' }}</td>
                                 <td class="px-4 py-3">{{ $row->tikor_pelanggan ?? '-' }}</td>
@@ -131,6 +134,7 @@
                                         ? optional($row->planning)->tanggal_update_progres->format('d-m-Y')
                                         : '-' }}
                                 </td>
+                                <td class="px-4 py-3">{{ $row->catatan ?? '-' }}</td>
 
 
                             </tr>

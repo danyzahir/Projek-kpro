@@ -160,7 +160,21 @@
 
 
                 <!-- ================= MODAL KONFIRMASI (NO BLUR, NO OVERLAY) ================= -->
-
+                <template
+                    x-teleport="body">
+                    <div x-show="confirmOpen" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center">
+                        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
+                            <h3 class="text-lg font-semibold text-slate-800 mb-2"> Konfirmasi Simpan Data </h3>
+                            <p class="text-sm text-slate-600 mb-6"> Pastikan data yang Anda input sudah benar. Data akan
+                                langsung disimpan ke sistem. </p>
+                            <div class="flex justify-end gap-3"> <button type="button" @click="confirmOpen = false"
+                                    class="px-4 py-2 rounded-lg border text-slate-600 hover:bg-slate-100 transition"> Batal
+                                </button> <!-- SUBMIT FORM --> <button type="button" @click="$refs.form.submit()"
+                                    class="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"> Ya,
+                                    Simpan </button> </div>
+                        </div>
+                    </div>
+                </template>
 
             </form>
 
@@ -168,3 +182,4 @@
 
     </div>
 @endsection
+

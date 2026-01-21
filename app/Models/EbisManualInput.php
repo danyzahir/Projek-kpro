@@ -15,6 +15,7 @@ class EbisManualInput extends Model
         'nde_jt',
         'star_click_id',
         'nama_customer',
+        'nama_mitra',
         'alamat_pelanggan',
         'telepon_pelanggan',
         'tikor_pelanggan',

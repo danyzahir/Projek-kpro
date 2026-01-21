@@ -3,135 +3,188 @@
 @section('title', 'Input Data')
 
 @section('content')
-<div class="flex flex-col gap-6">
+    <div class="flex flex-col gap-6">
 
-    <!-- ================= BREADCRUMB ================= -->
-    <div class="flex items-center gap-3 text-sm text-slate-500">
-        <a href="{{ route('dashboard') }}"
-            class="hover:text-red-600 transition">
-            Dashboard
-        </a>
-        <span>›</span>
-        <a href="{{ route('deployment.b2b') }}"
-            class="hover:text-red-600 transition">
-            B2B
-        </a>
-        <span>›</span>
-        <span class="font-semibold text-slate-800">Update</span>
-    </div>
-
-    <!-- ================= CARD ================= -->
-    <div class="bg-white rounded-2xl shadow-sm">
-
-        <!-- ================= TOOLBAR ================= -->
-        <div class="px-6 py-4 border-b flex items-center justify-between">
-            <input
-                type="text"
-                id="tableSearch"
-                placeholder="Cari data..."
-                class="w-72 rounded-xl border border-slate-300
-                       px-4 py-2 text-sm
-                       focus:ring-2 focus:ring-red-500
-                       focus:outline-none">
+        <!-- ================= BREADCRUMB ================= -->
+        <div class="flex items-center gap-3 text-sm text-slate-500">
+            <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">
+                Dashboard
+            </a>
+            <span>›</span>
+            <a href="{{ route('deployment.b2b') }}" class="hover:text-red-600 transition">
+                B2B
+            </a>
+            <span>›</span>
+            <span class="font-semibold text-slate-800">Update</span>
         </div>
 
-        <!-- ================= TABLE ================= -->
-        <div class="p-6">
-            <div class="overflow-x-auto border rounded-xl max-w-7xl mx-auto">
+        <!-- ================= CARD ================= -->
+        <div class="bg-white rounded-2xl shadow-sm">
 
-                <table id="dataTable"
-                    class="table-fixed w-full text-sm leading-relaxed">
 
-                    <!-- HEADER -->
-                    <thead class="bg-red-600 text-white text-xs uppercase tracking-wide">
-                        <tr>
-                            <th class="px-4 py-3 text-left w-40">Star Click ID</th>
-                            <th class="px-4 py-3 text-left w-64">Nama Pelanggan</th>
-                            <th class="px-4 py-3 text-left w-24">Datel</th>
-                            <th class="px-4 py-3 text-center w-32">STO</th>
-                            <th class="px-4 py-3 text-left w-40">Status Order</th>
-                            <th class="px-4 py-3 text-left w-32">Tipe Desain</th>
-                            <th class="px-4 py-3 text-left w-24">Progres</th>
-                            <th class="px-4 py-3 text-center w-20">Action</th>
-                        </tr>
-                    </thead>
+            <!-- ================= TABLE ================= -->
+            <div class="bg-white rounded-xl shadow-sm p-6">
 
-                    <!-- BODY -->
-                    <tbody class="divide-y divide-slate-200 text-slate-700">
+                <!-- ================= FILTER (MANUAL INPUT) ================= -->
+                <form method="GET" action="{{ route('deployment.update') }}"
+                    class="mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
 
-                        @forelse ($rows as $row)
-                        <tr class="hover:bg-red-50 transition">
+                    <input type="text" name="star_click_id" value="{{ request('star_click_id') }}"
+                        placeholder="Starclick / NCX"
+                        class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-                            <td class="px-4 py-3 font-medium whitespace-nowrap">
-                                {{ $row->star_click_id ?? '-' }}
-                            </td>
+                    <input type="text" name="nama_customer" value="{{ request('nama_customer') }}"
+                        placeholder="Nama Pelanggan"
+                        class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-                            <td class="px-4 py-3 break-words leading-snug">
-                                {{ $row->nama_customer ?? '-'  }}
-                            </td>
+                    <input type="text" name="status_order" value="{{ request('status_order') }}"
+                        placeholder="Status Order"
+                        class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-                            <td class="px-4 py-3 whitespace-nowrap">
-                                {{ $row->datel ?? '-'}}
-                            </td>
+                    <input type="text" name="tipe_desain" value="{{ request('tipe_desain') }}" placeholder="Tipe Desain"
+                        class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-                            <td class="px-4 py-3 text-center whitespace-nowrap">
-                                {{ $row->sto ?? '-'}}
-                            </td>
+                    <input type="text" name="jenis_program" value="{{ request('jenis_program') }}"
+                        placeholder="Jenis Program"
+                        class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-                            <td class="px-4 py-3">
-                                {{ optional($row->planning)->status_order ?? '-'  }}
-                            </td>
+                    <input type="text" name="sto" value="{{ request('sto') }}" placeholder="STO"
+                        class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
 
-                            <td class="px-4 py-3 truncate">
-                                {{  optional($row->planning)->tipe_desain ?? '-'}}
-                            </td>
+                    <!-- BUTTON -->
+                    <div class="md:col-span-6 flex gap-2">
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
+                            Filter
+                        </button>
 
-                            <td class="px-4 py-3">
-                                {{ $row->progres ?? '-' }}
-                            </td>
+                    </div>
+                </form>
 
-                            <!-- ACTION -->
-                            <td class="px-4 py-3 text-center">
-                                <a href="{{ route('deployment.edit', $row->id) }}"
-                                    class="inline-flex items-center justify-center
-                                          px-3 py-1.5 text-xs font-medium
-                                          bg-blue-600 text-white
-                                          rounded-lg
-                                          hover:bg-blue-700 transition">
-                                    Update
-                                </a>
-                            </td>
+                <!-- ================= TABLE ================= -->
+                <div class="overflow-x-auto rounded-xl border">
+                    <table class="min-w-[2000px] text-sm text-left border-collapse">
 
-                        </tr>
-                        @empty
-                        <tr>
-                            <td colspan="9"
-                                class="text-center py-12 text-slate-400">
-                                Tidak ada data
-                            </td>
-                        </tr>
-                        @endforelse
+                        <!-- HEADER -->
+                        <thead class="bg-red-600 text-white sticky top-0 z-10">
+                            <tr>
+                                <th class="px-4 py-3 sticky left-0 bg-red-600 z-20">NDE JT</th>
+                                <th class="px-4 py-3">Starclick / NCX</th>
 
-                    </tbody>
-                </table>
+                                <th class="px-4 py-3">Nama</th>
+                                <th class="px-4 py-3">Alamat</th>
+                                <th class="px-4 py-3">Telepon</th>
+                                <th class="px-4 py-3">Tikor</th>
+                                <th class="px-4 py-3">Datel</th>
+                                <th class="px-4 py-3">STO</th>
+                                <th class="px-4 py-3">Status Alokasi Alpro</th>
+                                <th class="px-4 py-3">Status Order</th>
+                                <th class="px-4 py-3">iHLD LoP ID</th>
+                                <th class="px-4 py-3">Tipe Desain</th>
+                                <th class="px-4 py-3">Total BOQ</th>
+                                <th class="px-4 py-3">Jenis Program</th>
+                                <th class="px-4 py-3">Nama CFU</th>
+                                <th class="px-4 py-3">Progres</th>
+                                <th class="px-4 py-3">Tanggal Update</th>
+                                <th class="px-4 py-3 text-center">Action</th>
+
+                            </tr>
+                        </thead>
+
+                        <!-- BODY -->
+                        <tbody class="divide-y">
+                            @forelse ($rows as $row)
+                                <tr class="hover:bg-slate-50">
+
+                                    <!-- DATA INPUT (ebis_manual_inputs) -->
+                                    <td class="px-4 py-3 sticky left-0 bg-white font-medium">
+                                        {{ $row->nde_jt ?? '-' }}
+                                    </td>
+
+                                    <td class="px-4 py-3">{{ $row->star_click_id ?? '-' }}</td>
+
+                                    <td class="px-4 py-3">{{ $row->nama_customer ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ $row->alamat_pelanggan ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ $row->telepon_pelanggan ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ $row->tikor_pelanggan ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ $row->datel ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ $row->sto ?? '-' }}</td>
+
+                                    <!-- DATA UPLOAD (ebis_planning_orders) -->
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
+                                            {{ optional($row->planning)->status_alokasi_alpro ?? '-' }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3">
+                                        <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
+                                            {{ optional($row->planning)->status_order ?? '-' }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3">{{ optional($row->planning)->ihld_lop_id ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ optional($row->planning)->tipe_desain ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ optional($row->planning)->total_boq ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ optional($row->planning)->jenis_program ?? '-' }}</td>
+                                    <td class="px-4 py-3">{{ optional($row->planning)->nama_cfu ?? '-' }}</td>
+                                    <td class="px-4 py-3">
+                                        <span
+                                            class="px-2 py-1 text-xs rounded
+                                             {{ optional($row->planning)->progres === 'COMPLETED PS'
+                                                 ? 'bg-green-100 text-green-700'
+                                                 : 'bg-yellow-100 text-yellow-700' }}">
+                                            {{ optional($row->planning)->progres ?? '-' }}
+                                        </span>
+                                    </td>
+
+                                    <td class="px-4 py-3 whitespace-nowrap">
+                                        {{ optional($row->planning)->tanggal_update_progres
+                                            ? optional($row->planning)->tanggal_update_progres->format('d-m-Y')
+                                            : '-' }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center whitespace-nowrap">
+                                        <a href="{{ route('deployment.edit', $row->id) }}"
+                                            class="inline-flex items-center justify-center
+                                                    px-3 py-1.5 text-xs font-medium
+                                                    bg-blue-600 text-white
+                                                    rounded-lg
+                                                    hover:bg-blue-700 transition">
+                                            Update
+                                        </a>
+                                    </td>
+
+
+
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="16" class="py-6 text-center text-slate-500">
+                                        Data tidak ditemukan
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+
+
+                    </table>
+                </div>
             </div>
         </div>
     </div>
-</div>
- <div class="mt-6 flex justify-center">
+    <div class="mt-6 flex justify-center">
         {{ $rows->links('components.pagination') }}
     </div>
 @endsection
 
 @push('scripts')
-<script>
-    document.getElementById('tableSearch').addEventListener('keyup', function() {
-        const value = this.value.toLowerCase();
-        document.querySelectorAll('#dataTable tbody tr').forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(value) ?
-                '' :
-                'none';
+    <script>
+        document.getElementById('tableSearch').addEventListener('keyup', function() {
+            const value = this.value.toLowerCase();
+            document.querySelectorAll('#dataTable tbody tr').forEach(row => {
+                row.style.display = row.innerText.toLowerCase().includes(value) ?
+                    '' :
+                    'none';
+            });
         });
-    });
-</script>
+    </script>
 @endpush

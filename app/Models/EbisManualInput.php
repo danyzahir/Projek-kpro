@@ -20,6 +20,7 @@ class EbisManualInput extends Model
         'tikor_pelanggan',
         'datel',
         'sto',
+        'catatan',
     ];
 
     /**

@@ -100,9 +100,9 @@
                 </a>
 
                 <!-- UPDATE -->
-                <a href="{{ route('deployment.update.list') }}" @click="sidebarOpen = false"
+                <a href="{{ route('deployment.update') }}" @click="sidebarOpen = false"
                     class="flex items-center gap-3 px-3 py-2 rounded-lg transition
-                   {{ request()->routeIs('deployment.update.list')
+                   {{ request()->routeIs('deployment.update')
                        ? 'bg-red-100 text-red-600 font-medium shadow'
                        : 'hover:bg-gray-100 text-gray-700' }}">
 

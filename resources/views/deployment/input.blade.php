@@ -115,29 +115,79 @@
                 <!-- ================= LOKASI ================= -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">
-                            Datel <span class="text-red-600">*</span>
-                        </label>
-                        <select name="datel" required class="w-full rounded-lg border px-3 py-2 text-sm">
-                            <option value="" disabled selected>-- Pilih Datel --</option>
-                            @foreach ($datels as $d)
-                                <option value="{{ $d }}">{{ $d }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+                    <div x-data="searchableSelect(@js($datels))" class="relative">
+    <label class="block text-sm font-medium text-slate-600 mb-1">
+        Datel <span class="text-red-600">*</span>
+    </label>
 
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">
-                            STO <span class="text-red-600">*</span>
-                        </label>
-                        <select name="sto" required class="w-full rounded-lg border px-3 py-2 text-sm">
-                            <option value="" disabled selected>-- Pilih STO --</option>
-                            @foreach ($stos as $s)
-                                <option value="{{ $s }}">{{ $s }}</option>
-                            @endforeach
-                        </select>
-                    </div>
+    <input
+        type="text"
+        x-model="search"
+        @focus="open = true"
+        @click="open = true"
+        @input="open = true"
+        placeholder="Datel"
+        class="w-full rounded-lg border px-3 py-2 text-sm
+               focus:ring-2 focus:ring-red-500 focus:outline-none"
+        required
+    >
+
+    <input type="hidden" name="datel" :value="selected">
+
+    <div x-show="open" @click.outside="open = false"
+         class="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow max-h-48 overflow-y-auto">
+        <template x-for="item in filtered()" :key="item">
+            <div
+                @click="select(item)"
+                class="px-3 py-2 text-sm cursor-pointer hover:bg-red-50">
+                <span x-text="item"></span>
+            </div>
+        </template>
+
+        <div x-show="filtered().length === 0"
+             class="px-3 py-2 text-sm text-slate-400">
+            Tidak ditemukan
+        </div>
+    </div>
+</div>
+
+
+                    <div x-data="searchableSelect(@js($stos))" class="relative">
+    <label class="block text-sm font-medium text-slate-600 mb-1">
+        STO <span class="text-red-600">*</span>
+    </label>
+
+    <input
+        type="text"
+        x-model="search"
+        @focus="open = true"
+        @click="open = true"
+        @input="open = true"
+        placeholder="STO"
+        class="w-full rounded-lg border px-3 py-2 text-sm
+               focus:ring-2 focus:ring-red-500 focus:outline-none"
+        required
+    >
+
+    <input type="hidden" name="sto" :value="selected">
+
+    <div x-show="open" @click.outside="open = false"
+         class="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow max-h-48 overflow-y-auto">
+        <template x-for="item in filtered()" :key="item">
+            <div
+                @click="select(item)"
+                class="px-3 py-2 text-sm cursor-pointer hover:bg-red-50">
+                <span x-text="item"></span>
+            </div>
+        </template>
+
+        <div x-show="filtered().length === 0"
+             class="px-3 py-2 text-sm text-slate-400">
+            Tidak ditemukan
+        </div>
+    </div>
+</div>
+
 
                 </div>
                 <div class="mb-6">

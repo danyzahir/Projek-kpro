@@ -11,6 +11,29 @@
     <!-- Alpine -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
+<script>
+    function searchableSelect(options) {
+        return {
+            open: false,
+            search: '',
+            selected: '',
+            options: options,
+
+            filtered() {
+                if (this.search === '') return this.options
+                return this.options.filter(o =>
+                    o.toLowerCase().includes(this.search.toLowerCase())
+                )
+            },
+
+            select(option) {
+                this.selected = option
+                this.search = option
+                this.open = false
+            }
+        }
+    }
+</script>
 
 <body class="bg-gradient-to-br from-gray-100 to-gray-200 h-screen overflow-hidden">
 

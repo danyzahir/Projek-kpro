@@ -79,16 +79,10 @@
 
         <!-- TABLE AREA (ADA PADDING) -->
         <div class="p-4" id="table-container">
-            @include('deployment.partials.table', ['rows' => $rows])
-
-            <!-- SCROLL HANYA DI SINI -->
-           
+            @include('deployment.partials.table', ['rows' => $rows])>
         </div>
     </div>
 
-</div>
-<div class="mt-6 flex justify-center">
-    {{ $rows->links('components.pagination') }}
 </div>
 
 <div id="loadingOverlay"

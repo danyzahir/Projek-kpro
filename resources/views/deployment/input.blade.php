@@ -116,77 +116,59 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
                     <div x-data="searchableSelect(@js($datels))" class="relative">
-    <label class="block text-sm font-medium text-slate-600 mb-1">
-        Datel <span class="text-red-600">*</span>
-    </label>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">
+                            Datel <span class="text-red-600">*</span>
+                        </label>
 
-    <input
-        type="text"
-        x-model="search"
-        @focus="open = true"
-        @click="open = true"
-        @input="open = true"
-        placeholder="Datel"
-        class="w-full rounded-lg border px-3 py-2 text-sm
-               focus:ring-2 focus:ring-red-500 focus:outline-none"
-        required
-    >
+                        <input type="text" x-model="search" @focus="open = true" @click="open = true"
+                            @input="open = true" placeholder="Datel"
+                            class="w-full rounded-lg border px-3 py-2 text-sm
+                                focus:ring-2 focus:ring-red-500 focus:outline-none"
+                            required>
 
-    <input type="hidden" name="datel" :value="selected">
+                        <input type="hidden" name="datel" :value="selected">
 
-    <div x-show="open" @click.outside="open = false"
-         class="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow max-h-48 overflow-y-auto">
-        <template x-for="item in filtered()" :key="item">
-            <div
-                @click="select(item)"
-                class="px-3 py-2 text-sm cursor-pointer hover:bg-red-50">
-                <span x-text="item"></span>
-            </div>
-        </template>
+                        <div x-show="open" @click.outside="open = false"
+                            class="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow max-h-48 overflow-y-auto">
+                            <template x-for="item in filtered()" :key="item">
+                                <div @click="select(item)" class="px-3 py-2 text-sm cursor-pointer hover:bg-red-50">
+                                    <span x-text="item"></span>
+                                </div>
+                            </template>
 
-        <div x-show="filtered().length === 0"
-             class="px-3 py-2 text-sm text-slate-400">
-            Tidak ditemukan
-        </div>
-    </div>
-</div>
+                            <div x-show="filtered().length === 0" class="px-3 py-2 text-sm text-slate-400">
+                                Tidak ditemukan
+                            </div>
+                        </div>
+                    </div>
 
 
                     <div x-data="searchableSelect(@js($stos))" class="relative">
-    <label class="block text-sm font-medium text-slate-600 mb-1">
-        STO <span class="text-red-600">*</span>
-    </label>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">
+                            STO <span class="text-red-600">*</span>
+                        </label>
 
-    <input
-        type="text"
-        x-model="search"
-        @focus="open = true"
-        @click="open = true"
-        @input="open = true"
-        placeholder="STO"
-        class="w-full rounded-lg border px-3 py-2 text-sm
-               focus:ring-2 focus:ring-red-500 focus:outline-none"
-        required
-    >
+                        <input type="text" x-model="search" @focus="open = true" @click="open = true"
+                            @input="open = true" placeholder="STO"
+                            class="w-full rounded-lg border px-3 py-2 text-sm
+                                focus:ring-2 focus:ring-red-500 focus:outline-none"
+                            required>
 
-    <input type="hidden" name="sto" :value="selected">
+                        <input type="hidden" name="sto" :value="selected">
 
-    <div x-show="open" @click.outside="open = false"
-         class="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow max-h-48 overflow-y-auto">
-        <template x-for="item in filtered()" :key="item">
-            <div
-                @click="select(item)"
-                class="px-3 py-2 text-sm cursor-pointer hover:bg-red-50">
-                <span x-text="item"></span>
-            </div>
-        </template>
+                        <div x-show="open" @click.outside="open = false"
+                            class="absolute z-50 mt-1 w-full bg-white border rounded-lg shadow max-h-48 overflow-y-auto">
+                            <template x-for="item in filtered()" :key="item">
+                                <div @click="select(item)" class="px-3 py-2 text-sm cursor-pointer hover:bg-red-50">
+                                    <span x-text="item"></span>
+                                </div>
+                            </template>
 
-        <div x-show="filtered().length === 0"
-             class="px-3 py-2 text-sm text-slate-400">
-            Tidak ditemukan
-        </div>
-    </div>
-</div>
+                            <div x-show="filtered().length === 0" class="px-3 py-2 text-sm text-slate-400">
+                                Tidak ditemukan
+                            </div>
+                        </div>
+                    </div>
 
 
                 </div>
@@ -198,20 +180,17 @@
 
 
                 <!-- ================= ACTION ================= -->
-                <div class="flex justify-end pt-6 border-t border-slate-200">
-                    <button type="submit"
-                        class="px-6 py-2 rounded-lg
-                            bg-red-600 text-white
-                            hover:bg-red-700 transition">
-                        Simpan Data
-                    </button>
+                <button type="button" @click="confirmOpen = true"
+                    class="px-6 py-2 rounded-lg
+                        bg-red-600 text-white
+                        hover:bg-red-700 transition">
+                    Simpan Data
+                </button>
 
-                </div>
 
 
                 <!-- ================= MODAL KONFIRMASI (NO BLUR, NO OVERLAY) ================= -->
-                <template
-                    x-teleport="body">
+                <template x-teleport="body">
                     <div x-show="confirmOpen" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center">
                         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6">
                             <h3 class="text-lg font-semibold text-slate-800 mb-2"> Konfirmasi Simpan Data </h3>
@@ -232,4 +211,3 @@
 
     </div>
 @endsection
-

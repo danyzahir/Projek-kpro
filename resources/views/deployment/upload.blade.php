@@ -85,42 +85,44 @@
 
 </div>
 
-<div id="loadingOverlay"
-    class="fixed inset-0 z-50 hidden items-center justify-center
-            bg-transparent  pointer-events-auto">
+ <div id="loadingOverlay"
+        class="fixed inset-0 z-50 hidden items-center justify-center
+        pointer-events-auto">
 
-    <div class="bg-white rounded-2xl p-6 w-80 text-center
-                shadow-[0_25px_50px_-12px_rgba(0,0,0,0.35)] ring-1 ring-black/5">
+        <div class="bg-white rounded-2xl p-6 w-72 text-center shadow-xl">
 
-        <p class="text-sm font-semibold mb-4 text-slate-700">
-            Mengimpor data, mohon tunggu...
-        </p>
+            <!-- SPINNER -->
+            <div class="flex justify-center mb-4">
+                <div class="spinner"></div>
+            </div>
 
-        <div class="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-            <div class="bg-red-600 h-2 rounded-full animate-loading"></div>
+            <p class="text-sm font-semibold text-slate-700">
+                Mengimpor data, mohon tunggu...
+            </p>
+
+            <p class="text-xs text-slate-500 mt-1">
+                Jangan tutup halaman ini
+            </p>
         </div>
     </div>
-</div>
 @endsection
 
 @push('scripts')
 <style>
-    @keyframes loading {
-        0% {
-            width: 0%;
-        }
-
-        50% {
-            width: 80%;
-        }
-
-        100% {
-            width: 100%;
-        }
+    /* SPINNER */
+    .spinner {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #ef4444; /* red-500 */
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        animation: spin 1s linear infinite;
     }
 
-    .animate-loading {
-        animation: loading 2s ease-in-out infinite;
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 </style>
 

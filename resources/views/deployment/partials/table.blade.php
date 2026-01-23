@@ -1,98 +1,90 @@
-<div class="overflow-x-auto rounded-2xl border border-slate-200 bg-white">
-    <table class="min-w-[1400px] text-sm text-slate-700">
+<div class="relative overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <table class="min-w-[1600px] text-sm text-slate-700">
 
         <!-- HEADER -->
-        <thead class="sticky top-0 z-20 bg-slate-100 border-b">
-            <tr class="text-xs font-semibold uppercase tracking-wide text-slate-600">
-                <th class="sticky left-0 z-30 bg-slate-100 px-4 py-3 border-r">Star Click ID</th>
-                <th class="px-4 py-3">Track ID</th>
-                <th class="px-4 py-3">Ticket ID</th>
-                <th class="px-4 py-3">Star Click Status</th>
-                <th class="px-4 py-3">Status Alokasi Alpro</th>
-                <th class="px-4 py-3">ID ODP Alokasi</th>
-                <th class="px-4 py-3">Nama ODP Alokasi</th>
-                <th class="px-4 py-3">Reservation ID</th>
-                <th class="px-4 py-3">Nama Pengguna Alokasi</th>
-                <th class="px-4 py-3">Username/NIK</th>
-                <th class="px-4 py-3">Latitude</th>
-                <th class="px-4 py-3">Longitude</th>
-                <th class="px-4 py-3">Sales Code</th>
-                <th class="px-4 py-3">Remark</th>
-                <th class="px-4 py-3">Segment</th>
-                <th class="px-4 py-3">CFU</th>
-                <th class="px-4 py-3">Source App</th>
-                <th class="px-4 py-3">Disurvey Pada</th>
-                <th class="px-4 py-3">Estimasi Go Live</th>
-                <th class="px-4 py-3">Real Go Live</th>
-                <th class="px-4 py-3">Initial Date</th>
-                <th class="px-4 py-3">Finish Install Date</th>
-                <th class="px-4 py-3">Regional</th>
-                <th class="px-4 py-3">Witel</th>
-                <th class="px-4 py-3">Witel Lama</th>
-                <th class="px-4 py-3">Datel</th>
-                <th class="px-4 py-3">STO</th>
-                <th class="px-4 py-3">WOK</th>
-                <th class="px-4 py-3">Nama Customer</th>
-                <th class="px-4 py-3">Telkomsel Area</th>
-                <th class="px-4 py-3">Telkomsel Regional</th>
-                <th class="px-4 py-3">Telkomsel Branch</th>
-                <th class="px-4 py-3">Telkomsel Cluster</th>
-                <th class="px-4 py-3">Status Order</th>
-                <th class="px-4 py-3">Validasi Planning</th>
-                <th class="px-4 py-3">iHLD LoP ID</th>
-                <th class="px-4 py-3">eProposal LoP ID</th>
-                <th class="px-4 py-3">eProposal Parent ID</th>
-                <th class="px-4 py-3">Kode Program</th>
-                <th class="px-4 py-3">Nama Proyek</th>
-                <th class="px-4 py-3">Tipe Desain</th>
-                <th class="px-4 py-3">Total BOQ</th>
-                <th class="px-4 py-3">Capex / Port</th>
-                <th class="px-4 py-3">ODP Total</th>
-                <th class="px-4 py-3">Total Port</th>
-                <th class="px-4 py-3">Batch Program</th>
-                <th class="px-4 py-3">Status eProposal</th>
-                <th class="px-4 py-3">Status TOMPS</th>
-                <th class="px-4 py-3">TOMPS Last Activity</th>
-                <th class="px-4 py-3">Status SAP</th>
-                <th class="px-4 py-3">Status Proyek</th>
-                <th class="px-4 py-3">Jenis Program</th>
-                <th class="px-4 py-3">ODP Go Live</th>
-                <th class="px-4 py-3">Tanggal Waiting Caring</th>
-                <th class="px-4 py-3">Tanggal Submitted eProposal</th>
-                <th class="px-4 py-3">Tanggal Inisiasi TOMPS</th>
-                <th class="px-4 py-3">Tanggal Validasi ABD</th>
-                <th class="px-4 py-3">Tanggal Go Live TOMPS</th>
-                <th class="px-4 py-3">Ditambahkan Pada</th>
-                <th class="px-4 py-3">Username Pembuat</th>
-                <th class="px-4 py-3">Kategori Mitra</th>
-                <th class="px-4 py-3">Nama Mitra</th>
-                <th class="px-4 py-3">Revenue Plan</th>
-                <th class="px-4 py-3">Nama CFU</th>
-                <th class="px-4 py-3">Tahun</th>
-                <th class="px-4 py-3">Kategori</th>
+        <thead
+            class="sticky top-0 z-20
+                   bg-slate-50
+                   text-[11px] font-semibold uppercase tracking-wider
+                   text-slate-500
+                   border-b border-slate-200">
+
+            <tr>
+                <th class="sticky left-0 z-30 bg-slate-50 px-4 py-3 border-r border-slate-200">
+                    Star Click ID
+                </th>
+
+                @foreach ([
+                    'Track ID','Ticket ID','Star Click Status','Status Alokasi Alpro',
+                    'ID ODP','Nama ODP','Reservation ID','Nama Pengguna','Username/NIK',
+                    'Latitude','Longitude','Sales Code','Remark','Segment','CFU',
+                    'Source App','Disurvey Pada','Estimasi Go Live','Real Go Live',
+                    'Initial Date','Finish Install Date','Regional','Witel','Witel Lama',
+                    'Datel','STO','WOK','Nama Customer','Telkomsel Area','Telkomsel Regional',
+                    'Telkomsel Branch','Telkomsel Cluster','Status Order','Validasi Planning',
+                    'iHLD LoP ID','eProposal LoP ID','eProposal Parent ID','Kode Program',
+                    'Nama Proyek','Tipe Desain','Total BOQ','Capex / Port','ODP Total',
+                    'Total Port','Batch Program','Status eProposal','Status TOMPS',
+                    'TOMPS Last Activity','Status SAP','Status Proyek','Jenis Program',
+                    'ODP Go Live','Waiting Caring','Submitted eProposal',
+                    'Inisiasi TOMPS','Validasi ABD','Go Live TOMPS','Ditambahkan Pada',
+                    'Username Pembuat','Kategori Mitra','Nama Mitra',
+                    'Revenue Plan','Nama CFU','Tahun','Kategori'
+                ] as $head)
+                    <th class="px-4 py-3 whitespace-nowrap">
+                        {{ $head }}
+                    </th>
+                @endforeach
             </tr>
         </thead>
 
         <!-- BODY -->
-        <tbody class="divide-y">
+        <tbody class="divide-y divide-slate-100">
             @forelse ($rows as $row)
-                <tr class="hover:bg-slate-50">
-                    <td class="sticky left-0 z-10 bg-white px-4 py-3 font-medium">
-                        {{ $row->star_click_id }}
+                <tr class="hover:bg-slate-50 transition">
+
+                    <!-- STICKY FIRST COLUMN -->
+                    <td
+                        class="sticky left-0 z-10 bg-white px-4 py-3 font-semibold
+                               border-r border-slate-100">
+                        {{ $row->star_click_id ?? '-' }}
                     </td>
+
                     <td class="px-4 py-3">{{ $row->track_id }}</td>
                     <td class="px-4 py-3">{{ $row->ticket_id }}</td>
-                    <td class="px-4 py-3">{{ $row->star_click_status }}</td>
-                    <td class="px-4 py-3">{{ $row->status_alokasi_alpro }}</td>
+
+                    <!-- STATUS BADGE -->
+                    <td class="px-4 py-3">
+                        <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
+                            {{ $row->star_click_status === 'ACTIVE'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-slate-100 text-slate-600' }}">
+                            {{ $row->star_click_status }}
+                        </span>
+                    </td>
+
+                    <td class="px-4 py-3">
+                        <span class="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium
+                            {{ $row->status_alokasi_alpro === 'OK'
+                                ? 'bg-blue-100 text-blue-700'
+                                : 'bg-yellow-100 text-yellow-700' }}">
+                            {{ $row->status_alokasi_alpro }}
+                        </span>
+                    </td>
+
                     <td class="px-4 py-3">{{ $row->id_odp_alokasi_alpro }}</td>
                     <td class="px-4 py-3">{{ $row->nama_odp_alokasi_alpro }}</td>
                     <td class="px-4 py-3">{{ $row->reservation_id_alokasi_alpro }}</td>
                     <td class="px-4 py-3">{{ $row->nama_pengguna_melakukan_alokasi_alpro }}</td>
                     <td class="px-4 py-3">{{ $row->username_nik_alokasi_alpro }}</td>
-                    <td class="px-4 py-3">{{ $row->latitude }}</td>
-                    <td class="px-4 py-3">{{ $row->longitude }}</td>
+
+                    <td class="px-4 py-3 tabular-nums">{{ $row->latitude }}</td>
+                    <td class="px-4 py-3 tabular-nums">{{ $row->longitude }}</td>
+
                     <td class="px-4 py-3">{{ $row->sales_code }}</td>
-                    <td class="px-4 py-3">{{ $row->remark }}</td>
+                    <td class="px-4 py-3 text-slate-500">{{ $row->remark }}</td>
+
+                    <!-- sisanya biarkan sama -->
                     <td class="px-4 py-3">{{ $row->segment }}</td>
                     <td class="px-4 py-3">{{ $row->cfu }}</td>
                     <td class="px-4 py-3">{{ $row->source_app }}</td>
@@ -148,8 +140,8 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="70" class="text-center py-10 text-slate-400">
-                        Tidak ada data ditemukan
+                    <td colspan="70" class="py-12 text-center text-slate-400">
+                        Data tidak ditemukan
                     </td>
                 </tr>
             @endforelse

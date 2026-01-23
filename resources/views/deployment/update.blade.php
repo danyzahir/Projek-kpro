@@ -25,7 +25,6 @@
             <!-- ================= TABLE ================= -->
             <div class="bg-white rounded-xl shadow-sm p-6">
 
-                <!-- ================= FILTER (MANUAL INPUT) ================= -->
                 <form method="GET" action="{{ route('deployment.update') }}"
                     class="mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
 
@@ -61,37 +60,35 @@
                 </form>
 
                 <!-- ================= TABLE ================= -->
-                <div class="overflow-x-auto rounded-xl border">
-                    <table class="min-w-[2000px] text-sm text-left border-collapse">
+                <div class="relative overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <table class="min-w-[1600px] text-sm text-slate-700">
 
                         <!-- HEADER -->
-                        <thead class="bg-red-600 text-white sticky top-0 z-10">
+                        <thead class="sticky top-0 z-20
+                            bg-slate-50
+                            border-b border-slate-200
+                            text-[11px] font-semibold uppercase tracking-wider
+                            text-slate-500">
                             <tr>
-                                <th class="px-4 py-3 sticky left-0 bg-red-600 z-20">NDE JT</th>
-                                <th class="px-4 py-3">Starclick / NCX</th>
+                                <th class="sticky left-0 z-30 bg-slate-50 px-4 py-3 border-r border-slate-200">
+                                    NDE JT
+                                </th>
+                                @foreach (['Starclick ID', 'Nama', 'Alamat', 'Telepon', 'Tikor', 'Datel', 'STO', 'Status Alokasi Alpro', 'Status Order', 'iHLD LoP ID', 'Tipe Desain', 'Total BOQ', 'Jenis Program', 'Nama CFU', 'Progres', 'Tanggal Update', 'Action'] as $head)
+                                    <th
+                                        class="px-4 py-4
+                                        align-middle
+                                        whitespace-nowrap
+                                        {{ $head === 'Action' ? 'text-center' : '' }}">
+                                         {{ $head }}
+                                    </th>
+                                @endforeach
 
-                                <th class="px-4 py-3">Nama</th>
-                                <th class="px-4 py-3">Alamat</th>
-                                <th class="px-4 py-3">Telepon</th>
-                                <th class="px-4 py-3">Tikor</th>
-                                <th class="px-4 py-3">Datel</th>
-                                <th class="px-4 py-3">STO</th>
-                                <th class="px-4 py-3">Status Alokasi Alpro</th>
-                                <th class="px-4 py-3">Status Order</th>
-                                <th class="px-4 py-3">iHLD LoP ID</th>
-                                <th class="px-4 py-3">Tipe Desain</th>
-                                <th class="px-4 py-3">Total BOQ</th>
-                                <th class="px-4 py-3">Jenis Program</th>
-                                <th class="px-4 py-3">Nama CFU</th>
-                                <th class="px-4 py-3">Progres</th>
-                                <th class="px-4 py-3">Tanggal Update</th>
-                                <th class="px-4 py-3 text-center">Action</th>
 
                             </tr>
                         </thead>
 
                         <!-- BODY -->
-                        <tbody class="divide-y">
+                        <tbody class="divide-y bg-white">
                             @forelse ($rows as $row)
                                 <tr class="hover:bg-slate-50">
 
@@ -111,7 +108,8 @@
 
                                     <!-- DATA UPLOAD (ebis_planning_orders) -->
                                     <td class="px-4 py-3">
-                                        <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
+                                        <span
+                                            class="px-2 py-1 text-xs rounded-full font-medium bg-green-100 text-green-700">
                                             {{ optional($row->planning)->status_alokasi_alpro ?? '-' }}
                                         </span>
                                     </td>
@@ -144,11 +142,11 @@
                                     </td>
                                     <td class="px-4 py-3 text-center whitespace-nowrap">
                                         <a href="{{ route('deployment.edit', $row->id) }}"
-                                            class="inline-flex items-center justify-center
-                                                    px-3 py-1.5 text-xs font-medium
-                                                    bg-blue-600 text-white
-                                                    rounded-lg
-                                                    hover:bg-blue-700 transition">
+                                            class="inline-flex items-center gap-1
+                                                px-3 py-1.5 text-xs font-medium
+                                                rounded-md
+                                                text-blue-600 bg-blue-50
+                                                hover:bg-blue-100 transition">
                                             Update
                                         </a>
                                     </td>
@@ -158,9 +156,15 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="16" class="py-6 text-center text-slate-500">
-                                        Data tidak ditemukan
+                                    <td colspan="18" class="py-12 text-center text-slate-500">
+                                        <div class="flex flex-col items-center gap-2">
+                                            <span class="text-sm font-medium">Data tidak ditemukan</span>
+                                            <span class="text-xs text-slate-400">
+                                                Coba ubah filter atau kata kunci pencarian
+                                            </span>
+                                        </div>
                                     </td>
+
                                 </tr>
                             @endforelse
                         </tbody>
@@ -177,14 +181,5 @@
 @endsection
 
 @push('scripts')
-    <script>
-        document.getElementById('tableSearch').addEventListener('keyup', function() {
-            const value = this.value.toLowerCase();
-            document.querySelectorAll('#dataTable tbody tr').forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(value) ?
-                    '' :
-                    'none';
-            });
-        });
-    </script>
+    <script></script>
 @endpush

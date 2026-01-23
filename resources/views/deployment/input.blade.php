@@ -5,6 +5,8 @@
 @section('content')
 
     <!-- ================= BREADCRUMB ================= -->
+
+
     <div class="flex items-center gap-3 text-sm text-slate-500 mb-6">
         <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">
             Dashboard
@@ -23,9 +25,50 @@
 
         <!-- ================= FORM CARD ================= -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+<!-- ================= TOAST NOTIFICATION ================= -->
+<div
+    x-show="toastOpen"
+    x-transition.opacity
+    x-cloak
+    class="fixed bottom-6 right-6 z-[9999]">
 
-            <form x-data="{ confirmOpen: false }" x-ref="form" method="POST" action="{{ route('ebis.manual.store') }}"
-                class="space-y-8">
+    <div
+        class="flex items-center gap-3
+               rounded-xl bg-red-600 text-white
+               px-4 py-3 shadow-lg">
+
+        <!-- ICON -->
+        <svg xmlns="http://www.w3.org/2000/svg"
+             class="w-5 h-5"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01M12 5a7 7 0 100 14 7 7 0 000-14z" />
+        </svg>
+
+        <span x-text="toastMsg" class="text-sm font-medium"></span>
+    </div>
+</div>
+
+            <form x-data="{
+                confirmOpen: false,
+                valid: true,
+                toastOpen: false,
+                toastMsg: '',
+                checkRequired() {
+                    this.valid = [...this.$el.querySelectorAll('[required]')]
+                        .every(el => el.value.trim() !== '')
+                },
+                showToast(msg) {
+                    this.toastMsg = msg
+                    this.toastOpen = true
+                    setTimeout(() => this.toastOpen = false, 3000)
+                }
+            }" @input="checkRequired()" x-ref="form" method="POST"
+                action="{{ route('ebis.manual.store') }}" class="space-y-8">
                 @csrf
 
                 <!-- ================= IDENTITAS ================= -->
@@ -40,6 +83,7 @@
                             class="w-full rounded-lg border px-3 py-2 text-sm
                                focus:ring-2 focus:ring-red-500 focus:outline-none"
                             placeholder="Masukkan nomor NDE JT">
+
                     </div>
 
                     <!-- STARCLICK -->
@@ -51,6 +95,9 @@
                             class="w-full rounded-lg border px-3 py-2 text-sm
                                focus:ring-2 focus:ring-red-500 focus:outline-none"
                             placeholder="Masukkan Starclick ID / NCX">
+                        @error('star_click_id')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
 
@@ -65,6 +112,9 @@
                             class="w-full rounded-lg border px-3 py-2 text-sm
                                focus:ring-2 focus:ring-red-500 focus:outline-none"
                             placeholder="Nama lengkap pelanggan">
+                        @error('nama_customer')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">
@@ -74,6 +124,9 @@
                             class="w-full rounded-lg border px-3 py-2 text-sm
                                focus:ring-2 focus:ring-red-500 focus:outline-none"
                             placeholder="Nama lengkap mitra">
+                        @error('nama_mitra')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div>
@@ -84,6 +137,9 @@
                             class="w-full rounded-lg border px-3 py-2 text-sm
                                focus:ring-2 focus:ring-red-500 focus:outline-none"
                             placeholder="08xxxxxxxxxx">
+                        @error('telepon_pelanggan')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-600 mb-1">
@@ -93,6 +149,9 @@
                             class="w-full rounded-lg border px-3 py-2 text-sm
                             focus:ring-2 focus:ring-red-500 focus:outline-none"
                             placeholder="-6.xxxxx, 108.xxxxx">
+                        @error('tikor_pelanggan')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
 
@@ -108,6 +167,9 @@
                             class="w-full rounded-lg border px-3 py-2 text-sm
                            focus:ring-2 focus:ring-red-500 focus:outline-none"
                             placeholder="Alamat lengkap pelanggan">
+                        @error('alamat_pelanggan')
+                            <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                        @enderror
 
                     </div>
                 </div>
@@ -172,20 +234,25 @@
 
 
                 </div>
-                <div class="mb-6">
-                    <label class="block text-sm font-medium">Catatan</label>
-                    <textarea name="catatan" rows="3" class="w-full mt-1 px-3 py-2 border rounded-lg"
-                        placeholder="Catatan tambahan (opsional)">{{ old('catatan') }}</textarea>
-                </div>
 
 
                 <!-- ================= ACTION ================= -->
-                <button type="button" @click="confirmOpen = true"
+                <button type="button"
+                    @click="
+                    checkRequired();
+                    valid
+                        ? confirmOpen = true
+                        : showToast('Harap lengkapi semua field wajib sebelum menyimpan data')
+                "
                     class="px-6 py-2 rounded-lg
                         bg-red-600 text-white
                         hover:bg-red-700 transition">
-                    Simpan Data
+                    Submit Data
                 </button>
+                <p x-show="!valid" class="text-sm text-red-600 mt-2">
+                    ⚠️ Lengkapi semua field wajib sebelum menyimpan
+                </p>
+
 
 
 

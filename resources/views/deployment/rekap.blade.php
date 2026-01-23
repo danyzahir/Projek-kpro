@@ -47,110 +47,125 @@
                     <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
                         Filter
                     </button>
-                    
+
                 </div>
             </form>
 
+
             <!-- ================= TABLE ================= -->
-            <div class="overflow-x-auto rounded-xl border">
-                <table class="min-w-[2000px] text-sm text-left border-collapse">
+            <!-- ================= TABLE ================= -->
+            <div class="relative overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <table class="min-w-[1600px] text-sm text-slate-700">
 
                     <!-- HEADER -->
-                    <thead class="bg-red-600 text-white sticky top-0 z-10">
-                        <tr>
-                            <th class="px-4 py-3 sticky left-0 bg-red-600 z-20">NDE JT</th>
-                            <th class="px-4 py-3">Starclick / NCX</th>
+                    <thead
+                        class="sticky top-0 z-20
+                            bg-slate-50
+                            border-b border-slate-200
+                            text-[11px] font-semibold uppercase tracking-wider
+                            text-slate-500">
 
-                            <th class="px-4 py-3">Nama</th>
-                            <th class="px-4 py-3">Nama Mitra</th>
-                            <th class="px-4 py-3">Alamat</th>
-                            <th class="px-4 py-3">Telepon</th>
-                            <th class="px-4 py-3">Tikor</th>
-                            <th class="px-4 py-3">Datel</th>
-                            <th class="px-4 py-3">STO</th>
-                            <th class="px-4 py-3">Status Alokasi Alpro</th>
-                            <th class="px-4 py-3">Status Order</th>
-                            <th class="px-4 py-3">iHLD LoP ID</th>
-                            <th class="px-4 py-3">Tipe Desain</th>
-                            <th class="px-4 py-3">Total BOQ</th>
-                            <th class="px-4 py-3">Jenis Program</th>
-                            <th class="px-4 py-3">Nama CFU</th>
-                            <th class="px-4 py-3">Progres</th>
-                            <th class="px-4 py-3">Tanggal Update</th>
-                            <th class="px-4 py-3">Catatan</th>
+                        <tr>
+                            <th
+                                class="sticky left-0 z-30 bg-slate-50 px-4 py-3 border-r border-slate-200">
+
+                                NDE JT
+                            </th>
+
+                            @foreach (['Starclick ID', 'Nama', 'Nama Mitra', 'Alamat', 'Telepon', 'Tikor', 'Datel', 'STO', 'Status Alokasi', 'Status Order', 'iHLD LoP ID', 'Tipe Desain', 'Total BOQ', 'Jenis Program', 'Nama CFU', 'Progres', 'Tanggal Update', 'Catatan'] as $head)
+                                <th
+                                    class="px-4 py-4
+                                    align-middle text-center
+                                    whitespace-nowrap">
+                                    {{ $head }}
+                                </th>
+                            @endforeach
+
                         </tr>
                     </thead>
 
                     <!-- BODY -->
-                    <tbody class="divide-y">
+                    <tbody class="divide-y divide-slate-100 bg-white">
                         @forelse ($rows as $row)
-                            <tr class="hover:bg-slate-50">
+                            <tr class="hover:bg-slate-50 transition">
 
-                                <!-- DATA INPUT (ebis_manual_inputs) -->
-                                <td class="px-4 py-3 sticky left-0 bg-white font-medium">
+                                <!-- STICKY FIRST COLUMN -->
+                                <td
+                                    class="sticky left-0 z-10
+                               bg-white
+                               px-4 py-4
+                               font-semibold
+                               border-r border-slate-100">
                                     {{ $row->nde_jt ?? '-' }}
                                 </td>
 
-                                <td class="px-4 py-3">{{ $row->star_click_id ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->star_click_id ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->nama_customer ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->nama_mitra ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->alamat_pelanggan ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->telepon_pelanggan ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->tikor_pelanggan ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->datel ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ $row->sto ?? '-' }}</td>
 
-                                <td class="px-4 py-3">{{ $row->nama_customer ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ $row->nama_mitra ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ $row->alamat_pelanggan ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ $row->telepon_pelanggan ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ $row->tikor_pelanggan ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ $row->datel ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ $row->sto ?? '-' }}</td>
-
-                                <!-- DATA UPLOAD (ebis_planning_orders) -->
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                                        {{ optional($row->planning)->status_alokasi_alpro ?? '-' }}
-                                    </span>
+                                <!-- STATUS ALOKASI -->
+                                <td class="px-4 py-4">
+                                   <span
+                                            class="px-2 py-1 text-xs rounded-full font-medium bg-green-100 text-green-700">
+                                            {{ optional($row->planning)->status_alokasi_alpro ?? '-' }}
+                                        </span>
                                 </td>
 
-                                <td class="px-4 py-3">
-                                    <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
-                                        {{ optional($row->planning)->status_order ?? '-' }}
-                                    </span>
+                                <!-- STATUS ORDER -->
+                                <td class="px-4 py-4">
+                                     <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
+                                            {{ optional($row->planning)->status_order ?? '-' }}
+                                        </span>
                                 </td>
 
-                                <td class="px-4 py-3">{{ optional($row->planning)->ihld_lop_id ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ optional($row->planning)->tipe_desain ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ optional($row->planning)->total_boq ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ optional($row->planning)->jenis_program ?? '-' }}</td>
-                                <td class="px-4 py-3">{{ optional($row->planning)->nama_cfu ?? '-' }}</td>
-                                <td class="px-4 py-3">
+                                <td class="px-4 py-4">{{ optional($row->planning)->ihld_lop_id ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ optional($row->planning)->tipe_desain ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ optional($row->planning)->total_boq ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ optional($row->planning)->jenis_program ?? '-' }}</td>
+                                <td class="px-4 py-4">{{ optional($row->planning)->nama_cfu ?? '-' }}</td>
+
+                                <!-- PROGRES -->
+                                <td class="px-4 py-4">
                                     <span
-                                        class="px-2 py-1 text-xs rounded
-                                             {{ optional($row->planning)->progres === 'COMPLETED PS'
-                                                 ? 'bg-green-100 text-green-700'
-                                                 : 'bg-yellow-100 text-yellow-700' }}">
+                                        class="inline-flex min-w-[120px] justify-center
+                                   rounded-full
+                                   px-3 py-1
+                                   text-xs font-medium
+                            {{ optional($row->planning)->progres === 'COMPLETED PS'
+                                ? 'bg-green-100 text-green-700'
+                                : 'bg-yellow-100 text-yellow-700' }}">
                                         {{ optional($row->planning)->progres ?? '-' }}
                                     </span>
                                 </td>
 
-                                <td class="px-4 py-3 whitespace-nowrap">
+                                <td class="px-4 py-4 whitespace-nowrap">
                                     {{ optional($row->planning)->tanggal_update_progres
                                         ? optional($row->planning)->tanggal_update_progres->format('d-m-Y')
                                         : '-' }}
                                 </td>
-                                <td class="px-4 py-3">{{ $row->catatan ?? '-' }}</td>
 
-
+                                <td class="px-4 py-4 text-slate-600">
+                                    {{ $row->catatan ?? '-' }}
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="16" class="py-6 text-center text-slate-500">
+                                <td colspan="19" class="py-12 text-center text-slate-400">
                                     Data tidak ditemukan
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
 
-
                 </table>
-                
             </div>
+
+
         </div>
     </div>
     <div class="mt-6 flex justify-center">

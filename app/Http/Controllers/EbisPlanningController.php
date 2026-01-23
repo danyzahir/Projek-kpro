@@ -126,7 +126,7 @@ class EbisPlanningController extends Controller
             // SORT + PAGINATION
             // =============================
             ->latest()
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         /**
@@ -166,7 +166,7 @@ class EbisPlanningController extends Controller
                     ->orWhere('progres', '-');
             })
             ->orderBy('id', 'desc')
-            ->paginate(5);
+            ->paginate(10);
 
         return view('deployment.update', compact('rows'));
     }

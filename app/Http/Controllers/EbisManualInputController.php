@@ -34,9 +34,10 @@ class EbisManualInputController extends Controller
      * SIMPAN DATA MANUAL
      * =============================
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
+   public function store(Request $request)
+{
+    $validated = $request->validate(
+        [
             'nde_jt'            => 'required|string|max:50',
             'star_click_id'     => 'required|string|max:50',
             'nama_customer'     => 'required|string|max:255',
@@ -47,13 +48,26 @@ class EbisManualInputController extends Controller
             'datel'             => 'required|string|max:50',
             'sto'               => 'required|string|max:50',
             'catatan'           => 'nullable|string',
-        ]);
+        ],
+        [
+            'required' => 'attribute tidak boleh kosong',
+        ],
+        [
+            'nde_jt'            => 'Nomor NDE JT',
+            'star_click_id'     => 'Starclick ID / NCX',
+            'nama_customer'     => 'Nama Pelanggan',
+            'nama_mitra'        => 'Nama Mitra',
+            'datel'             => 'Datel',
+            'sto'               => 'STO',
+        ]
+    );
 
-        EbisManualInput::create($validated);
+    EbisManualInput::create($validated);
 
-        return redirect()->back()
-            ->with('success', 'Data berhasil disimpan');
-    }
+    return redirect()->back()
+        ->with('success', 'Data berhasil disimpan');
+}
+
 
     /**
      * =============================

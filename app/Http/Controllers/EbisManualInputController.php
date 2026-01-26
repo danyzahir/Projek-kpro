@@ -38,7 +38,7 @@ class EbisManualInputController extends Controller
 {
     $validated = $request->validate(
         [
-            'nde_jt'            => 'required|string|max:50',
+            'nde_jt' => 'nullable|string|max:255',
             'star_click_id'     => 'required|string|max:50',
             'nama_customer'     => 'required|string|max:255',
             'nama_mitra'        => 'required|string|max:255',

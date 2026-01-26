@@ -68,14 +68,68 @@ class EbisPlanningController extends Controller
      * LIST DATA UPLOAD
      * =============================
      */
-    public function index(Request $request)
-    {
-        $rows = EbisPlanningOrder::latest()
-            ->paginate(10)
-            ->withQueryString();
+public function index(Request $request)
+{
+    $searchableColumns = [
+        'star_click_id',
+        'track_id',
+        'ticket_id',
+        'nama_customer',
+        'status_order',
+        'tipe_desain',
+        'jenis_program',
+        'datel',
+        'sto',
+        'nama_pengguna_melakukan_alokasi_alpro',
+        'id_odp_alokasi_alpro',
+        'nama_odp_alokasi_alpro',
+        'reservation_id_alokasi_alpro',
+        'username_nik_melakukan_alokasi_alpro',
+        'sales_code',
+        'segment',
+        'cfu',
+        'source_app',
+        'regional',
+        'witel',
+        'witel_lama',
+        'wok',
+        'status_eproposal',
+        'status_tomps',
+        'status_sap',
+        'status_proyek',
+        'kode_program',
+        'nama_proyek',
+        'batch_program',
+        'kategori',
+        'tahun'
+    ];
 
-        return view('deployment.upload', compact('rows'));
+    $rows = EbisPlanningOrder::query()
+
+        // 🔍 GLOBAL SEARCH (SEMUA KOLOM)
+        ->when($request->search, function ($query) use ($request, $searchableColumns) {
+            $query->where(function ($q) use ($request, $searchableColumns) {
+                foreach ($searchableColumns as $column) {
+                    $q->orWhere($column, 'like', '%' . $request->search . '%');
+                }
+            });
+        })
+
+        ->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    // ✅ AJAX → table saja
+    if ($request->ajax()) {
+        return view('deployment.partials.table', compact('rows'))->render();
     }
+
+    // ✅ NORMAL → full page
+    return view('deployment.upload', compact('rows'));
+}
+
+
+
 
 
     /**

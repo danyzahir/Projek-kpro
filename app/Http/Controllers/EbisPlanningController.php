@@ -9,27 +9,49 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Models\EbisPlanningOrder;
 use App\Models\EbisManualInput;
 use App\Helpers\DropdownHelper;
+use Maatwebsite\Excel\Validators\ValidationException;
 use DB;
 
 class EbisPlanningController extends Controller
 {
     /**
      * =============================
-     * IMPORT EXCEL (REPLACE DATA)
+     * IMPORT EXCEL (STRICT HEADER)
      * =============================
      */
     public function import(Request $request)
-    {
-        $request->validate([
-            'file' => 'required|mimes:xlsx,xls',
-        ]);
+{
+    $request->validate([
+        'file' => 'required|mimes:xlsx,xls',
+    ]);
 
-        EbisPlanningOrder::truncate();
+    // Hapus data lama
+    EbisPlanningOrder::truncate();
 
-        Excel::import(new EbisPlanningImport(), $request->file('file'));
+    // Import
+    Excel::import(new EbisPlanningImport(), $request->file('file'));
 
-        return back()->with('success', 'Data lama berhasil diganti dengan data baru');
+    // CEK APAKAH ADA DATA VALID
+    $validData = EbisPlanningOrder::whereNotNull('star_click_id')
+        ->orWhereNotNull('track_id')
+        ->orWhereNotNull('ticket_id')
+        ->orWhereNotNull('nama_customer')
+        ->count();
+
+    // ❌ JIKA TIDAK ADA DATA VALID
+    if ($validData === 0) {
+        EbisPlanningOrder::truncate(); // bersihin lagi
+
+        return redirect()
+            ->route('deployment.upload')
+            ->with('error', 'Import ditolak! Data tidak sesuai.');
     }
+
+    // ✅ JIKA ADA DATA VALID
+    return redirect()
+        ->route('deployment.upload')
+        ->with('success', 'Import berhasil. Data lama diganti dengan data baru.');
+}
 
     /**
      * =============================
@@ -43,105 +65,17 @@ class EbisPlanningController extends Controller
 
     /**
      * =============================
-     * LIST DATA UPLOAD + FILTER
-     * =============================
-     */
-    /**
-     * =============================
-     * LIST DATA UPLOAD + FILTER
+     * LIST DATA UPLOAD
      * =============================
      */
     public function index(Request $request)
     {
-        $searchableColumns = [
-            'star_click_id',
-            'track_id',
-            'ticket_id',
-            'nama_customer',
-            'status_order',
-            'tipe_desain',
-            'jenis_program',
-            'datel',
-            'sto',
-            'nama_pengguna_melakukan_alokasi_alpro'
-        ];
-
-        $rows = EbisPlanningOrder::query()
-
-            // =============================
-            // GLOBAL SEARCH (MULTI KEYWORD)
-            // =============================
-            ->when($request->search, function ($query) use ($request, $searchableColumns) {
-                $keywords = preg_split('/[\s,]+/', $request->search, -1, PREG_SPLIT_NO_EMPTY);
-
-                foreach ($keywords as $keyword) {
-                    $query->where(function ($q) use ($keyword, $searchableColumns) {
-                        foreach ($searchableColumns as $column) {
-                            $q->orWhere($column, 'like', "%{$keyword}%");
-                        }
-                    });
-                }
-            })
-
-            // =============================
-            // FILTERING SPESIFIK
-            // =============================
-            ->when($request->star_click_id, function ($q) use ($request) {
-                $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
-            })
-
-            ->when($request->track_id, function ($q) use ($request) {
-                $q->where('track_id', 'like', '%' . $request->track_id . '%');
-            })
-
-            ->when($request->nama_customer, function ($q) use ($request) {
-                $q->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
-            })
-
-            ->when($request->datel, function ($q) use ($request) {
-                $q->where('datel', $request->datel);
-            })
-
-            ->when($request->sto, function ($q) use ($request) {
-                $q->where('sto', $request->sto);
-            })
-
-            ->when($request->status_order, function ($q) use ($request) {
-                $q->where('status_order', 'like', '%' . $request->status_order . '%');
-            })
-
-            ->when($request->tipe_desain, function ($q) use ($request) {
-                $q->where('tipe_desain', 'like', '%' . $request->tipe_desain . '%');
-            })
-
-            ->when($request->jenis_program, function ($q) use ($request) {
-                $q->where('jenis_program', 'like', '%' . $request->jenis_program . '%');
-            })
-
-            ->when($request->progres, function ($q) use ($request) {
-                $q->where('progres', $request->progres);
-            })
-
-            // =============================
-            // SORT + PAGINATION
-            // =============================
-            ->latest()
+        $rows = EbisPlanningOrder::latest()
             ->paginate(10)
             ->withQueryString();
 
-        /**
-         * =============================
-         * JIKA REQUEST AJAX (LIVE SEARCH)
-         * =============================
-         */
-        if ($request->ajax()) {
-            return view('deployment.partials.table', compact('rows'))->render();
-        }
-
         return view('deployment.upload', compact('rows'));
     }
-
-
 
 
     /**

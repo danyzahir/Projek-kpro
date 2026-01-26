@@ -5,6 +5,8 @@
 @section('content')
 <div class="flex flex-col gap-6">
 
+
+
     <!-- ================= BREADCRUMB ================= -->
     <div class="flex items-center gap-3 text-sm text-slate-500">
         <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">

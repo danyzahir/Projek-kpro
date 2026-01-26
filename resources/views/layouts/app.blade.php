@@ -45,6 +45,7 @@
 
     <!-- FLASH MESSAGE -->
     <x-flash-success />
+    <x-flash-error />
 
     <div x-data="{ sidebarOpen: true }" class="flex h-full">
 

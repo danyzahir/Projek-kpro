@@ -20,38 +20,38 @@ class EbisPlanningController extends Controller
      * =============================
      */
     public function import(Request $request)
-{
-    $request->validate([
-        'file' => 'required|mimes:xlsx,xls',
-    ]);
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
 
-    // Hapus data lama
-    EbisPlanningOrder::truncate();
+        // Hapus data lama
+        EbisPlanningOrder::truncate();
 
-    // Import
-    Excel::import(new EbisPlanningImport(), $request->file('file'));
+        // Import
+        Excel::import(new EbisPlanningImport(), $request->file('file'));
 
-    // CEK APAKAH ADA DATA VALID
-    $validData = EbisPlanningOrder::whereNotNull('star_click_id')
-        ->orWhereNotNull('track_id')
-        ->orWhereNotNull('ticket_id')
-        ->orWhereNotNull('nama_customer')
-        ->count();
+        // CEK APAKAH ADA DATA VALID
+        $validData = EbisPlanningOrder::whereNotNull('star_click_id')
+            ->orWhereNotNull('track_id')
+            ->orWhereNotNull('ticket_id')
+            ->orWhereNotNull('nama_customer')
+            ->count();
 
-    // ❌ JIKA TIDAK ADA DATA VALID
-    if ($validData === 0) {
-        EbisPlanningOrder::truncate(); // bersihin lagi
+        // ❌ JIKA TIDAK ADA DATA VALID
+        if ($validData === 0) {
+            EbisPlanningOrder::truncate(); // bersihin lagi
 
+            return redirect()
+                ->route('deployment.upload')
+                ->with('error', 'Import ditolak! Data tidak sesuai.');
+        }
+
+        // ✅ JIKA ADA DATA VALID
         return redirect()
             ->route('deployment.upload')
-            ->with('error', 'Import ditolak! Data tidak sesuai.');
+            ->with('success', 'Import berhasil. Data lama diganti dengan data baru.');
     }
-
-    // ✅ JIKA ADA DATA VALID
-    return redirect()
-        ->route('deployment.upload')
-        ->with('success', 'Import berhasil. Data lama diganti dengan data baru.');
-}
 
     /**
      * =============================
@@ -68,65 +68,65 @@ class EbisPlanningController extends Controller
      * LIST DATA UPLOAD
      * =============================
      */
-public function index(Request $request)
-{
-    $searchableColumns = [
-        'star_click_id',
-        'track_id',
-        'ticket_id',
-        'nama_customer',
-        'status_order',
-        'tipe_desain',
-        'jenis_program',
-        'datel',
-        'sto',
-        'nama_pengguna_melakukan_alokasi_alpro',
-        'id_odp_alokasi_alpro',
-        'nama_odp_alokasi_alpro',
-        'reservation_id_alokasi_alpro',
-        'username_nik_melakukan_alokasi_alpro',
-        'sales_code',
-        'segment',
-        'cfu',
-        'source_app',
-        'regional',
-        'witel',
-        'witel_lama',
-        'wok',
-        'status_eproposal',
-        'status_tomps',
-        'status_sap',
-        'status_proyek',
-        'kode_program',
-        'nama_proyek',
-        'batch_program',
-        'kategori',
-        'tahun'
-    ];
+    public function index(Request $request)
+    {
+        $searchableColumns = [
+            'star_click_id',
+            'track_id',
+            'ticket_id',
+            'nama_customer',
+            'status_order',
+            'tipe_desain',
+            'jenis_program',
+            'datel',
+            'sto',
+            'nama_pengguna_melakukan_alokasi_alpro',
+            'id_odp_alokasi_alpro',
+            'nama_odp_alokasi_alpro',
+            'reservation_id_alokasi_alpro',
+            'username_nik_melakukan_alokasi_alpro',
+            'sales_code',
+            'segment',
+            'cfu',
+            'source_app',
+            'regional',
+            'witel',
+            'witel_lama',
+            'wok',
+            'status_eproposal',
+            'status_tomps',
+            'status_sap',
+            'status_proyek',
+            'kode_program',
+            'nama_proyek',
+            'batch_program',
+            'kategori',
+            'tahun'
+        ];
 
-    $rows = EbisPlanningOrder::query()
+        $rows = EbisPlanningOrder::query()
 
-        // 🔍 GLOBAL SEARCH (SEMUA KOLOM)
-        ->when($request->search, function ($query) use ($request, $searchableColumns) {
-            $query->where(function ($q) use ($request, $searchableColumns) {
-                foreach ($searchableColumns as $column) {
-                    $q->orWhere($column, 'like', '%' . $request->search . '%');
-                }
-            });
-        })
+            // 🔍 GLOBAL SEARCH (SEMUA KOLOM)
+            ->when($request->search, function ($query) use ($request, $searchableColumns) {
+                $query->where(function ($q) use ($request, $searchableColumns) {
+                    foreach ($searchableColumns as $column) {
+                        $q->orWhere($column, 'like', '%' . $request->search . '%');
+                    }
+                });
+            })
 
-        ->latest()
-        ->paginate(10)
-        ->withQueryString();
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
-    // ✅ AJAX → table saja
-    if ($request->ajax()) {
-        return view('deployment.partials.table', compact('rows'))->render();
+        // ✅ AJAX → table saja
+        if ($request->ajax()) {
+            return view('deployment.partials.table', compact('rows'))->render();
+        }
+
+        // ✅ NORMAL → full page
+        return view('deployment.upload', compact('rows'));
     }
-
-    // ✅ NORMAL → full page
-    return view('deployment.upload', compact('rows'));
-}
 
 
 
@@ -205,59 +205,46 @@ public function index(Request $request)
      * =============================
      */
     public function rekap(Request $request)
-    {
-        $rows = EbisManualInput::with('planning')
+{
+    $query = EbisManualInput::with('planning');
 
-            ->when($request->star_click_id, function ($q) use ($request) {
-                $q->where('star_click_id', 'like', '%' . $request->star_click_id . '%');
-            })
+    $key = $request->filter_key;
+    $values = array_filter(
+        array_map('trim', explode(',', $request->filter_values ?? ''))
+    );
 
-            ->when($request->nama_customer, function ($q) use ($request) {
-                $q->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
-            })
-
-            ->when($request->sto, function ($q) use ($request) {
-                $q->where('sto', 'like', '%' . $request->sto . '%');
-            })
-
-            ->when(
-                $request->status_order || $request->tipe_desain || $request->jenis_program,
-                function ($q) use ($request) {
-                    $q->whereHas('planning', function ($p) use ($request) {
-
-                        if ($request->status_order) {
-                            $p->where('status_order', 'like', '%' . $request->status_order . '%');
-                        }
-
-                        if ($request->tipe_desain) {
-                            $p->where('tipe_desain', 'like', '%' . $request->tipe_desain . '%');
-                        }
-
-                        if ($request->jenis_program) {
-                            $p->where('jenis_program', 'like', '%' . $request->jenis_program . '%');
-                        }
-                    });
-                }
-            )
-
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
-
-
-        $totalOrders = EbisPlanningOrder::count();
-
-        $ordersByStatus = EbisPlanningOrder::select(
-            'status_order',
-            DB::raw('count(*) as total')
-        )
-            ->groupBy('status_order')
-            ->get();
-
-        return view('deployment.rekap', compact(
-            'rows',
-            'totalOrders',
-            'ordersByStatus'
-        ));
+    // === TANPA FILTER → SEMUA DATA MUNCUL ===
+    if (!$key || empty($values)) {
+        $rows = $query->latest()->paginate(10)->withQueryString();
+        return view('deployment.rekap', compact('rows'));
     }
+
+    $query->where(function ($q) use ($key, $values) {
+
+        foreach ($values as $val) {
+
+            // ================= FIELD MANUAL INPUT =================
+            if (in_array($key, ['sto', 'star_click_id', 'nama_customer'])) {
+                $q->orWhere($key, 'like', "%{$val}%");
+            }
+
+            // ================= FIELD PLANNING =================
+            if (in_array($key, ['ihld_lop_id', 'status_order', 'tipe_desain', 'jenis_program'])) {
+
+                $q->orWhereHas('planning', function ($p) use ($key, $val) {
+
+                    if ($key === 'ihld_lop_id') {
+                        $p->where($key, $val); // exact
+                    } else {
+                        $p->where($key, 'like', "%{$val}%");
+                    }
+                });
+            }
+        }
+    });
+
+    $rows = $query->latest()->paginate(10)->withQueryString();
+    return view('deployment.rekap', compact('rows'));
+}
+
 }

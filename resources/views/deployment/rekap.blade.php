@@ -1,8 +1,8 @@
-@extends('layouts.app')
+    @extends('layouts.app')
 
-@section('title', 'Rekap B2B')
+    @section('title', 'Rekap B2B')
 
-@section('content')
+    @section('content')
     <div class="flex flex-col gap-6">
 
         <!-- ================= BREADCRUMB ================= -->
@@ -22,35 +22,67 @@
         <div class="bg-white rounded-xl shadow-sm p-6">
 
             <!-- ================= FILTER (MANUAL INPUT) ================= -->
-            <form method="GET" action="{{ route('deployment.rekap') }}" class="mb-4 grid grid-cols-1 md:grid-cols-6 gap-3">
+            <form method="GET" action="{{ route('deployment.rekap') }}"
+                x-data="filterBar()"
+                class="mb-4">
 
-                <input type="text" name="star_click_id" value="{{ request('star_click_id') }}"
-                    placeholder="Starclick / NCX" class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
+                <div class="flex items-center gap-2 bg-white border rounded-xl px-3 py-2 shadow-sm">
 
-                <input type="text" name="nama_customer" value="{{ request('nama_customer') }}"
-                    placeholder="Nama Pelanggan" class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
+                    <!-- FILTER DROPDOWN -->
+                    <div class="relative" x-data="{open:false}">
+                        <button type="button"
+                            @click="open = !open"
+                            class="flex items-center gap-2 px-3 py-2 text-sm border rounded-lg bg-slate-50">
+                            <span x-text="selectedLabel"></span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
 
-                <input type="text" name="status_order" value="{{ request('status_order') }}" placeholder="Status Order"
-                    class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
+                        <div x-show="open" @click.outside="open=false"
+                            class="absolute z-50 mt-2 w-48 bg-white border rounded-lg shadow text-sm">
+                            <template x-for="item in filters" :key="item.value">
+                                <button type="button"
+                                    @click="selectFilter(item)"
+                                    class="block w-full text-left px-4 py-2 hover:bg-slate-100">
+                                    <span x-text="item.label"></span>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
 
-                <input type="text" name="tipe_desain" value="{{ request('tipe_desain') }}" placeholder="Tipe Desain"
-                    class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
-
-                <input type="text" name="jenis_program" value="{{ request('jenis_program') }}"
-                    placeholder="Jenis Program" class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
-
-                <input type="text" name="sto" value="{{ request('sto') }}" placeholder="STO"
-                    class="px-3 py-2 border rounded-lg text-sm focus:ring focus:ring-red-200">
-
-                <!-- BUTTON -->
-                <div class="md:col-span-6 flex gap-2">
-                    <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">
-                        Filter
+                    <!-- MULTIPLE TOGGLE -->
+                    <button type="button"
+                        @click="toggleMultiple"
+                        :class="multiple ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-500'"
+                        class="px-3 py-2 rounded-lg text-xs font-semibold">
+                        Multiple
                     </button>
 
-                </div>
-            </form>
 
+                    <!-- INPUT AREA -->
+                    <!-- INPUT AREA -->
+                    <div class="flex-1">
+                        <input
+                            type="text"
+                            x-model="input"
+                            placeholder="Pisahkan dengan koma, contoh: 1001631410, zaq"
+                            class="w-full px-3 py-2 text-sm focus:outline-none">
+                    </div>
+
+
+                    <!-- SUBMIT -->
+                    <button type="submit"
+                        class="px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700">
+                        Cari
+                    </button>
+                </div>
+                <input type="hidden" name="filter_key" :value="selectedFilter">
+                <input type="hidden" name="filter_values" :value="input">
+
+            </form>
 
             <!-- ================= TABLE ================= -->
             <!-- ================= TABLE ================= -->
@@ -60,10 +92,10 @@
                     <!-- HEADER -->
                     <thead
                         class="sticky top-0 z-20
-                            bg-slate-50
-                            border-b border-slate-200
-                            text-[11px] font-semibold uppercase tracking-wider
-                            text-slate-500">
+                                bg-slate-50
+                                border-b border-slate-200
+                                text-[11px] font-semibold uppercase tracking-wider
+                                text-slate-500">
 
                         <tr>
                             <th
@@ -73,12 +105,12 @@
                             </th>
 
                             @foreach (['Starclick ID', 'Nama', 'Nama Mitra', 'Alamat', 'Telepon', 'Tikor', 'Datel', 'STO', 'Status Alokasi', 'Status Order', 'iHLD LoP ID', 'Tipe Desain', 'Total BOQ', 'Jenis Program', 'Nama CFU', 'Progres', 'Tanggal Update', 'Catatan'] as $head)
-                                <th
-                                    class="px-4 py-4
-                                    align-middle text-center
-                                    whitespace-nowrap">
-                                    {{ $head }}
-                                </th>
+                            <th
+                                class="px-4 py-4
+                                        align-middle text-center
+                                        whitespace-nowrap">
+                                {{ $head }}
+                            </th>
                             @endforeach
 
                         </tr>
@@ -87,78 +119,82 @@
                     <!-- BODY -->
                     <tbody class="divide-y divide-slate-100 bg-white">
                         @forelse ($rows as $row)
-                            <tr class="hover:bg-slate-50 transition">
+                        <tr class="hover:bg-slate-50 transition">
 
-                                <!-- STICKY FIRST COLUMN -->
-                                <td
-                                    class="sticky left-0 z-10
-                               bg-white
-                               px-4 py-4
-                               font-semibold
-                               border-r border-slate-100">
-                                    {{ $row->nde_jt ?? '-' }}
-                                </td>
+                            <!-- STICKY FIRST COLUMN -->
+                            <td
+                                class="sticky left-0 z-10
+                                bg-white
+                                px-4 py-4
+                                font-semibold
+                                border-r border-slate-100">
+                                {{ $row->nde_jt ?? '-' }}
+                            </td>
 
-                                <td class="px-4 py-4">{{ $row->star_click_id ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ $row->nama_customer ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ $row->nama_mitra ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ $row->alamat_pelanggan ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ $row->telepon_pelanggan ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ $row->tikor_pelanggan ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ $row->datel ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ $row->sto ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->star_click_id ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->nama_customer ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->nama_mitra ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->alamat_pelanggan ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->telepon_pelanggan ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->tikor_pelanggan ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->datel ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ $row->sto ?? '-' }}</td>
 
-                                <!-- STATUS ALOKASI -->
-                                <td class="px-4 py-4">
-                                   <span
-                                            class="px-2 py-1 text-xs rounded-full font-medium bg-green-100 text-green-700">
-                                            {{ optional($row->planning)->status_alokasi_alpro ?? '-' }}
-                                        </span>
-                                </td>
+                            <!-- STATUS ALOKASI -->
+                            <td class="px-4 py-4">
+                                <span
+                                    class="px-2 py-1 text-xs rounded-full font-medium bg-green-100 text-green-700">
+                                    {{ optional($row->planning)->status_alokasi_alpro ?? '-' }}
+                                </span>
+                            </td>
 
-                                <!-- STATUS ORDER -->
-                                <td class="px-4 py-4">
-                                     <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
-                                            {{ optional($row->planning)->status_order ?? '-' }}
-                                        </span>
-                                </td>
+                            <!-- STATUS ORDER -->
+                            <td class="px-4 py-4">
+                                <span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">
+                                    {{ optional($row->planning)->status_order ?? '-' }}
+                                </span>
+                            </td>
 
-                                <td class="px-4 py-4">{{ optional($row->planning)->ihld_lop_id ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ optional($row->planning)->tipe_desain ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ optional($row->planning)->total_boq ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ optional($row->planning)->jenis_program ?? '-' }}</td>
-                                <td class="px-4 py-4">{{ optional($row->planning)->nama_cfu ?? '-' }}</td>
-
-                                <!-- PROGRES -->
-                                <td class="px-4 py-4">
-                                    <span
-                                        class="inline-flex min-w-[120px] justify-center
-                                   rounded-full
-                                   px-3 py-1
-                                   text-xs font-medium
-                            {{ optional($row->planning)->progres === 'COMPLETED PS'
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-yellow-100 text-yellow-700' }}">
-                                        {{ optional($row->planning)->progres ?? '-' }}
-                                    </span>
-                                </td>
-
-                                <td class="px-4 py-4 whitespace-nowrap">
-                                    {{ optional($row->planning)->tanggal_update_progres
-                                        ? optional($row->planning)->tanggal_update_progres->format('d-m-Y')
+                            <td class="px-4 py-4">{{ optional($row->planning)->ihld_lop_id ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ optional($row->planning)->tipe_desain ?? '-' }}</td>
+                            <td class="px-4 py-4">
+                                {{ optional($row->planning)->total_boq
+                                        ? number_format(optional($row->planning)->total_boq, 0, ',', '.')
                                         : '-' }}
-                                </td>
+                            </td>
+                            <td class="px-4 py-4">{{ optional($row->planning)->jenis_program ?? '-' }}</td>
+                            <td class="px-4 py-4">{{ optional($row->planning)->nama_cfu ?? '-' }}</td>
 
-                                <td class="px-4 py-4 text-slate-600">
-                                    {{ $row->catatan ?? '-' }}
-                                </td>
-                            </tr>
+                            <!-- PROGRES -->
+                            <td class="px-4 py-4">
+                                <span
+                                    class="inline-flex min-w-[120px] justify-center
+                                    rounded-full
+                                    px-3 py-1
+                                    text-xs font-medium
+                                {{ optional($row->planning)->progres === 'COMPLETED PS'
+                                    ? 'bg-green-100 text-green-700'
+                                    : 'bg-yellow-100 text-yellow-700' }}">
+                                    {{ optional($row->planning)->progres ?? '-' }}
+                                </span>
+                            </td>
+
+                            <td class="px-4 py-4 whitespace-nowrap">
+                                {{ optional($row->planning)->tanggal_update_progres
+                                            ? optional($row->planning)->tanggal_update_progres->format('d-m-Y')
+                                            : '-' }}
+                            </td>
+
+                            <td class="px-4 py-4 text-slate-600">
+                                {{ $row->catatan ?? '-' }}
+                            </td>
+                        </tr>
                         @empty
-                            <tr>
-                                <td colspan="19" class="py-12 text-center text-slate-400">
-                                    Data tidak ditemukan
-                                </td>
-                            </tr>
+                        <tr>
+                            <td colspan="19" class="py-12 text-center text-slate-400">
+                                Data tidak ditemukan
+                            </td>
+                        </tr>
                         @endforelse
                     </tbody>
 
@@ -172,4 +208,57 @@
         {{ $rows->links('components.pagination') }}
     </div>
 
-@endsection
+    <script>
+        function filterBar() {
+            return {
+                input: '',
+                multiple: false, // cuma UI toggle (opsional)
+
+                selectedFilter: 'ihld_lop_id',
+                selectedLabel: 'Cari Filtering',
+
+                filters: [{
+                        label: 'iHLD LoP ID',
+                        value: 'ihld_lop_id'
+                    },
+                    {
+                        label: 'Starclick / NCX',
+                        value: 'star_click_id'
+                    },
+                    {
+                        label: 'Nama Pelanggan',
+                        value: 'nama_customer'
+                    },
+                    {
+                        label: 'STO',
+                        value: 'sto'
+                    },
+                    {
+                        label: 'Status Order',
+                        value: 'status_order'
+                    },
+                    {
+                        label: 'Tipe Desain',
+                        value: 'tipe_desain'
+                    },
+                    {
+                        label: 'Jenis Program',
+                        value: 'jenis_program'
+                    },
+                ],
+
+                selectFilter(item) {
+                    this.selectedFilter = item.value;
+                    this.selectedLabel = item.label;
+                    this.input = '';
+                },
+
+                toggleMultiple() {
+                    this.multiple = !this.multiple;
+                }
+            }
+        }
+    </script>
+
+
+    @endsection

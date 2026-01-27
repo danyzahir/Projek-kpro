@@ -249,7 +249,7 @@
                     "Distribusi Habis",
                     "Feeder Habis",
                     "Akses Tidak Layak",
-                    "Bias RTL"
+                    "Bisa PT1"
                 ]
             }],
             "UJI TERIMA": [{

@@ -74,12 +74,11 @@ class EbisManualInputController extends Controller
      * UPDATE DATA (LIST = REKAP)
      * =============================
      */
-    public function updateList()
+    public function updateList(Request $request)
     {
-        $rows = EbisManualInput::with('planning')
-            ->whereHas('planning')
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
+        
+           $rows = EbisManualInput::with('planning')
+        ->paginate(10);
 
         return view('deployment.update', compact('rows'));
     }

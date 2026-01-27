@@ -199,7 +199,7 @@
                               d="M3 3h18M3 8h18M3 13h6
                                  m4 4h8M3 18h8" />
                     </svg>
-                    <span>Rekap Data</span>
+                    <span>Lihat Data</span>
                 </a>
 
             </div>

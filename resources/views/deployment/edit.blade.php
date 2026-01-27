@@ -3,175 +3,131 @@
 @section('title', 'Edit Data Deployment')
 
 @section('content')
-    <div class="flex flex-col gap-6">
+<div class="flex flex-col gap-6">
 
-        <!-- ================= BREADCRUMB ================= -->
-        <div class="flex items-center gap-3 text-sm text-slate-500">
-            <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">Dashboard</a>
-            <span>›</span>
-            <a href="{{ route('deployment.update') }}" class="hover:text-red-600 transition">Update Data</a>
-            <span>›</span>
-            <span class="font-semibold text-slate-800">Edit</span>
-        </div>
-
-        <!-- ================= PAGE HEADER ================= -->
-        <div>
-            <h1 class="text-xl font-semibold text-slate-800">Edit Data Deployment</h1>
-            <p class="text-sm text-slate-500">
-                Perbarui progres dan informasi deployment
-            </p>
-        </div>
-
-        <!-- ================= FORM ================= -->
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-
-            <form action="{{ route('deployment.update.process', $data->id) }}" method="POST" enctype="multipart/form-data">
-                @csrf
-                @method('PUT')
-
-                <!-- ================= DATA PELANGGAN ================= -->
-                <h2 class="text-sm font-semibold text-slate-700 mb-4">Data Pelanggan</h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-
-                    <!-- TIDAK BISA DIUBAH -->
-                    <div>
-                        <label class="block text-sm font-medium">Starclick / NCX</label>
-                        <input type="text" value="{{ $data->star_click_id }}" readonly
-                            title="Field ini tidak dapat diubah"
-                            class="w-full mt-1 rounded-lg bg-slate-100 border px-3 py-2
-                               text-slate-500 cursor-not-allowed">
-                    </div>
-
-                    <!-- TIDAK BISA DIUBAH -->
-                    <div>
-                        <label class="block text-sm font-medium">Nama Pelanggan</label>
-                        <input type="text" value="{{ $data->nama_customer }}" readonly
-                            title="Field ini tidak dapat diubah"
-                            class="w-full mt-1 rounded-lg bg-slate-100 border px-3 py-2
-                               text-slate-500 cursor-not-allowed">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">
-                            Datel <span class="text-red-600"></span>
-                        </label>
-
-                        <select name="datel" disabled
-                            class="w-full rounded-lg border px-3 py-2 text-sm
-                                bg-slate-100 text-slate-500
-                                cursor-not-allowed">
-                            @foreach ($datels as $d)
-                                <option value="{{ $d }}"
-                                    {{ old('datel', $data->datel) == $d ? 'selected' : '' }}>
-                                    {{ $d }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        {{-- kirim nilai ke backend --}}
-                        <input type="hidden" name="datel" value="{{ $data->datel }}">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">
-                            STO <span class="text-red-600"></span>
-                        </label>
-
-                        <select name="sto" disabled
-                            class="w-full rounded-lg border px-3 py-2 text-sm
-                            bg-slate-100 text-slate-500
-                            cursor-not-allowed">
-                            @foreach ($stos as $s)
-                                <option value="{{ $s }}" {{ old('sto', $data->sto) == $s ? 'selected' : '' }}>
-                                    {{ $s }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        {{-- kirim nilai ke backend --}}
-                        <input type="hidden" name="sto" value="{{ $data->sto }}">
-                    </div>
-
-
-
-                </div>
-
-                <!-- ================= DATA DEPLOYMENT ================= -->
-                <h2 class="text-sm font-semibold text-slate-700 mb-4">Data Deployment</h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-
-                    <!-- READONLY -->
-                    <div>
-                        <label class="block text-sm font-medium">Status Order</label>
-                        <input type="text" value="{{ optional($data->planning)->status_order ?? '-' }}" readonly
-                            class="w-full mt-1 rounded-lg bg-slate-100 border px-3 py-2
-                               text-slate-500 cursor-not-allowed">
-                    </div>
-
-                    <!-- READONLY -->
-                    <div>
-                        <label class="block text-sm font-medium">Tipe Desain</label>
-                        <input type="text" value="{{ optional($data->planning)->tipe_desain ?? '-' }}" readonly
-                            class="w-full mt-1 rounded-lg bg-slate-100 border px-3 py-2
-                               text-slate-500 cursor-not-allowed">
-                    </div>
-
-                    <!-- PROGRES -->
-                    <div>
-                        <label class="block text-sm font-medium">Progres <span class="text-red-600">*</span></label>
-                        <select name="progres" id="progres" class="w-full mt-1 px-3 py-2 border rounded-lg">
-                            <option value="">Pilih Progres</option>
-                            @php
-                                $listProgress = [
-                                    'ON DESK',
-                                    'SURVEY',
-                                    'PERIJINAN',
-                                    'DRM',
-                                    'APPROVED BY EBIS',
-                                    'MATDEV',
-                                    'INSTALASI',
-                                    'SELESAI FISIK',
-                                    'GOLIVE',
-                                    'PS',
-                                    'KENDALA',
-                                    'UJI TERIMA',
-                                    'REKON',
-                                ];
-                            @endphp
-                            @foreach ($listProgress as $progress)
-                                <option value="{{ $progress }}"
-                                    {{ old('progres', optional($data->planning)->progres) == $progress ? 'selected' : '' }}>
-                                    {{ $progress }}
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <!-- INPUT DINAMIS BERDASARKAN PROGRES -->
-                    <div id="dynamic-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6"></div>
-
-
-                </div>
-
-                <!-- KETERANGAN (SELALU MUNCUL) -->
-                <div class="mb-6">
-                    <label class="block text-sm font-medium">Keterangan Progress</label>
-                    <textarea name="keterangan" rows="3" class="w-full mt-1 px-3 py-2 border rounded-lg"
-                        placeholder="Keterangan tambahan (opsional)"></textarea>
-                </div>
-
-                <!-- ================= ACTION ================= -->
-                <div class="flex justify-end gap-3 pt-6 border-t">
-                    <a href="{{ route('deployment.update') }}" class="px-4 py-2 rounded-lg border">Batal</a>
-
-                    <button type="submit" class="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
-                        Update Data
-                    </button>
-                </div>
-
-            </form>
-        </div>
+    <!-- ================= BREADCRUMB ================= -->
+    <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">Dashboard</a>
+        <span>›</span>
+        <a href="{{ route('deployment.update') }}" class="hover:text-red-600 transition">Update Data</a>
+        <span>›</span>
+        <span class="font-semibold text-slate-800">Edit</span>
     </div>
+
+    <!-- ================= FORM ================= -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+
+        <form action="{{ route('deployment.update.process', $data->id) }}" method="POST" enctype="multipart/form-data">
+            @csrf
+            @method('PUT')
+
+            <!-- ================= DATA PELANGGAN ================= -->
+            <h2 class="text-sm font-semibold text-slate-700 mb-4">Data Pelanggan</h2>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600">Starclick / NCX</label>
+                    <input type="text" value="{{ $data->star_click_id }}" readonly
+                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
+                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600">Nama Pelanggan</label>
+                    <input type="text" value="{{ $data->nama_customer }}" readonly
+                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
+                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600">Datel</label>
+                    <input type="text" value="{{ $data->datel }}" readonly
+                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
+                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600">STO</label>
+                    <input type="text" value="{{ $data->sto }}" readonly
+                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
+                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
+                </div>
+            </div>
+
+            <!-- ================= DATA DEPLOYMENT ================= -->
+            <h2 class="text-sm font-semibold text-slate-700 mb-4">Data Deployment</h2>
+
+            <!-- STATUS ORDER & TIPE DESAIN -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label class="block text-sm font-medium text-slate-600">Status Order</label>
+                    <input type="text"
+                        value="{{ optional($data->planning)->status_order ?? '-' }}"
+                        readonly
+                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
+                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-600">Tipe Desain</label>
+                    <input type="text"
+                        value="{{ optional($data->planning)->tipe_desain ?? '-' }}"
+                        readonly
+                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
+                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
+                </div>
+            </div>
+
+            <!-- PROGRES -->
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-slate-600">
+                    Progres <span class="text-red-600">*</span>
+                </label>
+                <select name="progres" id="progres"
+                    class="w-full mt-2 rounded-xl border border-slate-300
+                           px-4 py-3 text-base focus:ring-2 focus:ring-red-500">
+                    <option value="">Pilih Progres</option>
+                    @php
+                        $listProgress = [
+                            'ON DESK','SURVEY','PERIJINAN','DRM','APPROVED BY EBIS',
+                            'MATDEV','INSTALASI','SELESAI FISIK','GOLIVE',
+                            'PS','KENDALA','UJI TERIMA','REKON'
+                        ];
+                    @endphp
+                    @foreach ($listProgress as $progress)
+                        <option value="{{ $progress }}"
+                            {{ old('progres', $data->progres) == $progress ? 'selected' : '' }}>
+                            {{ $progress }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- ================= DYNAMIC FIELD ================= -->
+            <div id="dynamic-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
+
+            <!-- ================= KETERANGAN ================= -->
+            <div class="mb-8">
+                <label class="block text-sm font-medium text-slate-600">Keterangan Progress</label>
+                <textarea name="keterangan" rows="3"
+                    class="w-full mt-2 rounded-xl border border-slate-300
+                           px-4 py-3 text-base"
+                    placeholder="Keterangan tambahan (opsional)">{{ old('keterangan', $data->keterangan) }}</textarea>
+            </div>
+
+            <!-- ================= ACTION ================= -->
+            <div class="flex justify-end gap-3 pt-6 border-t">
+                <a href="{{ route('deployment.update') }}"
+                    class="px-4 py-2 rounded-lg border">Batal</a>
+                <button type="submit"
+                    class="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
+                    Update Data
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
 
     <script>
         const progressConfig = {
@@ -256,10 +212,7 @@
                 name: "status",
                 label: "Status",
                 type: "select",
-                options: [
-                    "DITERIMA",
-                    "TIDAK DITERIMA"
-                ]
+                options: ["DITERIMA", "TIDAK DITERIMA"]
             }],
             "REKON": [{
                 name: "boq_rekon",
@@ -271,39 +224,48 @@
         const progressSelect = document.getElementById('progres');
         const dynamicFields = document.getElementById('dynamic-fields');
 
-        progressSelect.addEventListener('change', function() {
+        function renderDynamicFields(progress, existingData = {}) {
             dynamicFields.innerHTML = '';
-            const selected = this.value;
+            if (!progressConfig[progress]) return;
 
-            if (!progressConfig[selected]) return;
+            progressConfig[progress].forEach(field => {
+                const value = existingData[field.name] ?? '';
 
-            progressConfig[selected].forEach(field => {
-                let html = `
-                <div>
-                    <label class="block text-sm font-medium text-slate-600 mb-1">
-                        ${field.label}
-                    </label>
-            `;
+                let html = `<div>
+                <label class="block text-sm font-medium mb-1">${field.label}</label>`;
 
                 if (field.type === 'select') {
-                    html +=
-                        `<select name="${field.name}" class="w-full rounded-lg border px-3 py-2 text-sm">`;
+                    html += `<select name="${field.name}" class="w-full border px-3 py-2 rounded-lg">`;
                     html += `<option value="">-- Pilih --</option>`;
                     field.options.forEach(opt => {
-                        html += `<option value="${opt}">${opt}</option>`;
+                        html += `<option value="${opt}" ${opt === value ? 'selected' : ''}>${opt}</option>`;
                     });
                     html += `</select>`;
                 } else {
-                    html += `
-                    <input type="${field.type}"
-                           name="${field.name}"
-                           class="w-full rounded-lg border px-3 py-2 text-sm">
-                `;
+                    html += `<input type="${field.type}"
+                    name="${field.name}"
+                    ${field.type !== 'file' ? `value="${value}"` : ''}
+                    class="w-full border px-3 py-2 rounded-lg">`;
                 }
 
                 html += `</div>`;
                 dynamicFields.insertAdjacentHTML('beforeend', html);
             });
+        }
+
+        progressSelect.addEventListener('change', function() {
+            renderDynamicFields(this.value);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentProgress = "{{ old('progres', $data->progres) }}";
+            const existingData = {!! json_encode($data->data ?? []) !!};
+
+            if (currentProgress) {
+                progressSelect.value = currentProgress;
+                renderDynamicFields(currentProgress, existingData);
+            }
         });
     </script>
+
 @endsection

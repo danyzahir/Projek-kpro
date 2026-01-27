@@ -68,7 +68,7 @@
                         <input
                             type="text"
                             x-model="input"
-                            placeholder="Pisahkan dengan koma, contoh: 1001631410, zaq"
+                            placeholder="Pisahkan dengan koma, contoh: 1001631410,101231231"
                             class="w-full px-3 py-2 text-sm focus:outline-none">
                     </div>
 

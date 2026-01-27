@@ -11,17 +11,10 @@ class EbisManualInput extends Model
 
     protected $table = 'ebis_manual_inputs';
 
-    protected $fillable = [
-        'nde_jt',
-        'star_click_id',
-        'nama_customer',
-        'nama_mitra',
-        'alamat_pelanggan',
-        'telepon_pelanggan',
-        'tikor_pelanggan',
-        'datel',
-        'sto',
-        'catatan',
+    protected $fillable = ['nde_jt', 'star_click_id', 'nama_customer', 'nama_mitra', 'alamat_pelanggan', 'telepon_pelanggan', 'tikor_pelanggan', 'datel', 'sto', 'progres', 'keterangan', 'data', 'tanggal_update_progres'];
+
+    protected $casts = [
+        'data' => 'array',
     ];
 
     /**
@@ -33,10 +26,6 @@ class EbisManualInput extends Model
      */
     public function planning()
     {
-        return $this->belongsTo(
-            \App\Models\EbisPlanningOrder::class,
-            'star_click_id',   
-            'star_click_id'    
-        );
+        return $this->belongsTo(\App\Models\EbisPlanningOrder::class, 'star_click_id', 'star_click_id');
     }
 }

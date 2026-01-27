@@ -48,10 +48,12 @@ class EbisPlanningImport implements ToModel, WithHeadingRow
         if ($value === null || $value === '' || $value === '-') {
             return null;
         }
+        
 
         $value = str_replace(',', '', $value);
         return is_numeric($value) ? $value : null;
     }
+    
 
     public function model(array $row)
     {

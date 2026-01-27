@@ -26,7 +26,7 @@ class EbisPlanningController extends Controller
         ]);
 
         // Hapus data lama
-        EbisPlanningOrder::truncate();
+        EbisPlanningOrder::query()->delete();
 
         // Import
         Excel::import(new EbisPlanningImport(), $request->file('file'));
@@ -40,7 +40,7 @@ class EbisPlanningController extends Controller
 
         // ❌ JIKA TIDAK ADA DATA VALID
         if ($validData === 0) {
-            EbisPlanningOrder::truncate(); // bersihin lagi
+           
 
             return redirect()
                 ->route('deployment.upload')

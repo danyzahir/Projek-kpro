@@ -20,6 +20,73 @@
 
         <!-- ================= CARD ================= -->
         <div class="bg-white rounded-xl shadow-sm p-6">
+            <form method="GET"
+      action="{{ route('deployment.rekap') }}"
+      class="flex flex-nowrap items-center gap-2 mb-4 overflow-x-auto">
+
+    <select name="starclick" class="h-10 min-w-[160px] rounded-lg border px-3 text-sm">
+        <option value="">Starclick / NCX</option>
+        @foreach ($filters['starclicks'] as $item)
+            <option value="{{ $item }}" {{ request('starclick') == $item ? 'selected' : '' }}>
+                {{ $item }}
+            </option>
+        @endforeach
+    </select>
+
+    <select name="nama" class="h-10 min-w-[160px] rounded-lg border px-3 text-sm">
+        <option value="">Nama Pelanggan</option>
+        @foreach ($filters['nama_customers'] as $item)
+            <option value="{{ $item }}" {{ request('nama') == $item ? 'selected' : '' }}>
+                {{ $item }}
+            </option>
+        @endforeach
+    </select>
+
+    <select name="status_order" class="h-10 min-w-[160px] rounded-lg border px-3 text-sm">
+        <option value="">Status Order</option>
+        @foreach ($filters['status_orders'] as $item)
+            <option value="{{ $item }}" {{ request('status_order') == $item ? 'selected' : '' }}>
+                {{ $item }}
+            </option>
+        @endforeach
+    </select>
+
+    <select name="tipe_desain" class="h-10 min-w-[220px] rounded-lg border px-3 text-sm">
+        <option value="">Tipe Desain</option>
+        @foreach ($filters['tipe_desains'] as $item)
+            <option value="{{ $item }}" {{ request('tipe_desain') == $item ? 'selected' : '' }}>
+                {{ $item }}
+            </option>
+        @endforeach
+    </select>
+
+    <select name="jenis_program" class="h-10 min-w-[160px] rounded-lg border px-3 text-sm">
+        <option value="">Jenis Program</option>
+        @foreach ($filters['jenis_programs'] as $item)
+            <option value="{{ $item }}" {{ request('jenis_program') == $item ? 'selected' : '' }}>
+                {{ $item }}
+            </option>
+        @endforeach
+    </select>
+
+    <select name="sto" class="h-10 min-w-[120px] rounded-lg border px-3 text-sm">
+        <option value="">STO</option>
+        @foreach ($filters['stos'] as $item)
+            <option value="{{ $item }}" {{ request('sto') == $item ? 'selected' : '' }}>
+                {{ $item }}
+            </option>
+        @endforeach
+    </select>
+
+    <button type="submit"
+        class="h-10 min-w-[90px] bg-red-600 text-white
+               rounded-lg flex items-center justify-center
+               hover:bg-red-700 transition">
+        Filter
+    </button>
+</form>
+
+
 
             <!-- ================= FILTER (MANUAL INPUT) ================= -->
             <form method="GET" action="{{ route('deployment.rekap') }}"

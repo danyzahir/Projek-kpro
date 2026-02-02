@@ -7,6 +7,7 @@ use App\Models\EbisManualInput;
 use App\Models\EbisPlanningOrder;
 use App\Helpers\DropdownHelper;
 use App\Models\EbisPlanningProgressLog;
+
 class EbisManualInputController extends Controller
 {
     /**
@@ -18,10 +19,11 @@ class EbisManualInputController extends Controller
     {
         $datels = DropdownHelper::datels();
         $stos = DropdownHelper::stos();
+        $mitras = DropdownHelper::mitras();
 
         $rows = EbisManualInput::orderBy('created_at', 'desc')->paginate(10);
 
-        return view('deployment.input', compact('datels', 'stos', 'rows'));
+        return view('deployment.input', compact('datels', 'stos', 'rows', 'mitras'));
     }
 
     /**
@@ -63,16 +65,106 @@ class EbisManualInputController extends Controller
     }
 
     /**
+ * =============================
+ * UPDATE DATA (LIST = REKAP)
+ * =============================
+ */
+public function updateList(Request $request)
+{
+    /**
      * =============================
-     * UPDATE DATA (LIST = REKAP)
+     * QUERY UTAMA
      * =============================
      */
-    public function updateList(Request $request)
-    {
-        $rows = EbisManualInput::with('planning')->paginate(10);
+    $rows = EbisManualInput::with('planning');
 
-        return view('deployment.update', compact('rows'));
+    /**
+     * =============================
+     * FILTER DARI FORM
+     * =============================
+     */
+    if ($request->filled('star_click_id')) {
+        $rows->where('star_click_id', $request->star_click_id);
     }
+
+    if ($request->filled('nama_customer')) {
+        $rows->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
+    }
+
+    if ($request->filled('sto')) {
+        $rows->where('sto', $request->sto);
+    }
+
+    // FILTER DARI RELASI PLANNING
+    if (
+        $request->filled('status_order') ||
+        $request->filled('tipe_desain') ||
+        $request->filled('jenis_program')
+    ) {
+        $rows->whereHas('planning', function ($q) use ($request) {
+
+            if ($request->filled('status_order')) {
+                $q->where('status_order', $request->status_order);
+            }
+
+            if ($request->filled('tipe_desain')) {
+                $q->where('tipe_desain', $request->tipe_desain);
+            }
+
+            if ($request->filled('jenis_program')) {
+                $q->where('jenis_program', $request->jenis_program);
+            }
+        });
+    }
+
+    // PAGINATION (HARUS PALING BAWAH)
+    $rows = $rows->paginate(10)->withQueryString();
+
+    /**
+     * =============================
+     * DROPDOWN FILTER DINAMIS
+     * (DIAMBIL DARI DATA TABEL)
+     * =============================
+     */
+    $filters = [
+        // dari tabel manual input
+        'starclicks' => EbisManualInput::select('star_click_id')
+            ->whereNotNull('star_click_id')
+            ->distinct()
+            ->pluck('star_click_id'),
+
+        'nama_customers' => EbisManualInput::select('nama_customer')
+            ->whereNotNull('nama_customer')
+            ->distinct()
+            ->pluck('nama_customer'),
+
+        'stos' => EbisManualInput::select('sto')
+            ->whereNotNull('sto')
+            ->distinct()
+            ->pluck('sto'),
+
+        // dari relasi planning
+        'status_orders' => EbisPlanningOrder::select('status_order')
+            ->whereNotNull('status_order')
+            ->distinct()
+            ->pluck('status_order'),
+
+        'tipe_desains' => EbisPlanningOrder::select('tipe_desain')
+            ->whereNotNull('tipe_desain')
+            ->distinct()
+            ->pluck('tipe_desain'),
+
+        'jenis_programs' => EbisPlanningOrder::select('jenis_program')
+            ->whereNotNull('jenis_program')
+            ->distinct()
+            ->pluck('jenis_program'),
+    ];
+
+    return view('deployment.update', compact('rows', 'filters'));
+}
+
+
+
 
     /**
      * =============================

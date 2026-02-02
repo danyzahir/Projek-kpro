@@ -26,4 +26,14 @@ class DropdownHelper
             'PMN','PGD','KIA','CAS'
         ];
     }
+
+    public static function mitras()
+    {
+        return [
+            'PT UPAYA TEKNIK',
+            'PT SARANA MITRA PERSADA',
+            'PT LINEA',
+            'PT TRIPOLA'
+        ];
+    }
 }

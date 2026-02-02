@@ -200,51 +200,137 @@ class EbisPlanningController extends Controller
     }
 
     /**
-     * =============================
-     * REKAP DATA (MANUAL + UPLOAD)
-     * =============================
-     */
-    public function rekap(Request $request)
+ * =============================
+ * REKAP DATA (MANUAL + UPLOAD)
+ * =============================
+ */
+public function rekap(Request $request)
 {
     $query = EbisManualInput::with('planning');
 
+    /**
+     * =============================
+     * FILTER DROPDOWN ATAS
+     * =============================
+     */
+    if ($request->filled('star_click_id')) {
+        $query->where('star_click_id', $request->star_click_id);
+    }
+
+    if ($request->filled('nama_customer')) {
+        $query->where('nama_customer', 'like', '%' . $request->nama_customer . '%');
+    }
+
+    if ($request->filled('sto')) {
+        $query->where('sto', $request->sto);
+    }
+
+    if (
+        $request->filled('status_order') ||
+        $request->filled('tipe_desain') ||
+        $request->filled('jenis_program')
+    ) {
+        $query->whereHas('planning', function ($q) use ($request) {
+
+            if ($request->filled('status_order')) {
+                $q->where('status_order', $request->status_order);
+            }
+
+            if ($request->filled('tipe_desain')) {
+                $q->where('tipe_desain', $request->tipe_desain);
+            }
+
+            if ($request->filled('jenis_program')) {
+                $q->where('jenis_program', $request->jenis_program);
+            }
+        });
+    }
+
+    /**
+     * =============================
+     * CARI FILTERING (MULTIPLE)
+     * =============================
+     */
     $key = $request->filter_key;
     $values = array_filter(
         array_map('trim', explode(',', $request->filter_values ?? ''))
     );
 
-    // === TANPA FILTER → SEMUA DATA MUNCUL ===
-    if (!$key || empty($values)) {
-        $rows = $query->latest()->paginate(10)->withQueryString();
-        return view('deployment.rekap', compact('rows'));
+    if ($key && !empty($values)) {
+
+        $query->where(function ($q) use ($key, $values) {
+
+            foreach ($values as $val) {
+
+                // FIELD MANUAL INPUT
+                if (in_array($key, ['sto', 'star_click_id', 'nama_customer'])) {
+                    $q->orWhere($key, 'like', "%{$val}%");
+                }
+
+                // FIELD PLANNING
+                if (in_array($key, ['ihld_lop_id', 'status_order', 'tipe_desain', 'jenis_program'])) {
+
+                    $q->orWhereHas('planning', function ($p) use ($key, $val) {
+
+                        if ($key === 'ihld_lop_id') {
+                            $p->where($key, $val);
+                        } else {
+                            $p->where($key, 'like', "%{$val}%");
+                        }
+                    });
+                }
+            }
+        });
     }
 
-    $query->where(function ($q) use ($key, $values) {
+    /**
+     * =============================
+     * DROPDOWN FILTER DINAMIS
+     * =============================
+     */
+    $filters = [
+        'starclicks' => EbisManualInput::select('star_click_id')
+            ->whereNotNull('star_click_id')
+            ->distinct()
+            ->pluck('star_click_id'),
 
-        foreach ($values as $val) {
+        'nama_customers' => EbisManualInput::select('nama_customer')
+            ->whereNotNull('nama_customer')
+            ->distinct()
+            ->pluck('nama_customer'),
 
-            // ================= FIELD MANUAL INPUT =================
-            if (in_array($key, ['sto', 'star_click_id', 'nama_customer'])) {
-                $q->orWhere($key, 'like', "%{$val}%");
-            }
+        'stos' => EbisManualInput::select('sto')
+            ->whereNotNull('sto')
+            ->distinct()
+            ->pluck('sto'),
 
-            // ================= FIELD PLANNING =================
-            if (in_array($key, ['ihld_lop_id', 'status_order', 'tipe_desain', 'jenis_program'])) {
+        'status_orders' => EbisPlanningOrder::select('status_order')
+            ->whereNotNull('status_order')
+            ->distinct()
+            ->pluck('status_order'),
 
-                $q->orWhereHas('planning', function ($p) use ($key, $val) {
+        'tipe_desains' => EbisPlanningOrder::select('tipe_desain')
+            ->whereNotNull('tipe_desain')
+            ->distinct()
+            ->pluck('tipe_desain'),
 
-                    if ($key === 'ihld_lop_id') {
-                        $p->where($key, $val); // exact
-                    } else {
-                        $p->where($key, 'like', "%{$val}%");
-                    }
-                });
-            }
-        }
-    });
+        'jenis_programs' => EbisPlanningOrder::select('jenis_program')
+            ->whereNotNull('jenis_program')
+            ->distinct()
+            ->pluck('jenis_program'),
+    ];
 
-    $rows = $query->latest()->paginate(10)->withQueryString();
-    return view('deployment.rekap', compact('rows'));
+    /**
+     * =============================
+     * FINAL RESULT
+     * =============================
+     */
+    $rows = $query->latest()
+        ->paginate(10)
+        ->withQueryString();
+
+    return view('deployment.rekap', compact('rows', 'filters'));
 }
+
 
 }

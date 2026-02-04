@@ -1,81 +1,249 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-    <title>@yield('title', 'Dashboard')</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
 
-    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine -->
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
     <style>
-    [x-cloak] {
-        display: none !important;
-    }
-</style>
-
-</head>
-<script>
-    function searchableSelect(options) {
-        return {
-            open: false,
-            search: '',
-            selected: '',
-            options: options,
-
-            filtered() {
-                if (this.search === '') return this.options
-                return this.options.filter(o =>
-                    o.toLowerCase().includes(this.search.toLowerCase())
-                )
-            },
-
-            select(option) {
-                this.selected = option
-                this.search = option
-                this.open = false
-            }
+        [x-cloak] {
+            display: none !important
         }
-    }
-</script>
+    </style>
+</head>
 
-<body class="bg-gradient-to-br from-gray-100 to-gray-200 h-screen overflow-hidden">
+<body class="bg-neutral-100 text-neutral-800 antialiased">
 
-    <!-- FLASH MESSAGE -->
-    <x-flash-success />
-    <x-flash-error />
+    <div
+        x-data="{
+        sidebarOpen: true,
+        userMenu: false
+    }"
+        class="min-h-screen">
 
-    <div x-data="{ sidebarOpen: true }" class="flex h-full">
+        <!-- ================= SIDEBAR ================= -->
+        <aside
+            x-cloak
+            class="fixed inset-y-0 left-0 z-40
+               bg-white border-r border-neutral-200
+               transition-all duration-300 ease-in-out
+               flex flex-col"
+            :class="sidebarOpen ? 'w-64' : 'w-20'">
 
-        <!-- SIDEBAR -->
-        <x-sidebar />
+            <!-- LOGO -->
+            <div class="h-16 flex items-center px-6 border-b border-neutral-200"
+     :class="!sidebarOpen ? 'justify-center px-0' : ''">
 
-        <!-- MAIN WRAPPER -->
-        <div
-            :class="sidebarOpen ? 'ml-64' : 'ml-0'"
-            class="flex flex-col flex-1
-                   transition-all duration-300 ease-in-out
-                   overflow-hidden">
+                <div x-show="sidebarOpen" x-transition.opacity class="leading-tight">
+                    <div class="font-semibold text-base text-red-600">
+                        Monitoring Proyek
+                    </div>
+                    <div class="text-xs text-slate-500">
+                        Unit Optima · PT Telkom Indonesia
+                    </div>
+                </div>
 
-            <!-- HEADER -->
-            <header class="sticky top-0 z-40">
-                <x-navbar />
-            </header>
+                <span class="font-bold text-xl text-red-600"
+                    x-show="!sidebarOpen">
+                    R
+                </span>
+            </div>
 
-            <!-- CONTENT -->
-            <main
-                class="flex-1 overflow-y-auto overflow-x-hidden
-                       p-6 lg:p-8">
 
-                @yield('content')
+            <!-- MENU -->
+            <nav class="p-4 space-y-1 text-sm">
+                <!-- ================= AKUN ================= -->
+                <a href="{{ route('admin.users') }}"
+                    class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium
+   transition duration-200
+   {{ request()->routeIs('admin.users')
+        ? 'bg-red-50 text-red-600 shadow-sm'
+        : 'text-gray-700 hover:bg-gray-100' }}"
+                    :class="!sidebarOpen ? 'justify-center px-0' : ''">
 
-            </main>
 
-        </div>
+                    <!-- ICON USER CIRCLE -->
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-3.314 0-6 1.343-6 3v1h12v-1c0-1.657-2.686-3-6-3z" />
+                    </svg>
+
+                    <span x-show="sidebarOpen" x-transition.opacity>
+                        Akun
+                    </span>
+
+                </a>
+
+                <!-- DASHBOARD -->
+                <a href="{{ route('dashboard') }}"
+                    class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium transition
+               {{ request()->routeIs('dashboard')
+                    ? 'bg-red-50 text-red-600'
+                    : 'text-gray-700 hover:bg-gray-100' }}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
+                    </svg>
+                    <span x-show="sidebarOpen" x-transition.opacity>Dashboard</span>
+                </a>
+
+                <!-- B2B -->
+                <div
+                    x-data="{
+                    open: {{ request()->routeIs('deployment.*') ? 'true' : 'false' }},
+                    init(){
+                        this.$watch('$root.sidebarOpen', v => {
+                            if(!v) this.open = false
+                        })
+                    }
+                }"
+                    class="pt-2">
+
+                    <button
+                        @click="open = !open"
+                        class="flex items-center justify-between w-full
+                           px-4 py-2.5 rounded-xl font-medium transition
+                    {{ request()->routeIs('deployment.*')
+                        ? 'bg-red-50 text-red-600'
+                        : 'text-gray-700 hover:bg-gray-100' }}">
+
+                        <span class="flex items-center gap-3">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3 7a2 2 0 012-2h5l2 2h7
+                                     a2 2 0 012 2v8a2 2 0 01-2 2H5
+                                     a2 2 0 01-2-2V7z" />
+                            </svg>
+                            <span x-show="sidebarOpen" x-transition.opacity>
+                                B2B Deployment
+                            </span>
+                        </span>
+
+                        <svg x-show="sidebarOpen"
+                            class="w-4 h-4 transition-transform"
+                            :class="open ? 'rotate-180' : ''"
+                            fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </button>
+
+                    <!-- SUBMENU -->
+                    <div
+                        x-cloak
+                        x-show="open && sidebarOpen"
+                        x-transition.opacity
+                        class="ml-4 mt-2 pl-4 space-y-1 border-l border-gray-200">
+
+                        @php
+                        $a = 'bg-red-100 text-red-600 font-medium';
+                        $n = 'text-gray-700 hover:bg-gray-100';
+                        @endphp
+
+                        <a href="{{ route('deployment.upload') }}"
+                            class="block px-3 py-2 rounded-lg {{ request()->routeIs('deployment.upload') ? $a : $n }}">
+                            Upload Data
+                        </a>
+
+                        <a href="{{ route('deployment.input') }}"
+                            class="block px-3 py-2 rounded-lg {{ request()->routeIs('deployment.input') ? $a : $n }}">
+                            Input Data
+                        </a>
+
+                        <a href="{{ route('deployment.update') }}"
+                            class="block px-3 py-2 rounded-lg {{ request()->routeIs('deployment.update') ? $a : $n }}">
+                            Update Data
+                        </a>
+
+                        <a href="{{ route('deployment.rekap') }}"
+                            class="block px-3 py-2 rounded-lg {{ request()->routeIs('deployment.rekap') ? $a : $n }}">
+                            Lihat Data
+                        </a>
+                    </div>
+                </div>
+
+            </nav>
+        </aside>
+
+        <!-- ================= NAVBAR ================= -->
+        <header
+            class="fixed top-0 right-0 z-30 h-16 bg-white border-b
+               flex items-center justify-between px-6 transition-all duration-300"
+            :class="sidebarOpen ? 'left-64' : 'left-20'">
+
+            <button
+                @click="sidebarOpen = !sidebarOpen"
+                class="p-2 rounded-lg hover:bg-neutral-100">
+                <svg class="w-5 h-5 text-neutral-600" fill="none" stroke="currentColor"
+                    stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+
+           <div x-data="{ userMenu: false }" class="relative">
+
+    <!-- Avatar Button -->
+    <button
+        @click="userMenu = !userMenu"
+        class="flex items-center focus:outline-none"
+    >
+        <img
+            src="https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff"
+            class="w-9 h-9 rounded-full"
+            alt="User Avatar"
+        >
+    </button>
+
+    <!-- Dropdown -->
+    <div
+        x-show="userMenu"
+        @click.outside="userMenu = false"
+        x-transition
+        class="absolute right-0 mt-2 w-40
+               bg-white border border-gray-200
+               rounded-lg shadow-lg overflow-hidden z-50"
+    >
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button
+                type="submit"
+                class="block w-full text-left px-4 py-3 text-sm
+                       text-gray-700 hover:bg-gray-100 transition"
+            >
+                Logout
+            </button>
+        </form>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  @stack('scripts')
+
+</div>
+
+        </header>
+
+        <!-- ================= MAIN ================= -->
+        <main
+            class="pt-20 transition-all duration-300"
+            :class="sidebarOpen ? 'ml-64' : 'ml-20'">
+            <div class="p-6">
+                @yield('content')
+            </div>
+        </main>
+
+    </div>
+
 </body>
+
 </html>

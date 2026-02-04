@@ -11,7 +11,7 @@ class EbisManualInput extends Model
 
     protected $table = 'ebis_manual_inputs';
 
-    protected $fillable = ['nde_jt', 'star_click_id', 'nama_customer', 'nama_mitra', 'alamat_pelanggan', 'telepon_pelanggan', 'tikor_pelanggan', 'datel', 'sto', 'progres', 'keterangan', 'data', 'tanggal_update_progres'];
+    protected $fillable = ['nde_jt', 'star_click_id', 'nama_customer', 'nama_mitra', 'alamat_pelanggan', 'telepon_pelanggan', 'tikor_pelanggan', 'datel', 'sto', 'link_dokumen', 'progres', 'keterangan', 'data', 'tanggal_update_progres'];
 
     protected $casts = [
         'data' => 'array',

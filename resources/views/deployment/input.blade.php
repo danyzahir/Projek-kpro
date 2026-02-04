@@ -247,12 +247,18 @@
                         Data wajib dipilih
                     </p>
                 </div>
+            </div>
+            <!-- ================= MITRA + LINK DOKUMEN ================= -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Nama Mitra -->
                 <div data-field-wrapper x-data="searchableSelect(@js($mitras))" class="relative">
                     <label class="block text-sm font-medium text-slate-600 mb-1">
                         Nama Mitra <span class="text-red-600">*</span>
                     </label>
 
-                    <input type="text"
+                    <input
+                        type="text"
                         x-model="search"
                         @focus="open = true"
                         @click="open = true"
@@ -260,7 +266,7 @@
                         @blur="clearIfEmpty()"
                         placeholder="Nama Mitra"
                         class="w-full rounded-lg border px-3 py-2 text-sm
-               focus:ring-2 focus:ring-red-500 focus:outline-none"
+                   focus:ring-2 focus:ring-red-500 focus:outline-none"
                         required>
 
                     <input type="hidden" name="nama_mitra" x-model="selected" data-required="true">
@@ -281,6 +287,7 @@
                             Tidak ditemukan
                         </div>
                     </div>
+
                     <p
                         x-show="showError && errorField === 'nama_mitra'"
                         x-transition
@@ -293,9 +300,8 @@
                     @enderror
                 </div>
 
-
-
             </div>
+
 
 
             <!-- ================= ACTION ================= -->

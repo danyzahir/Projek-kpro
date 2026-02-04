@@ -45,6 +45,7 @@ class EbisManualInputController extends Controller
                 'datel' => 'required|string|max:50',
                 'sto' => 'required|string|max:50',
                 'catatan' => 'nullable|string',
+                 'link_dokumen' => 'nullable|string', 
             ],
             [
                 'required' => 'attribute tidak boleh kosong',

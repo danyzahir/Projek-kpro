@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+
+
 class AuthenticatedSessionController extends Controller
 {
     /**
@@ -23,13 +25,28 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+{
+    $request->authenticate();
+    $request->session()->regenerate();
 
-        $request->session()->regenerate();
+    $user = Auth::user();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+    if (!$user) {
+        return redirect()->route('login');
     }
+
+    if ($user->role === 'waiting') {
+        return redirect()->route('waiting');
+    }
+
+    if ($user->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('dashboard');
+}
+
+
 
     /**
      * Destroy an authenticated session.

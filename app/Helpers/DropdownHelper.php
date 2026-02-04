@@ -18,10 +18,10 @@ class DropdownHelper
     public static function stos()
     {
         return [
-            'AWN','BON','CBN','CKI','HAR',
-            'IMY','JBN','JTB','JWG','KAD',
+          
+            'JBN','JWG','KAD',
             'CKC','KRA','KYM','KNG','LGJ',
-            'LSR','LOS','MJL','PAB','PTR',
+            'LSR','LOS','PAB','PTR',
             'PLD','RGA','SDU','SUB','JCG',
             'PMN','PGD','KIA','CAS'
         ];

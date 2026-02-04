@@ -100,6 +100,15 @@
                         Login
                     </button>
 
+                    <p class="text-sm text-center text-slate-500 mt-4">
+    Belum punya akun?
+    <a href="{{ route('register') }}"
+       class="text-red-600 font-medium hover:underline">
+        Daftar
+    </a>
+</p>
+
+
                 </form>
 
             </div>

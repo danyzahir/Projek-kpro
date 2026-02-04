@@ -7,6 +7,10 @@ use App\Models\EbisManualInput;
 use App\Models\EbisPlanningOrder;
 use App\Helpers\DropdownHelper;
 use App\Models\EbisPlanningProgressLog;
+use App\Models\MasterDatel;
+use App\Models\MasterSto;
+use App\Models\MasterMitra;
+
 
 class EbisManualInputController extends Controller
 {
@@ -16,15 +20,17 @@ class EbisManualInputController extends Controller
      * =============================
      */
     public function index()
-    {
-        $datels = DropdownHelper::datels();
-        $stos = DropdownHelper::stos();
-        $mitras = DropdownHelper::mitras();
+{
+    $datels = MasterDatel::orderBy('nama_datel')->pluck('nama_datel');
+$stos   = MasterSto::orderBy('nama_sto')->pluck('nama_sto');
+$mitras = MasterMitra::orderBy('nama_mitra')->pluck('nama_mitra');
 
-        $rows = EbisManualInput::orderBy('created_at', 'desc')->paginate(10);
 
-        return view('deployment.input', compact('datels', 'stos', 'rows', 'mitras'));
-    }
+    $rows = EbisManualInput::orderBy('created_at', 'desc')->paginate(10);
+
+    return view('deployment.input', compact('datels', 'stos', 'rows', 'mitras'));
+}
+
 
     /**
      * =============================
@@ -173,14 +179,15 @@ public function updateList(Request $request)
      * =============================
      */
     public function edit($id)
-    {
-        $data = EbisManualInput::with('planning')->findOrFail($id);
+{
+    $data = EbisManualInput::with('planning')->findOrFail($id);
 
-        $datels = DropdownHelper::datels();
-        $stos = DropdownHelper::stos();
+    $datels = MasterDatel::orderBy('nama_datel')->get();
+    $stos   = MasterSto::orderBy('nama_sto')->get();
 
-        return view('deployment.edit', compact('data', 'datels', 'stos'));
-    }
+    return view('deployment.edit', compact('data', 'datels', 'stos'));
+}
+
 
     /**
      * =============================

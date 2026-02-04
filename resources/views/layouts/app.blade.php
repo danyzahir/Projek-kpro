@@ -36,7 +36,7 @@
 
             <!-- LOGO -->
             <div class="h-16 flex items-center px-6 border-b border-neutral-200"
-     :class="!sidebarOpen ? 'justify-center px-0' : ''">
+                :class="!sidebarOpen ? 'justify-center px-0' : ''">
 
                 <div x-show="sidebarOpen" x-transition.opacity class="leading-tight">
                     <div class="font-semibold text-base text-red-600">
@@ -49,13 +49,14 @@
 
                 <span class="font-bold text-xl text-red-600"
                     x-show="!sidebarOpen">
-                    R
+                    M
                 </span>
             </div>
 
 
             <!-- MENU -->
             <nav class="p-4 space-y-1 text-sm">
+                @if(auth()->user()->role === 'admin')
                 <!-- ================= AKUN ================= -->
                 <a href="{{ route('admin.users') }}"
                     class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium
@@ -65,8 +66,7 @@
         : 'text-gray-700 hover:bg-gray-100' }}"
                     :class="!sidebarOpen ? 'justify-center px-0' : ''">
 
-
-                    <!-- ICON USER CIRCLE -->
+                    <!-- ICON USER -->
                     <svg xmlns="http://www.w3.org/2000/svg"
                         class="w-5 h-5"
                         fill="none"
@@ -75,14 +75,47 @@
                         <path stroke-linecap="round"
                             stroke-linejoin="round"
                             stroke-width="2"
-                            d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-3.314 0-6 1.343-6 3v1h12v-1c0-1.657-2.686-3-6-3z" />
+                            d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2
+               c-3.314 0-6 1.343-6 3v1h12v-1
+               c0-1.657-2.686-3-6-3z" />
                     </svg>
 
                     <span x-show="sidebarOpen" x-transition.opacity>
                         Akun
                     </span>
-
                 </a>
+                @endif
+
+
+                @if(auth()->user()->role === 'admin')
+                <a href="{{ route('admin.master-input') }}"
+                    class="flex items-center gap-3 px-4 py-2.5 rounded-xl font-medium
+    transition duration-200
+    {{ request()->routeIs('admin.master-input')
+        ? 'bg-red-50 text-red-600 shadow-sm'
+        : 'text-gray-700 hover:bg-gray-100' }}"
+                    :class="!sidebarOpen ? 'justify-center px-0' : ''">
+
+                    <!-- ICON DATABASE -->
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        class="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M4 6c0 1.657 3.582 3 8 3s8-1.343 8-3
+               -3.582-3-8-3-8 1.343-8 3zm0 6c0 1.657 3.582 3 8 3s8-1.343 8-3
+               m-16 6c0 1.657 3.582 3 8 3s8-1.343 8-3" />
+                    </svg>
+
+                    <span x-show="sidebarOpen" x-transition.opacity>
+                        Master Input
+                    </span>
+                </a>
+                @endif
+
 
                 <!-- DASHBOARD -->
                 <a href="{{ route('dashboard') }}"
@@ -194,42 +227,38 @@
                 </svg>
             </button>
 
-           <div x-data="{ userMenu: false }" class="relative">
+            <div x-data="{ userMenu: false }" class="relative">
 
-    <!-- Avatar Button -->
-    <button
-        @click="userMenu = !userMenu"
-        class="flex items-center focus:outline-none"
-    >
-        <img
-            src="https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff"
-            class="w-9 h-9 rounded-full"
-            alt="User Avatar"
-        >
-    </button>
+                <!-- Avatar Button -->
+                <button
+                    @click="userMenu = !userMenu"
+                    class="flex items-center focus:outline-none">
+                    <img
+                        src="https://ui-avatars.com/api/?name=Admin&background=ef4444&color=fff"
+                        class="w-9 h-9 rounded-full"
+                        alt="User Avatar">
+                </button>
 
-    <!-- Dropdown -->
-    <div
-        x-show="userMenu"
-        @click.outside="userMenu = false"
-        x-transition
-        class="absolute right-0 mt-2 w-40
+                <!-- Dropdown -->
+                <div
+                    x-show="userMenu"
+                    @click.outside="userMenu = false"
+                    x-transition
+                    class="absolute right-0 mt-2 w-40
                bg-white border border-gray-200
-               rounded-lg shadow-lg overflow-hidden z-50"
-    >
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button
-                type="submit"
-                class="block w-full text-left px-4 py-3 text-sm
-                       text-gray-700 hover:bg-gray-100 transition"
-            >
-                Logout
-            </button>
-        </form>
-    </div>
+               rounded-lg shadow-lg overflow-hidden z-50">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="block w-full text-left px-4 py-3 text-sm
+                       text-gray-700 hover:bg-gray-100 transition">
+                            Logout
+                        </button>
+                    </form>
+                </div>
 
-</div>
+            </div>
 
         </header>
 

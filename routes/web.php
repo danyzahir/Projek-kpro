@@ -7,6 +7,9 @@ use App\Http\Controllers\EbisPlanningController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\MasterInputController;
+
+
 
 
 Route::get('/', function () {
@@ -115,6 +118,22 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
 });
+
+Route::middleware(['auth', 'role:admin'])->group(function () {
+
+    Route::get('/admin/master-input', [MasterInputController::class, 'index'])
+        ->name('admin.master-input');
+
+    Route::post('/admin/master-input/datel', [MasterInputController::class, 'storeDatel'])
+        ->name('admin.master-input.datel');
+
+    Route::post('/admin/master-input/sto', [MasterInputController::class, 'storeSto'])
+        ->name('admin.master-input.sto');
+
+    Route::post('/admin/master-input/mitra', [MasterInputController::class, 'storeMitra'])
+        ->name('admin.master-input.mitra');
+});
+
 
 
 require __DIR__ . '/auth.php';

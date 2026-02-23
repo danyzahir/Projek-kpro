@@ -1,118 +1,114 @@
 @extends('layouts.app')
 
-@section('title', 'B2B')
+@section('title', 'B2B Deployment')
 
 @section('content')
-<div class="max-w-6xl mx-auto">
+<div class="max-w-7xl mx-auto space-y-8">
 
-    <!-- ================= PAGE HEADER ================= -->
-    <div class="mb-12">
-        <h1 class="text-3xl font-semibold text-slate-800 tracking-tight">
-            Deployment <span class="text-slate-400 font-normal">– B2B</span>
-        </h1>
-        <p class="text-slate-500 mt-2 max-w-2xl">
-            Kelola proses deployment B2B melalui menu berikut.
-        </p>
-    </div>
 
     <!-- ================= DASHBOARD CARDS ================= -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-
-        <!-- ================= UPLOAD ================= -->
-        <a href="{{ route('deployment.upload') }}"
-           class="group rounded-3xl bg-white p-6
-                  border border-slate-200
-                  hover:border-green-300 hover:shadow-lg
-                  transition-all duration-300">
-
-            <div class="w-12 h-12 flex items-center justify-center
-                        rounded-2xl bg-green-100 text-green-600 mb-5
-                        group-hover:scale-105 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" />
-                </svg>
-            </div>
-
-            <h3 class="text-lg font-semibold text-slate-800">Upload</h3>
-            <p class="text-sm text-slate-500 mt-1">
-                Upload data B2B secara massal.
-            </p>
-        </a>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
         <!-- ================= INPUT (PRIMARY) ================= -->
         <a href="{{ route('deployment.input') }}"
-           class="group relative rounded-3xl p-6
-                  bg-gradient-to-br from-red-600 to-red-500
-                  text-white shadow-md
-                  hover:shadow-xl transition-all duration-300">
+           class="group relative overflow-hidden rounded-3xl p-8 h-64
+                  bg-gradient-to-br from-red-600 via-red-500 to-red-700
+                  text-white shadow-xl hover:shadow-2xl hover:-translate-y-1
+                  transition-all duration-300 flex flex-col justify-between">
+            
+            <div class="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10"></div>
+            <div class="absolute bottom-0 left-0 w-24 h-24 bg-black/10 rounded-full blur-xl -ml-10 -mb-5"></div>
 
-            <div class="w-12 h-12 flex items-center justify-center
-                        rounded-2xl bg-white/20 mb-5
-                        group-hover:scale-105 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M16.862 3.487a2.121 2.121 0 013 3L7.5 18.85l-4 1 1-4L16.862 3.487z" />
+            <div class="w-14 h-14 flex items-center justify-center
+                        rounded-2xl bg-white/20 backdrop-blur-sm shadow-inner
+                        group-hover:scale-110 transition z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                 </svg>
             </div>
 
-            <h3 class="text-lg font-semibold">Input</h3>
-            <p class="text-sm text-red-100 mt-1">
-                Input dan perbarui data manual.
-            </p>
+            <div class="z-10">
+                <h3 class="text-2xl font-bold">Input Data</h3>
+                <p class="text-red-100 mt-1 text-sm font-medium opacity-90">
+                    Tambah data deployment baru secara manual
+                </p>
+            </div>
 
-            <span class="absolute top-4 right-4 text-xs font-semibold
-                         bg-white/20 px-2 py-1 rounded-full">
+            <div class="absolute top-6 right-6 px-3 py-1 rounded-full bg-white/20 text-xs font-bold backdrop-blur-md">
                 Utama
-            </span>
+            </div>
         </a>
 
         <!-- ================= UPDATE ================= -->
-        <a href="{{ route('deployment.update.list') }}"
-           class="group rounded-3xl bg-white p-6
-                  border border-slate-200
-                  hover:border-amber-300 hover:shadow-lg
-                  transition-all duration-300">
+        <a href="{{ route('deployment.update') }}"
+           class="group relative overflow-hidden rounded-3xl p-8 h-64
+                  bg-white border border-slate-200
+                  hover:border-red-200 hover:shadow-xl hover:-translate-y-1
+                  transition-all duration-300 flex flex-col justify-between">
+            
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full blur-xl transition" style="background:#fef2f2;"></div>
 
-            <div class="w-12 h-12 flex items-center justify-center
-                        rounded-2xl bg-amber-100 text-amber-600 mb-5
-                        group-hover:scale-105 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M16.862 3.487a2.121 2.121 0 013 3L7.5 18.85l-4 1 1-4L16.862 3.487z" />
+            <div class="w-14 h-14 flex items-center justify-center
+                        rounded-2xl group-hover:scale-110 transition z-10" style="background:#fef2f2; color:#e32b2b;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
             </div>
 
-            <h3 class="text-lg font-semibold text-slate-800">Update</h3>
-            <p class="text-sm text-slate-500 mt-1">
-                Perbarui status & progres data.
-            </p>
+            <div class="z-10">
+                <h3 class="text-xl font-bold text-slate-800 group-hover:text-red-600 transition">Update Progres</h3>
+                <p class="text-slate-500 mt-1 text-sm">
+                    Perbarui status progress deployment berjalan
+                </p>
+            </div>
         </a>
 
         <!-- ================= REKAP ================= -->
-        <a href="{{ route('deployment.rekap') }}"
-           class="group rounded-3xl bg-white p-6
-                  border border-slate-200
-                  hover:border-blue-300 hover:shadow-lg
-                  transition-all duration-300">
+        <a href="{{ route('deployment.lihat-data') }}" 
+           class="group relative overflow-hidden rounded-3xl p-8 h-64
+                  bg-white border border-slate-200
+                  hover:border-red-200 hover:shadow-xl hover:-translate-y-1
+                  transition-all duration-300 flex flex-col justify-between">
+            
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full blur-xl transition" style="background:#fef2f2;"></div>
 
-            <div class="w-12 h-12 flex items-center justify-center
-                        rounded-2xl bg-blue-100 text-blue-600 mb-5
-                        group-hover:scale-105 transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                     fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M3 3h18M3 8h18M3 13h6m4 4h8M3 18h8" />
+            <div class="w-14 h-14 flex items-center justify-center
+                        rounded-2xl group-hover:scale-110 transition z-10" style="background:#fef2f2; color:#e32b2b;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                 </svg>
             </div>
 
-            <h3 class="text-lg font-semibold text-slate-800">Rekap</h3>
-            <p class="text-sm text-slate-500 mt-1">
-                Ringkasan & laporan data.
-            </p>
+            <div class="z-10">
+                <h3 class="text-xl font-bold text-slate-800 group-hover:text-red-600 transition">Lihat Data</h3>
+                <p class="text-slate-500 mt-1 text-sm">
+                    Monitoring dan rekap data deployment lengkap
+                </p>
+            </div>
+        </a>
+
+        <!-- ================= UPLOAD ================= -->
+        <a href="{{ route('deployment.upload') }}"
+           class="group relative overflow-hidden rounded-3xl p-8 h-64
+                  bg-white border border-slate-200
+                  hover:border-red-200 hover:shadow-xl hover:-translate-y-1
+                  transition-all duration-300 flex flex-col justify-between">
+            
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full blur-xl transition" style="background:#fef2f2;"></div>
+
+            <div class="w-14 h-14 flex items-center justify-center
+                        rounded-2xl group-hover:scale-110 transition z-10" style="background:#fef2f2; color:#e32b2b;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+            </div>
+
+            <div class="z-10">
+                <h3 class="text-xl font-bold text-slate-800 group-hover:text-red-600 transition">Upload Excel</h3>
+                <p class="text-slate-500 mt-1 text-sm">
+                    Import data massal via file excel
+                </p>
+            </div>
         </a>
 
     </div>

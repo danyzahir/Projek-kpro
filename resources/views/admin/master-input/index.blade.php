@@ -1,150 +1,177 @@
 @extends('layouts.app')
 
-@section('title', 'Master Input')
+@section('title', 'Master Data Input')
 
 @section('content')
-<h1 class="text-xl font-bold mb-6">Master Input</h1>
+<div class="max-w-7xl mx-auto space-y-8">
 
-{{-- ================= NOTIFIKASI BERHASIL ================= --}}
-@if(session('success'))
-<div
-    x-data="{ show: true }"
-    x-show="show"
-    x-init="setTimeout(() => show = false, 3000)"
-    x-transition
-    class="mb-4 p-4 rounded-xl bg-green-50 border border-green-200 text-green-700">
-    {{ session('success') }}
-</div>
-@endif
+    
 
-{{-- ================= NOTIFIKASI ERROR ================= --}}
-@if($errors->any())
-<div class="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700">
-    <ul class="list-disc ml-5">
-        @foreach($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
-@endif
+    <!-- ================= MASTER DATA SECTIONS ================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- ================= DATEL ================= -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition flex flex-col h-full">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2 h-8 bg-blue-500 rounded-full"></span>
+                    Datel
+                </h3>
+                <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-lg">{{ $datels->count() }} Item</span>
+            </div>
+            
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <!-- FORM -->
+                <form method="POST" action="{{ route('admin.master-input.datel') }}" class="relative">
+                    @csrf
+                    <div class="flex gap-2">
+                        <input name="nama_datel" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition" placeholder="Tambah Datel Baru..." required>
+                        <button type="submit" class="p-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </button>
+                    </div>
+                </form>
 
-{{-- ================= FORM INPUT ================= --}}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <!-- LIST -->
+                <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2">
+                    @forelse($datels as $datel)
+                    <div x-data="{ editing: false, nama: '{{ addslashes($datel->nama_datel) }}' }" 
+                         class="group flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-blue-200 transition">
+                        
+                        <!-- DISPLAY -->
+                        <span x-show="!editing" class="text-sm font-medium text-slate-700">{{ $datel->nama_datel }}</span>
+                        
+                        <!-- EDIT FORM -->
+                        <form x-show="editing" x-cloak method="POST" action="{{ route('admin.master-input.datel.update', $datel->id) }}" class="flex-1 flex gap-2 mr-2">
+                            @csrf @method('PUT')
+                            <input name="nama_datel" x-model="nama" class="w-full text-sm p-1 rounded border border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <button type="submit" class="text-green-600 hover:bg-green-100 p-1 rounded"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></button>
+                        </form>
 
-    <!-- DATEL -->
-    <form method="POST" action="{{ route('admin.master-input.datel') }}">
-        @csrf
-        <h2 class="font-semibold mb-2">Datel</h2>
-        <input name="nama_datel" class="border p-2 w-full mb-2 rounded" placeholder="Nama Datel">
-        <button class="bg-red-600 text-white px-4 py-1 rounded">Tambah</button>
-    </form>
+                        <!-- ACTIONS -->
+                        <div x-show="!editing" class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="editing = true" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </button>
+                            <button @click="$dispatch('open-confirm-delete-datel-{{ $datel->id }}')" class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                            <x-confirm-delete id="delete-datel-{{ $datel->id }}" title="Hapus Datel" message="Hapus '{{ $datel->nama_datel }}'?" :action="route('admin.master-input.datel.destroy', $datel->id)" />
+                        </div>
+                    </div>
+                    @empty
+                    <p class="text-center text-slate-400 text-sm py-4">Belum ada data</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
 
-    <!-- STO -->
-    <form method="POST" action="{{ route('admin.master-input.sto') }}">
-        @csrf
-        <h2 class="font-semibold mb-2">STO</h2>
-        <input name="nama_sto" class="border p-2 w-full mb-2 rounded" placeholder="Nama STO">
-        <button class="bg-red-600 text-white px-4 py-1 rounded">Tambah</button>
-    </form>
+        <!-- ================= STO ================= -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition flex flex-col h-full">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2 h-8 bg-amber-500 rounded-full"></span>
+                    STO
+                </h3>
+                <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-lg">{{ $stos->count() }} Item</span>
+            </div>
+            
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <!-- FORM -->
+                <form method="POST" action="{{ route('admin.master-input.sto') }}" class="relative">
+                    @csrf
+                    <div class="flex gap-2">
+                        <input name="nama_sto" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm focus:border-amber-500 focus:ring-2 focus:ring-amber-100 outline-none transition" placeholder="Tambah STO Baru..." required>
+                        <button type="submit" class="p-2.5 bg-amber-500 text-white rounded-xl hover:bg-amber-600 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </button>
+                    </div>
+                </form>
 
-    <!-- MITRA -->
-    <form method="POST" action="{{ route('admin.master-input.mitra') }}">
-        @csrf
-        <h2 class="font-semibold mb-2">Mitra</h2>
-        <input name="nama_mitra" class="border p-2 w-full mb-2 rounded" placeholder="Nama Mitra">
-        <button class="bg-red-600 text-white px-4 py-1 rounded">Tambah</button>
-    </form>
+                <!-- LIST -->
+                <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2">
+                    @forelse($stos as $sto)
+                    <div x-data="{ editing: false, nama: '{{ addslashes($sto->nama_sto) }}' }" 
+                         class="group flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-amber-200 transition">
+                        
+                        <span x-show="!editing" class="text-sm font-medium text-slate-700">{{ $sto->nama_sto }}</span>
+                        
+                        <form x-show="editing" x-cloak method="POST" action="{{ route('admin.master-input.sto.update', $sto->id) }}" class="flex-1 flex gap-2 mr-2">
+                            @csrf @method('PUT')
+                            <input name="nama_sto" x-model="nama" class="w-full text-sm p-1 rounded border border-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-500">
+                            <button type="submit" class="text-green-600 hover:bg-green-100 p-1 rounded"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></button>
+                        </form>
 
-</div>
+                        <div x-show="!editing" class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="editing = true" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </button>
+                            <button @click="$dispatch('open-confirm-delete-sto-{{ $sto->id }}')" class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                            <x-confirm-delete id="delete-sto-{{ $sto->id }}" title="Hapus STO" message="Hapus '{{ $sto->nama_sto }}'?" :action="route('admin.master-input.sto.destroy', $sto->id)" />
+                        </div>
+                    </div>
+                    @empty
+                    <p class="text-center text-slate-400 text-sm py-4">Belum ada data</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
 
-{{-- ================= DATA MASTER (HORIZONTAL) ================= --}}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- ================= MITRA ================= -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition flex flex-col h-full">
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+                <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                    <span class="w-2 h-8 bg-green-500 rounded-full"></span>
+                    Mitra
+                </h3>
+                <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-lg">{{ $mitras->count() }} Item</span>
+            </div>
+            
+            <div class="p-6 flex-1 flex flex-col gap-6">
+                <!-- FORM -->
+                <form method="POST" action="{{ route('admin.master-input.mitra') }}" class="relative">
+                    @csrf
+                    <div class="flex gap-2">
+                        <input name="nama_mitra" class="w-full rounded-xl border-slate-200 px-4 py-2.5 text-sm focus:border-green-500 focus:ring-2 focus:ring-green-100 outline-none transition" placeholder="Tambah Mitra Baru..." required>
+                        <button type="submit" class="p-2.5 bg-green-600 text-white rounded-xl hover:bg-green-700 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        </button>
+                    </div>
+                </form>
 
-    {{-- ================= DATEL ================= --}}
-    <div class="bg-white rounded-xl shadow border border-slate-200 p-4">
-        <h3 class="font-semibold mb-3 text-center">Datel</h3>
+                <!-- LIST -->
+                <div class="overflow-y-auto max-h-[400px] pr-2 space-y-2">
+                    @forelse($mitras as $mitra)
+                    <div x-data="{ editing: false, nama: '{{ addslashes($mitra->nama_mitra) }}' }" 
+                         class="group flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 hover:border-green-200 transition">
+                        
+                        <span x-show="!editing" class="text-sm font-medium text-slate-700">{{ $mitra->nama_mitra }}</span>
+                        
+                        <form x-show="editing" x-cloak method="POST" action="{{ route('admin.master-input.mitra.update', $mitra->id) }}" class="flex-1 flex gap-2 mr-2">
+                            @csrf @method('PUT')
+                            <input name="nama_mitra" x-model="nama" class="w-full text-sm p-1 rounded border border-green-300 focus:outline-none focus:ring-1 focus:ring-green-500">
+                            <button type="submit" class="text-green-600 hover:bg-green-100 p-1 rounded"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></button>
+                        </form>
 
-        <table class="w-full text-sm border border-slate-200">
-            <thead class="bg-slate-100">
-                <tr>
-                    <th class="border px-2 py-1 w-12 text-center">No</th>
-                    <th class="border px-2 py-1">Nama</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($datels as $i => $datel)
-                <tr>
-                    <td class="border px-2 py-1 text-center">{{ $i + 1 }}</td>
-                    <td class="border px-2 py-1">{{ $datel->nama_datel }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="2" class="border px-2 py-3 text-center text-slate-500">
-                        Tidak ada data
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+                        <div x-show="!editing" class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button @click="editing = true" class="p-1.5 text-blue-600 hover:bg-blue-100 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </button>
+                            <button @click="$dispatch('open-confirm-delete-mitra-{{ $mitra->id }}')" class="p-1.5 text-red-600 hover:bg-red-100 rounded-lg transition">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                            </button>
+                            <x-confirm-delete id="delete-mitra-{{ $mitra->id }}" title="Hapus Mitra" message="Hapus '{{ $mitra->nama_mitra }}'?" :action="route('admin.master-input.mitra.destroy', $mitra->id)" />
+                        </div>
+                    </div>
+                    @empty
+                    <p class="text-center text-slate-400 text-sm py-4">Belum ada data</p>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
     </div>
-
-    {{-- ================= STO ================= --}}
-    <div class="bg-white rounded-xl shadow border border-slate-200 p-4">
-        <h3 class="font-semibold mb-3 text-center">STO</h3>
-
-        <table class="w-full text-sm border border-slate-200">
-            <thead class="bg-slate-100">
-                <tr>
-                    <th class="border px-2 py-1 w-12 text-center">No</th>
-                    <th class="border px-2 py-1">Nama</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($stos as $i => $sto)
-                <tr>
-                    <td class="border px-2 py-1 text-center">{{ $i + 1 }}</td>
-                    <td class="border px-2 py-1">{{ $sto->nama_sto }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="2" class="border px-2 py-3 text-center text-slate-500">
-                        Tidak ada data
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    {{-- ================= MITRA ================= --}}
-    <div class="bg-white rounded-xl shadow border border-slate-200 p-4">
-        <h3 class="font-semibold mb-3 text-center">Mitra</h3>
-
-        <table class="w-full text-sm border border-slate-200">
-            <thead class="bg-slate-100">
-                <tr>
-                    <th class="border px-2 py-1 w-12 text-center">No</th>
-                    <th class="border px-2 py-1">Nama</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($mitras as $i => $mitra)
-                <tr>
-                    <td class="border px-2 py-1 text-center">{{ $i + 1 }}</td>
-                    <td class="border px-2 py-1">{{ $mitra->nama_mitra }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="2" class="border px-2 py-3 text-center text-slate-500">
-                        Tidak ada data
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
 </div>
-
-
 @endsection

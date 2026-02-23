@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Admin\MasterInputController;
+use App\Http\Controllers\AdminController;
+
 
 
 
@@ -27,7 +29,7 @@ Route::middleware('guest')->group(function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })
-->middleware(['auth', 'role:user_optima,admin'])
+->middleware(['auth', 'role:optima,admin,tif,telkom_akses'])
 ->name('dashboard');
 
 Route::get('/waiting', function () {
@@ -51,8 +53,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    /* ================= NOTIFIKASI ================= */
+    /* ================= NOTIFIKASI ================= */
+    Route::get('/notifications', [App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
 });  
-Route::middleware(['auth', 'role:user_optima,admin'])->group(function () {
+Route::middleware(['auth', 'role:optima,admin,tif,telkom_akses'])->group(function () {
 
     /* ================= MENU B2B ================= */
     Route::get('/deployment/b2b', function () {
@@ -66,9 +72,17 @@ Route::middleware(['auth', 'role:user_optima,admin'])->group(function () {
     Route::post('/deployment/input', [EbisManualInputController::class, 'store'])
         ->name('deployment.input.store');
 
-    /* ================= REKAP DATA ================= */
-    Route::get('/deployment/rekap', [EbisPlanningController::class, 'rekap'])
-        ->name('deployment.rekap');
+    /* ================= LIHAT DATA ================= */
+    Route::get('/deployment/lihat-data', [EbisPlanningController::class, 'lihatData'])
+        ->name('deployment.lihat-data');
+
+    Route::get('/deployment/lihat-data/export', [EbisPlanningController::class, 'exportLihatData'])
+        ->name('deployment.lihat-data.export');
+
+    // REDIRECT LEGACY ROUTE
+    Route::get('/deployment/rekap', function () {
+        return redirect()->route('deployment.lihat-data');
+    });
 
     /* ================= UPDATE DATA (LIST) ================= */
     Route::get('/deployment/update', [EbisManualInputController::class, 'updateList'])
@@ -91,6 +105,7 @@ Route::middleware(['auth', 'role:user_optima,admin'])->group(function () {
     Route::get('/ebis/export', [EbisPlanningController::class, 'export'])
         ->name('ebis.export');
 
+
     //route ebis manual store
     Route::post('/ebis/manual/store', [EbisManualInputController::class, 'store'])
         ->name('ebis.manual.store');
@@ -102,6 +117,7 @@ Route::middleware(['auth', 'role:user_optima,admin'])->group(function () {
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'index'])->name('admin.users');
     Route::post('/admin/users/{id}/role', [UserController::class, 'updateRole']);
+    Route::delete('/admin/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
 Route::post('/logout', function () {
@@ -114,9 +130,7 @@ Route::post('/logout', function () {
 
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
@@ -132,6 +146,35 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::post('/admin/master-input/mitra', [MasterInputController::class, 'storeMitra'])
         ->name('admin.master-input.mitra');
+
+    // Update routes
+    Route::put('/admin/master-input/datel/{id}', [MasterInputController::class, 'updateDatel'])
+        ->name('admin.master-input.datel.update');
+
+    Route::put('/admin/master-input/sto/{id}', [MasterInputController::class, 'updateSto'])
+        ->name('admin.master-input.sto.update');
+
+    Route::put('/admin/master-input/mitra/{id}', [MasterInputController::class, 'updateMitra'])
+        ->name('admin.master-input.mitra.update');
+
+    // Delete routes
+    Route::delete('/admin/master-input/datel/{id}', [MasterInputController::class, 'destroyDatel'])
+        ->name('admin.master-input.datel.destroy');
+
+    Route::delete('/admin/master-input/sto/{id}', [MasterInputController::class, 'destroySto'])
+        ->name('admin.master-input.sto.destroy');
+
+    Route::delete('/admin/master-input/mitra/{id}', [MasterInputController::class, 'destroyMitra'])
+        ->name('admin.master-input.mitra.destroy');
+
+    Route::get('/admin/api/dashboard-stats', [AdminController::class, 'getEnterpriseStats'])
+        ->name('admin.api.dashboard-stats');
+
+    Route::get('/admin/api/trend-data', [AdminController::class, 'getTrendData'])
+        ->name('admin.api.trend-data');
+
+    Route::get('/admin/api/live-tracking', [AdminController::class, 'getLiveTracking'])
+        ->name('admin.api.live-tracking');
 });
 
 

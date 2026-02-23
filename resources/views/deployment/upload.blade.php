@@ -1,202 +1,272 @@
 @extends('layouts.app')
 
-@section('title', 'Input Data')
+@section('title', 'Upload Data Deployment')
 
 @section('content')
 <div class="flex flex-col gap-6">
 
-    <!-- ================= BREADCRUMB ================= -->
-    <div class="flex items-center gap-3 text-sm text-slate-500">
-        <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">
-            Dashboard
-        </a>
-        <span>›</span>
-        <a href="{{ route('deployment.b2b') }}" class="hover:text-red-600 transition">
-            B2B
-        </a>
-        <span>›</span>
-        <span class="font-semibold text-slate-800">Upload</span>
+    <!-- ================= HEADER ================= -->
+    
+
+    <!-- ================= UPLOAD CARD ================= -->
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border relative" style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.08);">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
+        
+        <div class="p-8">
+            <form id="importForm" action="{{ route('ebis.import') }}" method="POST" enctype="multipart/form-data" class="relative">
+                @csrf
+                
+                <input type="file" name="file" id="fileInput" class="hidden" accept=".xlsx,.xls" onchange="handleFileSelect(this)">
+
+                <div id="dropZone" 
+                     class="group relative w-full h-64 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 
+                            flex flex-col items-center justify-center text-center cursor-pointer
+                            hover:border-red-400 hover:bg-red-50/30 transition-all duration-300"
+                     ondragover="handleDragOver(event)"
+                     ondragleave="handleDragLeave(event)"
+                     ondrop="handleDrop(event)"
+                     onclick="document.getElementById('fileInput').click()">
+
+                    <!-- ICON -->
+                    <div class="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" />
+                        </svg>
+                    </div>
+
+                    <!-- TEXT -->
+                    <div class="space-y-1">
+                        <p class="text-lg font-semibold text-slate-700">
+                            Klik atau Drag File Excel ke Sini
+                        </p>
+                        <p class="text-sm text-slate-400">
+                            Format yang didukung: .xlsx, .xls
+                        </p>
+                    </div>
+                </div>
+
+                <!-- LOADING OVERLAY -->
+                <div id="uploadLoading" class="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center hidden z-10 transition-opacity">
+                    <div class="w-12 h-12 border-4 border-red-200 border-t-red-600 rounded-full animate-spin mb-3"></div>
+                    <p class="font-semibold text-slate-700">Mengupload data...</p>
+                    <p class="text-xs text-slate-500 mt-1">Mohon tunggu sebentar</p>
+                </div>
+            </form>
+        </div>
     </div>
 
-    <!-- ================= CARD ================= -->
-    <div class="bg-white rounded-xl shadow-sm">
+    <!-- ================= DATA PREVIEW / LIST ================= -->
+    <div class="bg-white rounded-3xl shadow-sm border overflow-hidden" style="border-color:#fde8e8; box-shadow: 0 4px 20px rgba(227,43,43,0.06);">
+        <!-- HEADER: TITLE + TAG SEARCH -->
+        <div class="p-5" style="border-bottom: 1px solid #fef2f2;">
+            <div class="flex flex-col md:flex-row gap-4 justify-between items-center">
+                <h3 class="font-bold text-slate-800 text-lg flex-shrink-0">Riwayat Data Upload</h3>
 
+                <!-- TAG INPUT SEARCH -->
+                <div class="flex-1 w-full max-w-xl" x-data="uploadTagSearch()" x-init="init()">
+                    <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-2 flex-wrap flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 focus-within:ring-2 focus-within:ring-red-100 focus-within:border-red-400 transition"
+                             @click="$refs.searchInput.focus()">
+                            <!-- Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
 
-        <!-- TOOLBAR -->
-        <div class="p-4 border-b flex flex-wrap items-center justify-between gap-4">
-          
-                <input
-                    type="text"
-                    id="searchInput"
-                    name="search"
-                    value="{{ request('search') }}"
-                    placeholder="Cari data..."
-                    class="w-64 rounded-lg border px-3 py-2 text-sm">
-            
+                            <!-- Tags -->
+                            <template x-for="(tag, index) in tags" :key="index">
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-red-100 text-red-700 animate-fade-in">
+                                    <span x-text="tag"></span>
+                                    <button type="button" @click.stop="removeTag(index)" class="ml-1.5 text-red-400 hover:text-red-600 focus:outline-none">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>
+                                    </button>
+                                </span>
+                            </template>
 
-            <div class="flex gap-2">
+                            <!-- Input -->
+                            <input x-ref="searchInput" type="text"
+                                   x-model="input"
+                                   @keydown.enter.prevent="addTagAndSearch()"
+                                   @keydown.backspace="handleBackspace()"
+                                   placeholder="Cari data upload..."
+                                   class="flex-1 bg-transparent border-none text-sm focus:ring-0 focus:outline-none outline-none placeholder-slate-400 min-w-[150px]">
+                        </div>
 
-                <!-- IMPORT -->
-                <form id="importForm"
-                    action="{{ route('ebis.import') }}"
-                    method="POST"
-                    enctype="multipart/form-data">
-                    @csrf
-
-                    <label
-                        class="flex items-center gap-2
-               px-4 py-2 text-sm rounded-lg
-               bg-slate-100 hover:bg-slate-200
-               cursor-pointer transition">
-
-                        <!-- ICON UPLOAD -->
-                        <svg xmlns="http://www.w3.org/2000/svg"
-                            class="w-4 h-4 text-slate-600"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M12 12V4m0 0l-4 4m4-4l4 4" />
-                        </svg>
-
-                        <span>Import</span>
-
-                        <input type="file"
-                            name="file"
-                            class="hidden"
-                            required
-                            onchange="submitImport()">
-                    </label>
-                </form>
-
-
+                        <!-- SEARCH BUTTON -->
+                        <button type="button" @click="addTagAndSearch()"
+                                class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 text-white text-sm font-semibold hover:bg-red-700 shadow-md hover:shadow-lg transition flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            Cari
+                        </button>
+                    </div>
+                </div>
             </div>
-
-
         </div>
 
-        <!-- TABLE AREA (ADA PADDING) -->
-        <div class="p-4" id="table-container">
+        <!-- TABLE WITH LOADING OVERLAY -->
+        <div id="table-container" class="relative">
+            <!-- LOADING OVERLAY -->
+            <div id="tableLoading" class="hidden absolute inset-0 bg-white/70 backdrop-blur-sm z-20 flex items-center justify-center">
+                <div class="flex flex-col items-center gap-3">
+                    <div class="w-8 h-8 border-4 rounded-full animate-spin" style="border-color:#fde8e8; border-top-color:#e32b2b;"></div>
+                    <span class="text-sm font-medium text-slate-500">Memuat data...</span>
+                </div>
+            </div>
             @include('deployment.partials.table', ['rows' => $rows])
         </div>
     </div>
 
 </div>
 
- <div id="loadingOverlay"
-        class="fixed inset-0 z-50 hidden items-center justify-center
-        pointer-events-auto">
-
-        <div class="bg-white rounded-2xl p-6 w-72 text-center shadow-xl">
-
-            <!-- SPINNER -->
-            <div class="flex justify-center mb-4">
-                <div class="spinner"></div>
-            </div>
-
-            <p class="text-sm font-semibold text-slate-700">
-                Mengimpor data, mohon tunggu...
-            </p>
-
-            <p class="text-xs text-slate-500 mt-1">
-                Jangan tutup halaman ini
-            </p>
+<!-- ERROR TOAST -->
+<div id="errorToast" class="fixed top-24 right-5 z-50 hidden animate-fade-in-down">
+    <div class="flex items-start gap-3 bg-white border-l-4 border-red-500 shadow-xl rounded-xl p-4 w-80">
+        <div class="flex-shrink-0 text-red-500">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
         </div>
+        <div class="flex-1">
+            <p class="font-semibold text-slate-800 text-sm">Gagal Mengupload</p>
+            <p class="text-xs text-slate-600 mt-1" id="errorToastMessage">Format file tidak sesuai.</p>
+        </div>
+        <button onclick="document.getElementById('errorToast').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">✕</button>
     </div>
+</div>
+
 @endsection
 
 @push('scripts')
-<style>
-    /* SPINNER */
-    .spinner {
-        border: 4px solid rgba(0, 0, 0, 0.1);
-        border-left-color: #ef4444; /* red-500 */
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        to {
-            transform: rotate(360deg);
-        }
-    }
-</style>
-
 <script>
-    /* ================= DROPDOWN ================= */
-    function toggleDropdown(btn) {
-        btn.nextElementSibling.classList.toggle('hidden');
+    function handleDragOver(e) {
+        e.preventDefault();
+        e.currentTarget.classList.add('border-red-500', 'bg-red-50');
     }
 
-    function selectStatus(el, value) {
-        const wrapper = el.closest('.relative');
-        const button = wrapper.querySelector('.status-btn');
-        const label = button.querySelector('span');
-        const menu = wrapper.querySelector('.status-menu');
-
-        button.className =
-            'status-btn w-full h-9 box-border flex items-center justify-between gap-2 ' +
-            'rounded-full px-4 text-xs font-semibold leading-none shadow-sm border';
-
-        if (value === 'completed') {
-            button.classList.add(
-                'bg-green-200',
-                'text-green-900',
-                'border-green-400'
-            );
-            label.textContent = 'Completed PS';
-        } else {
-            button.classList.add(
-                'bg-yellow-200',
-                'text-yellow-900',
-                'border-yellow-400'
-            );
-            label.textContent = 'Kendala';
-        }
-
-        menu.classList.add('hidden');
+    function handleDragLeave(e) {
+        e.preventDefault();
+        e.currentTarget.classList.remove('border-red-500', 'bg-red-50');
     }
 
-    /* ================= SEARCH TABLE ================= */
-    document.addEventListener('DOMContentLoaded', function() {
-        const searchInput = document.getElementById('searchInput');
-        const tableContainer = document.getElementById('table-container');
-        let timeout = null;
+    function handleDrop(e) {
+        e.preventDefault();
+        const dropZone = e.currentTarget;
+        dropZone.classList.remove('border-red-500', 'bg-red-50');
+        
+        const files = e.dataTransfer.files;
+        if(files.length > 0) {
+            validateAndSubmit(files[0]);
+        }
+    }
 
-        searchInput.addEventListener('keyup', function() {
-            clearTimeout(timeout);
+    function handleFileSelect(input) {
+        if(input.files.length > 0) {
+            validateAndSubmit(input.files[0]);
+        }
+    }
 
-            timeout = setTimeout(() => {
-                fetch(`{{ route('deployment.upload') }}?search=${encodeURIComponent(this.value)}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    })
-                    .then(res => res.text())
-                    .then(html => {
-                        tableContainer.innerHTML = html;
-                    });
-            }, 400);
-        });
-    });
+    function validateAndSubmit(file) {
+        const allowedExtensions = ['xlsx', 'xls'];
+        const fileName = file.name;
+        const ext = fileName.split('.').pop().toLowerCase();
 
-
-    /* ================= IMPORT LOADING ================= */
-    function submitImport() {
-        const overlay = document.getElementById('loadingOverlay');
-        if (overlay) {
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
+        if (!allowedExtensions.includes(ext)) {
+            showError('Hanya file Excel (.xlsx, .xls) yang diperbolehkan!');
+            return;
         }
 
+        // Show loading
+        document.getElementById('uploadLoading').classList.remove('hidden');
+        document.getElementById('uploadLoading').classList.add('flex');
+        
+        // Submit form
         const form = document.getElementById('importForm');
-        if (form) {
-            form.submit();
+        // If file comes from drag & drop, we need to assign it to the input
+        const fileInput = document.getElementById('fileInput');
+        if (!fileInput.value) {
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            fileInput.files = dataTransfer.files;
+        }
+        
+        form.submit();
+    }
+
+    function showError(msg) {
+        const toast = document.getElementById('errorToast');
+        document.getElementById('errorToastMessage').innerText = msg;
+        toast.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 4000);
+    }
+
+    /* UPLOAD TAG SEARCH */
+    function uploadTagSearch() {
+        return {
+            input: '',
+            tags: [],
+
+            init() {
+                const searchParams = new URLSearchParams(window.location.search);
+                const search = searchParams.get('search');
+                if (search) {
+                    this.tags = search.split(',').filter(item => item.trim() !== '');
+                }
+            },
+
+            addTagAndSearch() {
+                if (this.input.trim() !== '' && !this.tags.includes(this.input.trim())) {
+                    this.tags.push(this.input.trim());
+                    this.input = '';
+                }
+                this.doSearch();
+            },
+
+            removeTag(index) {
+                this.tags.splice(index, 1);
+                this.doSearch();
+            },
+
+            handleBackspace() {
+                if (this.input === '' && this.tags.length > 0) {
+                    this.tags.pop();
+                    this.doSearch();
+                }
+            },
+
+            doSearch() {
+                const tableContainer = document.getElementById('table-container');
+                const loading = document.getElementById('tableLoading');
+                const query = this.tags.join(',');
+
+                if (loading) loading.classList.remove('hidden');
+
+                fetch(`{{ route('deployment.upload') }}?search=${encodeURIComponent(query)}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    if (loading) loading.classList.add('hidden');
+                    // Replace only the inner content, keep the loading overlay
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+                    const existingLoading = tableContainer.querySelector('#tableLoading');
+                    tableContainer.innerHTML = html;
+                    // Re-append loading overlay
+                    if (existingLoading) tableContainer.prepend(existingLoading);
+                })
+                .catch(() => {
+                    if (loading) loading.classList.add('hidden');
+                });
+            }
         }
     }
 </script>
+<style>
+    @keyframes fadeInDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-down {
+        animation: fadeInDown 0.3s ease-out forwards;
+    }
+</style>
 @endpush

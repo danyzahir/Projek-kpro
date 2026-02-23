@@ -83,5 +83,17 @@ class EbisPlanningOrder extends Model
         'nama_cfu',
         'tahun',
         'kategori',
+        'progres',
+        'tanggal_update_progres',
     ];
+
+    public function manualInput()
+    {
+        return $this->hasOne(EbisManualInput::class, 'star_click_id', 'star_click_id');
+    }
+
+    public function logs()
+    {
+        return $this->hasMany(EbisPlanningProgressLog::class, 'ebis_planning_order_id');
+    }
 }

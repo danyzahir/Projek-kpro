@@ -1,302 +1,326 @@
 @extends('layouts.app')
 
-@section('title', 'Edit Data Deployment')
+@section('title', 'Edit Data ')
 
 @section('content')
-<div class="flex flex-col gap-6">
+<div class="max-w-7xl mx-auto space-y-6">
 
-    <!-- ================= BREADCRUMB ================= -->
-    <div class="flex items-center gap-3 text-sm text-slate-500">
-        <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">Dashboard</a>
-        <span>›</span>
-        <a href="{{ route('deployment.update') }}" class="hover:text-red-600 transition">Update Data</a>
-        <span>›</span>
-        <span class="font-semibold text-slate-800">Edit</span>
+    <!-- ================= HEADER ================= -->
+    <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3 text-sm text-slate-500 mb-2">
+            <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">Dashboard</a>
+            <span>›</span>
+            <a href="{{ route('deployment.update') }}" class="hover:text-red-600 transition">Update Data</a>
+            <span>›</span>
+            <span class="font-semibold text-slate-800">Edit Deployment</span>
+        </div>
     </div>
 
-    <!-- ================= FORM ================= -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <form action="{{ route('deployment.update.process', $data->id) }}" method="POST" enctype="multipart/form-data" data-turbo="false"
+          x-data="editForm()" x-init="initForm()">
+        @csrf
+        @method('PUT')
 
-        <form action="{{ route('deployment.update.process', $data->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
-
-            <!-- ================= DATA PELANGGAN ================= -->
-            <h2 class="text-sm font-semibold text-slate-700 mb-4">Data Pelanggan</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                    <label class="block text-sm font-medium text-slate-600">Starclick / NCX</label>
-                    <input type="text" value="{{ $data->star_click_id }}" readonly
-                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
-                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
+        @if($errors->any())
+            <div class="mb-6 p-4 bg-red-50 border-l-4 border-red-500 rounded-lg shadow-sm animate-fade-in">
+                <div class="flex items-center gap-3 mb-2">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h4 class="text-sm font-bold text-red-800 uppercase tracking-wider">Perhatian: Terjadi Kesalahan</h4>
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-600">Nama Pelanggan</label>
-                    <input type="text" value="{{ $data->nama_customer }}" readonly
-                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
-                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-600">Datel</label>
-                    <input type="text" value="{{ $data->datel }}" readonly
-                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
-                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-600">STO</label>
-                    <input type="text" value="{{ $data->sto }}" readonly
-                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
-                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
-                </div>
-            </div>
-
-            <!-- ================= DATA DEPLOYMENT ================= -->
-            <h2 class="text-sm font-semibold text-slate-700 mb-4">Data Deployment</h2>
-
-            <!-- STATUS ORDER & TIPE DESAIN -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div>
-                    <label class="block text-sm font-medium text-slate-600">Status Order</label>
-                    <input type="text"
-                        value="{{ optional($data->planning)->status_order ?? '-' }}"
-                        readonly
-                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
-                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-600">Tipe Desain</label>
-                    <input type="text"
-                        value="{{ optional($data->planning)->tipe_desain ?? '-' }}"
-                        readonly
-                        class="w-full mt-2 rounded-xl bg-slate-100 border border-slate-200
-                               px-4 py-3 text-base text-slate-700 cursor-not-allowed">
-                </div>
-            </div>
-
-            <!-- PROGRES -->
-            <div class="mb-8">
-                <label class="block text-sm font-medium text-slate-600">
-                    Progres <span class="text-red-600">*</span>
-                </label>
-                <select name="progres" id="progres"
-                    class="w-full mt-2 rounded-xl border border-slate-300
-                           px-4 py-3 text-base focus:ring-2 focus:ring-red-500">
-                    <option value="">Pilih Progres</option>
-                    @php
-                    $listProgress = [
-                    'ON DESK','SURVEY','PERIJINAN','DRM','APPROVED BY EBIS',
-                    'MATDEV','INSTALASI','SELESAI FISIK','GOLIVE',
-                    'PS','KENDALA','UJI TERIMA','REKON'
-                    ];
-                    @endphp
-                    @foreach ($listProgress as $progress)
-                    <option value="{{ $progress }}"
-                        {{ old('progres', $data->progres) == $progress ? 'selected' : '' }}>
-                        {{ $progress }}
-                    </option>
+                <ul class="list-disc list-inside text-xs text-red-600 space-y-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
                     @endforeach
-                </select>
+                </ul>
+            </div>
+        @endif
+
+        @if(session('success'))
+            <div class="mb-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 rounded-lg shadow-sm animate-fade-in">
+                <div class="flex items-center gap-3">
+                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <p class="text-sm font-bold text-emerald-800">{{ session('success') }}</p>
+                </div>
+            </div>
+        @endif
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- ================= LEFT COLUMN: CUSTOMER INFO ================= -->
+            <div class="space-y-6">
+                
+                <!-- CARD INFO -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-600"></div>
+                    
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Data Pelanggan
+                    </h3>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Nama Pelanggan</label>
+                            <div class="font-medium text-slate-800 text-base border-b border-slate-100 pb-2">
+                                {{ $data->nama_customer }}
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Starclick ID</label>
+                            <div class="font-mono text-slate-600 text-sm bg-slate-50 px-3 py-2 rounded-lg border border-slate-100">
+                                {{ $data->star_click_id }}
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Datel</label>
+                                <div class="font-medium text-slate-700">{{ $data->datel }}</div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">STO</label>
+                                <div class="font-medium text-slate-700">{{ $data->sto }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD TEKNIS -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                        </svg>
+                        Info Teknis
+                    </h3>
+
+                    <div class="space-y-4">
+                         <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Status Order</label>
+                            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+                                {{ optional($data->planning)->status_order ?? '-' }}
+                            </span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Tipe Desain</label>
+                            <div class="font-medium text-slate-700">{{ optional($data->planning)->tipe_desain ?? '-' }}</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- ================= DYNAMIC FIELD ================= -->
-            <div id="dynamic-fields" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"></div>
+            <!-- ================= RIGHT COLUMN: UPDATE FORM ================= -->
+            <div class="lg:col-span-2 space-y-6">
+                 
+                <!-- FORM CARD -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                    <h2 class="text-xl font-bold text-slate-800 mb-6">Update Progres Deployment</h2>
+                    
+                    <div class="space-y-8">
+                        
+                        <!-- PROGRES DROPDOWN -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Status Progres Terbaru <span class="text-red-500">*</span>
+                            </label>
+                            <div class="relative">
+                                <select name="progres" id="progres" x-model="currentProgress" @change="renderDynamicFields()"
+                                    class="w-full appearance-none rounded-xl border border-slate-300 bg-white px-4 py-3 pr-10 text-base focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 transition shadow-sm">
+                                    <option value="">-- Pilih Status --</option>
+                                    @foreach ([
+                                        'ON DESK','SURVEY','PERIJINAN','DRM','APPROVED BY EBIS',
+                                        'MATDEV','INSTALASI','SELESAI FISIK','GOLIVE',
+                                        'PS','KENDALA','UJI TERIMA','REKON'
+                                    ] as $item)
+                                        <option value="{{ $item }}">{{ $item }}</option>
+                                    @endforeach
+                                </select>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="absolute right-4 top-3.5 h-5 w-5 text-slate-400 pointer-events-none" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </div>
 
-            <!-- ================= KETERANGAN ================= -->
-            <div class="mb-8">
-                <label class="block text-sm font-medium text-slate-600">Keterangan Progress</label>
-                <textarea name="keterangan" rows="3"
-                    class="w-full mt-2 rounded-xl border border-slate-300
-                           px-4 py-3 text-base"
-                    placeholder="Keterangan tambahan (opsional)">{{ old('keterangan', $data->keterangan) }}</textarea>
+                         <!-- TANGGAL KOMITMEN -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Tanggal Komitmen
+                            </label>
+                            <input type="date" name="commitment_date"
+                                value="{{ old('commitment_date', $data->data['commitment_date'] ?? '') }}"
+                                class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 transition shadow-sm">
+                        </div>
+
+
+                        <!-- DYNAMIC FIELDS CONTAINER -->
+                        <div id="dynamic-fields" class="p-6 bg-slate-50 rounded-xl border border-slate-100 space-y-4 animate-fade-in">
+                            <p class="text-sm text-slate-400 italic text-center">Pilih status progres untuk melihat form detail.</p>
+                        </div>
+
+
+                        <!-- KETERANGAN -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">
+                                Keterangan Tambahan
+                            </label>
+                            <textarea name="keterangan" rows="3"
+                                class="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-100 transition shadow-sm"
+                                placeholder="Tambahkan catatan jika diperlukan...">{{ old('keterangan', $data->keterangan) }}</textarea>
+                        </div>
+
+                        <!-- ACTIONS -->
+                        <div class="flex justify-end gap-4 pt-6 border-t border-slate-100">
+                            <a href="{{ route('deployment.update') }}" 
+                               class="px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold hover:bg-slate-50 transition">
+                                Batal
+                            </a>
+                            <button type="submit" 
+                                    class="px-8 py-2.5 rounded-xl bg-red-600 text-white font-semibold hover:bg-red-700 hover:shadow-lg transition transform active:scale-95">
+                                Update Data
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
             </div>
-
-            <!-- ================= ACTION ================= -->
-            <div class="flex justify-end gap-3 pt-6 border-t">
-                <a href="{{ route('deployment.update') }}"
-                    class="px-4 py-2 rounded-lg border">Batal</a>
-                <button type="submit"
-                    class="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700">
-                    Update Data
-                </button>
-            </div>
-
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
+@push('scripts')
 <script>
-    const progressConfig = {
-        "ON DESK": [{
-            name: "boq_on_desk",
-            label: "BoQ On Desk",
-            type: "number"
-        }],
-        "SURVEY": [{
-            name: "boq_survey",
-            label: "BoQ Survey",
-            type: "number"
-        }],
-        "PERIJINAN": [{
-            name: "evidence_perijinan",
-            label: "Upload Foto Evidence",
-            type: "file"
-        }],
-        "DRM": [{
-            name: "boq_drm",
-            label: "BoQ DRM",
-            type: "number"
-        }],
-        "APPROVED BY EBIS": [{
-            name: "evidence_approved",
-            label: "Upload Foto Evidence",
-            type: "file"
-        }],
-        "MATDEV": [{
-            name: "evidence_matdev",
-            label: "Upload Foto Evidence",
-            type: "file"
-        }],
-        "INSTALASI": [{
-            name: "evidence_instalasi",
-            label: "Upload Foto Evidence",
-            type: "file"
-        }],
-        "SELESAI FISIK": [{
-            name: "evidence_selesai_fisik",
-            label: "Upload Foto Evidence",
-            type: "file"
-        }],
-        "GOLIVE": [{
-                name: "nama_odp",
-                label: "Nama ODP Golive",
-                type: "text"
+    function editForm() {
+        return {
+            currentProgress: "{{ old('progres', $data->progres) }}",
+            existingData: @json($data->data ?? []),
+
+            initForm() {
+                if (this.currentProgress) {
+                    this.renderDynamicFields();
+                }
             },
-            {
-                name: "id_smallworld",
-                label: "ID Smallworld",
-                type: "text"
-            }
-        ],
-        "PS": [{
-                name: "nomor_order_ps",
-                label: "Nomor Order PS",
-                type: "text"
-            },
-            {
-                name: "tanggal_ps",
-                label: "Tanggal PS",
-                type: "date"
-            }
-        ],
-        "KENDALA": [{
-            name: "jenis_kendala",
-            label: "Jenis Kendala",
-            type: "select",
-            options: [
-                "PS di SC lain",
-                "Cancel Pelanggan",
-                "Pending Pelanggan",
-                "Perijinan",
-                "Distribusi Habis",
-                "Feeder Habis",
-                "Akses Tidak Layak",
-                "Bisa PT1"
-            ]
-        }],
-        "UJI TERIMA": [{
-            name: "status",
-            label: "Status",
-            type: "select",
-            options: ["DITERIMA", "TIDAK DITERIMA"]
-        }],
-        "REKON": [{
-            name: "boq_rekon",
-            label: "BoQ Rekon",
-            type: "number"
-        }]
-    };
 
-     const progressSelect = document.getElementById('progres');
-    const dynamicFields = document.getElementById('dynamic-fields');
+            renderDynamicFields() {
+                const container = document.getElementById('dynamic-fields');
+                const progress = this.currentProgress;
+                
+                if (!progress || !progressConfig[progress]) {
+                    container.innerHTML = '<p class="text-sm text-slate-400 italic text-center">Pilih status progres untuk melihat form detail.</p>';
+                    return;
+                }
 
-    function renderDynamicFields(progress, existingData = {}) {
-    dynamicFields.innerHTML = '';
-    if (!progressConfig[progress]) return;
+                let html = '<div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">';
+                
+                progressConfig[progress].forEach(field => {
+                    const value = this.existingData && this.existingData[field.name] ? this.existingData[field.name] : '';
 
-    progressConfig[progress].forEach(field => {
-        const value = existingData[field.name] ?? '';
-
-        // ===== SELECT =====
-        if (field.type === 'select') {
-            dynamicFields.insertAdjacentHTML('beforeend', `
-                <div>
-                    <label class="block text-sm font-medium mb-1">${field.label}</label>
-                    <select name="${field.name}" class="w-full border px-3 py-2 rounded-lg">
-                        <option value="">-- Pilih --</option>
-                        ${field.options.map(opt =>
+                    // TEXT & NUMBER
+                    if (['text', 'number', 'date'].includes(field.type)) {
+                       html += `
+                            <div class="${field.fullWidth ? 'col-span-2' : ''}">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">${field.label}</label>
+                                <input type="${field.type}" name="${field.name}" value="${value}"
+                                    class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition bg-white">
+                            </div>
+                        `;
+                    } 
+                    
+                    // SELECT
+                    else if (field.type === 'select') {
+                        const options = field.options.map(opt => 
                             `<option value="${opt}" ${opt === value ? 'selected' : ''}>${opt}</option>`
-                        ).join('')}
-                    </select>
-                </div>
-            `);
+                        ).join('');
+                        
+                        html += `
+                            <div class="${field.fullWidth ? 'col-span-2' : ''}">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wide mb-1.5">${field.label}</label>
+                                <div class="relative">
+                                    <select name="${field.name}" class="w-full appearance-none rounded-lg border border-slate-300 px-3 py-2.5 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition bg-white">
+                                        <option value="">-- Pilih --</option>
+                                        ${options}
+                                    </select>
+                                    <svg class="w-4 h-4 absolute right-3 top-3 pointer-events-none text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    // FILE + LINK
+                    else if (field.type === 'file') {
+                        const linkName = `link_${field.name}`;
+                        const linkValue = this.existingData && this.existingData[linkName] ? this.existingData[linkName] : '';
+
+                        html += `
+                            <div class="col-span-2 p-4 bg-white rounded-xl border border-slate-200 shadow-sm">
+                                <label class="block text-sm font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2">${field.label}</label>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1">Upload File</label>
+                                        <input type="file" name="${field.name}" class="w-full text-sm text-slate-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-xs file:font-semibold
+                                            file:bg-red-50 file:text-red-700
+                                            hover:file:bg-red-100">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs text-slate-400 mb-1">Link Dokumen (Opsional)</label>
+                                        <input type="text" name="${linkName}" value="${linkValue}" placeholder="https://"
+                                            class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition">
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }
+                });
+
+                html += '</div>';
+                container.innerHTML = html;
+            }
         }
+    }
 
-        // ===== FILE (UPLOAD + LINK DI SEBELAH) =====
-        else if (field.type === 'file') {
-            const linkName = `link_${field.name}`;
-            const linkValue = existingData[linkName] ?? '';
-
-            dynamicFields.insertAdjacentHTML('beforeend', `
-                <div>
-                    <label class="block text-sm font-medium mb-1">Upload Foto Evidence</label>
-                    <input type="file"
-                        name="${field.name}"
-                        class="w-full border px-3 py-2 rounded-lg">
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium mb-1">Link Dokumen</label>
-                    <input type="text"
-                        name="${linkName}"
-                        value="${linkValue}"
-                        class="w-full border px-3 py-2 rounded-lg"
-                        placeholder="Contoh: https://docs.google.com/...">
-                </div>
-            `);
-        }
-
-        // ===== INPUT BIASA =====
-        else {
-            dynamicFields.insertAdjacentHTML('beforeend', `
-                <div>
-                    <label class="block text-sm font-medium mb-1">${field.label}</label>
-                    <input type="${field.type}"
-                        name="${field.name}"
-                        value="${value}"
-                        class="w-full border px-3 py-2 rounded-lg">
-                </div>
-            `);
-        }
-    });
-}
-
-    progressSelect.addEventListener('change', function () {
-        renderDynamicFields(this.value);
-    });
-
-    document.addEventListener('DOMContentLoaded', function () {
-        const currentProgress = "{{ old('progres', $data->progres) }}";
-        const existingData = {!! json_encode($data->data ?? []) !!};
-
-        if (currentProgress) {
-            renderDynamicFields(currentProgress, existingData);
-        }
-    });
+    // CONFIGURATION
+    const progressConfig = {
+        "ON DESK": [{ name: "boq_on_desk", label: "BoQ On Desk", type: "number" }],
+        "SURVEY": [{ name: "boq_survey", label: "BoQ Survey", type: "number" }],
+        "PERIJINAN": [{ name: "evidence_perijinan", label: "Evidence Perijinan", type: "file" }],
+        "DRM": [{ name: "boq_drm", label: "BoQ DRM", type: "number" }],
+        "APPROVED BY EBIS": [{ name: "evidence_approved", label: "Evidence Approved", type: "file" }],
+        "MATDEV": [{ name: "evidence_matdev", label: "Evidence Matdev", type: "file" }],
+        "INSTALASI": [{ name: "evidence_instalasi", label: "Evidence Instalasi", type: "file" }],
+        "SELESAI FISIK": [{ name: "evidence_selesai_fisik", label: "Evidence Selesai Fisik", type: "file" }],
+        "GOLIVE": [
+            { name: "nama_odp", label: "Nama ODP Golive", type: "text" },
+            { name: "id_smallworld", label: "ID Smallworld", type: "text" }
+        ],
+        "PS": [
+            { name: "nomor_order_ps", label: "Nomor Order PS", type: "text" },
+            { name: "tanggal_ps", label: "Tanggal PS", type: "date" }
+        ],
+        "KENDALA": [{ 
+            name: "jenis_kendala", 
+            label: "Jenis Kendala", 
+            type: "select", 
+            options: ["PS di SC lain", "Cancel Pelanggan", "Pending Pelanggan", "Perijinan", "Distribusi Habis", "Feeder Habis", "Akses Tidak Layak", "Bisa PT1"] 
+        }],
+        "UJI TERIMA": [{ 
+            name: "status", 
+            label: "Status Uji Terima", 
+            type: "select", 
+            options: ["DITERIMA", "TIDAK DITERIMA"] 
+        }],
+        "REKON": [{ name: "boq_rekon", label: "BoQ Rekon", type: "number" }]
+    };
 </script>
-
+<style>
+    .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+@endpush
 @endsection

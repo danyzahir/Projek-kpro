@@ -58,7 +58,7 @@
 
             <div class="relative z-10 flex-1 overflow-y-auto no-scrollbar space-y-3 max-h-[200px]">
                 @forelse($overdueCommitments as $item)
-                <div class="p-3 rounded-2xl" style="background:rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);">
+                <a href="{{ route('deployment.edit', $item['id']) }}" class="block p-3 rounded-2xl hover:bg-white/10 transition-colors cursor-pointer" style="background:rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0 flex-1">
                             <p class="text-xs font-black text-white truncate">#{{ $item['star_click_id'] }}</p>
@@ -74,7 +74,7 @@
                         <p class="text-[9px] truncate">{{ $item['updated_by'] }} &bull; {{ \Carbon\Carbon::parse($item['commitment_date'])->format('d M Y') }}</p>
                         <span class="ml-auto flex-shrink-0 text-[8px] font-bold px-1.5 py-0.5 rounded" style="background:rgba(255,255,255,0.08); color:#9ca3af;">{{ $item['status'] }}</span>
                     </div>
-                </div>
+                </a>
                 @empty
                 <div class="flex flex-col items-center justify-center py-12 opacity-30">
                     <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -149,7 +149,7 @@
 
         <!-- MAIN CHART (8/12) -->
         <div class="lg:col-span-8 bg-white rounded-[2.5rem] p-8 shadow-xl border flex flex-col min-h-[500px]" style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.06);">
-            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                 <div class="flex items-center gap-4">
                     <div class="p-3 rounded-2xl" style="background:#fef2f2; color:#e32b2b;">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>
@@ -165,6 +165,41 @@
                     <button onclick="updateTrend('monthly')" id="btn-monthly" class="filter-btn px-4 py-1.5 text-[10px] font-black uppercase tracking-wider rounded-xl transition-all duration-300" style="color:#9ca3af;">Monthly</button>
                 </div>
             </div>
+
+            {{-- SEARCH FILTERS --}}
+            <div class="flex flex-wrap items-end gap-3 mb-8 p-4 rounded-2xl border" style="background:#fafafa; border-color:#f3f4f6;">
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-1" style="color:#9ca3af;">Datel</label>
+                    <select id="trend-filter-datel" onchange="updateTrend()" class="w-full rounded-xl border-slate-200 bg-white text-xs font-semibold py-2 px-3 focus:ring-red-500 focus:border-red-500 transition">
+                        <option value="">Semua Datel</option>
+                        @foreach($trendFilterOptions['datels'] as $item)
+                            <option value="{{ $item }}">{{ $item }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-1" style="color:#9ca3af;">STO</label>
+                    <select id="trend-filter-sto" onchange="updateTrend()" class="w-full rounded-xl border-slate-200 bg-white text-xs font-semibold py-2 px-3 focus:ring-red-500 focus:border-red-500 transition">
+                        <option value="">Semua STO</option>
+                        @foreach($trendFilterOptions['stos'] as $item)
+                            <option value="{{ $item }}">{{ $item }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-1" style="color:#9ca3af;">Mitra</label>
+                    <select id="trend-filter-mitra" onchange="updateTrend()" class="w-full rounded-xl border-slate-200 bg-white text-xs font-semibold py-2 px-3 focus:ring-red-500 focus:border-red-500 transition">
+                        <option value="">Semua Mitra</option>
+                        @foreach($trendFilterOptions['mitras'] as $item)
+                            <option value="{{ $item }}">{{ $item }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <button onclick="resetTrendFilters()" class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition hover:bg-red-50" style="color:#e32b2b; border: 1px solid #fde8e8;">
+                    Reset
+                </button>
+            </div>
+
             <div class="relative flex-1">
                 <canvas id="deploymentTrendChart"></canvas>
             </div>
@@ -176,7 +211,7 @@
             <!-- TOP PARTNERS WIDGET -->
             <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border" style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.06);">
                 <div class="flex items-center justify-between mb-8">
-                    <h3 class="text-lg font-extrabold tracking-tight" style="color:#1a1a2e;">Top Partners</h3>
+                    <h3 class="text-lg font-extrabold tracking-tight" style="color:#1a1a2e;">Top Mitra</h3>
                     <div class="p-2 rounded-xl" style="background:#f5f5f5;">
                         <svg class="w-5 h-5" style="color:#9ca3af;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path></svg>
                     </div>
@@ -224,7 +259,12 @@
                             </div>
                             <div>
                                 <p class="text-xs font-bold leading-none">{{ $user->name }}</p>
-                                <p class="text-[10px] mt-1" style="color:rgba(255,255,255,0.6);">{{ $user->created_at->diffForHumans() }}</p>
+                                @if($user->requested_role)
+                                <span class="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md" style="background:rgba(255,255,255,0.2); color:rgba(255,255,255,0.9);">
+                                    Request: {{ ucfirst($user->requested_role) }}
+                                </span>
+                                @endif
+                                <p class="text-[10px] mt-0.5" style="color:rgba(255,255,255,0.5);">{{ $user->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
                         <a href="{{ route('admin.users') }}" class="p-2 rounded-xl hover:scale-110 transition-transform shadow-lg" style="background:white; color:#e32b2b;">
@@ -242,100 +282,7 @@
         </div>
     </div>
 
-    <!-- ================= RECENT ACTIVITY TABLE ================= -->
-    <div class="bg-white rounded-[2.5rem] shadow-xl border overflow-hidden" style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.06);">
-        <div class="px-8 py-8 flex items-center justify-between" style="border-bottom: 1px solid #fef2f2;">
-            <div class="flex items-center gap-4">
-                <div class="p-3 rounded-2xl" style="background:#fef2f2; color:#e32b2b;">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
-                </div>
-                <div>
-                    <h3 class="text-xl font-extrabold tracking-tight" style="color:#1a1a2e;">Recent Activity</h3>
-                    <p class="text-xs font-medium mt-0.5" style="color:#9ca3af;">Live monitoring dari semua channel input</p>
-                </div>
-            </div>
-            <div class="flex items-center gap-2 p-1.5 rounded-2xl border" style="border-color:#fde8e8;">
-                <button class="text-white px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider shadow-lg" style="background:#e32b2b; box-shadow: 0 4px 12px rgba(227,43,43,0.3);">Live</button>
-                <button class="px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider hover:bg-red-50 transition" style="color:#9ca3af;">Log Archive</button>
-            </div>
-        </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full">
-                <thead>
-                    <tr style="background:#fafafa;">
-                        <th class="px-8 py-4 text-left text-[10px] font-black uppercase tracking-[0.15em]" style="color:#9ca3af;">Deployment (NDE / SC)</th>
-                        <th class="px-8 py-4 text-left text-[10px] font-black uppercase tracking-[0.15em]" style="color:#9ca3af;">Location STO</th>
-                        <th class="px-8 py-4 text-left text-[10px] font-black uppercase tracking-[0.15em]" style="color:#9ca3af;">Partner / Mitra</th>
-                        <th class="px-8 py-4 text-center text-[10px] font-black uppercase tracking-[0.15em]" style="color:#9ca3af;">Status Order</th>
-                        <th class="px-8 py-4 text-right text-[10px] font-black uppercase tracking-[0.15em]" style="color:#9ca3af;">Input Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($recentDeployments as $deploy)
-                    @php
-                        $status = optional($deploy->planning)->status_order ?? 'Unknown';
-                        $pillStyle = 'background:#f3f4f6; color:#6b7280;';
-                        if(stripos($status, 'Success') !== false)       $pillStyle = 'background:#d1fae5; color:#065f46;';
-                        elseif(stripos($status, 'Pending') !== false || stripos($status, 'Wait') !== false) $pillStyle = 'background:#fef3c7; color:#92400e;';
-                        elseif(stripos($status, 'Kendala') !== false || stripos($status, 'Gagal') !== false) $pillStyle = 'background:#fee2e2; color:#991b1b;';
-                        elseif(stripos($status, 'Progress') !== false)  $pillStyle = 'background:#fef2f2; color:#e32b2b;';
-                    @endphp
-                    <tr class="hover:bg-red-50/30 transition-colors group" style="border-bottom: 1px solid #fafafa;">
-                        <td class="px-8 py-5">
-                            <div class="flex items-center gap-4">
-                                <div class="p-2.5 rounded-xl font-mono text-[10px] border transition-colors" style="background:#f5f5f5; color:#6b7280; border-color:transparent;">
-                                    {{ $deploy->nde_jt ? 'NDE' : 'SC' }}
-                                </div>
-                                <div>
-                                    <p class="text-sm font-black tracking-tight" style="color:#1a1a2e;">{{ $deploy->star_click_id ?: ($deploy->nde_jt ?: '-') }}</p>
-                                    <p class="text-[10px] font-bold uppercase mt-0.5 tracking-tighter" style="color:#9ca3af;">{{ $deploy->nama_customer ?? 'Private Client' }}</p>
-                                </div>
-                            </div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border" style="background:#fafafa; border-color:#f3f4f6;">
-                                <span class="w-1.5 h-1.5 rounded-full" style="background:#e32b2b;"></span>
-                                <span class="text-xs font-bold" style="color:#374151;">STO {{ strtoupper($deploy->sto) }}</span>
-                            </div>
-                        </td>
-                        <td class="px-8 py-5">
-                            <p class="text-sm font-bold" style="color:#374151;">{{ $deploy->nama_mitra }}</p>
-                            <p class="text-[10px] uppercase font-black tracking-widest mt-0.5" style="color:#9ca3af;">{{ $deploy->datel }}</p>
-                        </td>
-                        <td class="px-8 py-5 text-center">
-                            <span class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border-b-2 border-black/5" style="{{ $pillStyle }}">
-                                {{ $status }}
-                            </span>
-                        </td>
-                        <td class="px-8 py-5 text-right">
-                            <div class="flex flex-col items-end">
-                                <p class="text-[10px] font-black uppercase tracking-tighter mb-1" style="color:#e32b2b;">{{ $deploy->created_at ? $deploy->created_at->format('d M Y') : '-' }}</p>
-                                <p class="text-xs font-bold tracking-tighter" style="color:#374151;">{{ $deploy->created_at ? $deploy->created_at->format('H:i A') : '-' }}</p>
-                                <p class="text-[10px] font-medium" style="color:#9ca3af;">{{ $deploy->created_at ? $deploy->created_at->diffForHumans(null, true, true) : '' }}</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="5" class="py-20 text-center">
-                            <div class="flex flex-col items-center gap-3" style="opacity:0.2;">
-                                <svg class="w-20 h-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16m-7 6h7" stroke-width="2" stroke-linecap="round"></path></svg>
-                                <p class="text-lg font-black uppercase tracking-widest">No activity found</p>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        <div class="p-6 flex justify-center" style="background:#fafafa;">
-            <a href="{{ route('deployment.lihat-data') }}" class="text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 hover:gap-4 transition-all duration-300 group" style="color:#e32b2b;">
-                View Full Deployment Logs
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
-            </a>
-        </div>
-    </div>
 
 </div>
 
@@ -509,7 +456,8 @@
     }
 
     async function updateTrend(filter) {
-        window._dashboardFilter = filter;
+        if (filter) window._dashboardFilter = filter;
+        const activeFilter = window._dashboardFilter || 'daily';
 
         // Update button UI
         document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -517,15 +465,25 @@
             btn.style.color = '#9ca3af';
             btn.classList.remove('shadow-sm');
         });
-        const activeBtn = document.getElementById(`btn-${filter}`);
+        const activeBtn = document.getElementById(`btn-${activeFilter}`);
         if (activeBtn) {
             activeBtn.style.background = 'white';
             activeBtn.style.color = '#e32b2b';
             activeBtn.classList.add('shadow-sm');
         }
 
+        // Collect filter values
+        const datel = document.getElementById('trend-filter-datel')?.value || '';
+        const sto   = document.getElementById('trend-filter-sto')?.value || '';
+        const mitra = document.getElementById('trend-filter-mitra')?.value || '';
+
+        const params = new URLSearchParams({ filter: activeFilter });
+        if (datel) params.set('datel', datel);
+        if (sto)   params.set('sto', sto);
+        if (mitra) params.set('mitra', mitra);
+
         try {
-            const response = await fetch(`{{ route('admin.api.trend-data') }}?filter=${filter}`);
+            const response = await fetch(`{{ route('admin.api.trend-data') }}?${params.toString()}`);
             const data = await response.json();
 
             if (window._trendChart instanceof Chart) {
@@ -536,6 +494,15 @@
         } catch (e) {
             console.error('Trend update failed', e);
         }
+    }
+
+    function resetTrendFilters() {
+        const selects = ['trend-filter-datel', 'trend-filter-sto', 'trend-filter-mitra'];
+        selects.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = '';
+        });
+        updateTrend();
     }
 
     // Cleanup sebelum Turbo meng-cache halaman — WAJIB agar chart tidak corrupt saat restore

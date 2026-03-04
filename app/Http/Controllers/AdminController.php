@@ -96,11 +96,11 @@ class AdminController extends Controller
         // Fill in missing days with 0
         for ($i = 6; $i >= 0; $i--) {
             $date = Carbon::now()->subDays($i)->format('Y-m-d');
-            $dayName = Carbon::now()->subDays($i)->locale('id')->dayName; // Requires Carbon locale set
+            $dayLabel = Carbon::now()->subDays($i)->locale('id')->shortDayName . ' ' . Carbon::now()->subDays($i)->format('d/m');
             
             $record = $trendData->firstWhere('date', $date);
             
-            $trendLabels[] = $dayName;
+            $trendLabels[] = $dayLabel;
             $trendValues[] = $record ? $record->total : 0;
         }
 
@@ -198,6 +198,7 @@ class AdminController extends Controller
                     : 'Unknown';
 
                 return [
+                    'id'              => $item->id,
                     'star_click_id'   => $item->star_click_id,
                     'nama_customer'   => $item->nama_customer,
                     'commitment_date' => $item->data['commitment_date'],
@@ -208,6 +209,13 @@ class AdminController extends Controller
             })
             ->sortByDesc('days_overdue')
             ->values();
+
+        // --- FILTER OPTIONS FOR TREND CHART ---
+        $trendFilterOptions = [
+            'datels' => EbisManualInput::whereNotNull('datel')->where('datel','!=','')->distinct()->orderBy('datel')->pluck('datel'),
+            'stos'   => EbisManualInput::whereNotNull('sto')->where('sto','!=','')->distinct()->orderBy('sto')->pluck('sto'),
+            'mitras' => EbisManualInput::whereNotNull('nama_mitra')->where('nama_mitra','!=','')->distinct()->orderBy('nama_mitra')->pluck('nama_mitra'),
+        ];
 
         return view('admin.dashboard', compact(
             'totalDeployment',
@@ -224,7 +232,8 @@ class AdminController extends Controller
             'waitingUsers',
             'topMitras',
             'liveTracking',
-            'overdueCommitments'
+            'overdueCommitments',
+            'trendFilterOptions'
         ));
     }
     public function getEnterpriseStats()
@@ -503,35 +512,44 @@ class AdminController extends Controller
     public function getTrendData(Request $request)
     {
         $filter = $request->get('filter', 'daily'); // daily, weekly, monthly
+        $datel  = $request->get('datel');
+        $sto    = $request->get('sto');
+        $mitra  = $request->get('mitra');
+
         $labels = [];
         $values = [];
 
+        // Helper: build a base query with optional filters
+        $baseQuery = function () use ($datel, $sto, $mitra) {
+            $q = EbisManualInput::query();
+            if ($datel) $q->where('datel', $datel);
+            if ($sto)   $q->where('sto', $sto);
+            if ($mitra) $q->where('nama_mitra', $mitra);
+            return $q;
+        };
+
         if ($filter === 'monthly') {
-            // Last 6 months
             for ($i = 5; $i >= 0; $i--) {
                 $date = Carbon::now()->subMonths($i);
                 $labels[] = $date->locale('id')->monthName;
-                
-                $values[] = EbisManualInput::whereMonth('created_at', $date->month)
+                $values[] = $baseQuery()
+                    ->whereMonth('created_at', $date->month)
                     ->whereYear('created_at', $date->year)
                     ->count();
             }
         } elseif ($filter === 'weekly') {
-            // Last 4 weeks
             for ($i = 3; $i >= 0; $i--) {
+                $weekNum = 4 - $i;
                 $start = Carbon::now()->subWeeks($i)->startOfWeek();
                 $end = Carbon::now()->subWeeks($i)->endOfWeek();
-                $labels[] = "W" . ($i + 1) . " (" . $start->format('d/m') . ")";
-                
-                $values[] = EbisManualInput::whereBetween('created_at', [$start, $end])->count();
+                $labels[] = "Minggu " . $weekNum . " (" . $start->format('d/m') . ")";
+                $values[] = $baseQuery()->whereBetween('created_at', [$start, $end])->count();
             }
         } else {
-            // Default: Daily (Last 7 days)
             for ($i = 6; $i >= 0; $i--) {
                 $date = Carbon::now()->subDays($i);
-                $labels[] = $date->locale('id')->dayName;
-                
-                $values[] = EbisManualInput::whereDate('created_at', $date->format('Y-m-d'))->count();
+                $labels[] = $date->locale('id')->shortDayName . ' ' . $date->format('d/m');
+                $values[] = $baseQuery()->whereDate('created_at', $date->format('Y-m-d'))->count();
             }
         }
 
@@ -539,6 +557,52 @@ class AdminController extends Controller
             'labels' => $labels,
             'values' => $values
         ]);
+    }
+
+    /**
+     * Progress Overview Dashboard — accessible to all deployment roles (non-admin).
+     */
+    public function progressOverview()
+    {
+        // Define the ordered progress stages
+        $stages = [
+            'ON DESK', 'SURVEY', 'PERIJINAN', 'DRM', 'APPROVED BY EBIS',
+            'MATDEV', 'INSTALASI', 'SELESAI FISIK', 'GOLIVE',
+            'PS', 'KENDALA', 'UJI TERIMA', 'REKON',
+        ];
+
+        // Count deployments per progress stage
+        $progressCounts = EbisManualInput::select('progres', DB::raw('count(*) as total'))
+            ->whereNotNull('progres')
+            ->where('progres', '!=', '')
+            ->groupBy('progres')
+            ->pluck('total', 'progres');
+
+        $labels = [];
+        $values = [];
+        foreach ($stages as $stage) {
+            $labels[] = $stage;
+            $values[] = $progressCounts[$stage] ?? 0;
+        }
+
+        // Summary stats
+        $totalAll       = EbisManualInput::count();
+        $totalKendala   = $progressCounts['KENDALA'] ?? 0;
+        $totalSelesai   = ($progressCounts['GOLIVE'] ?? 0) + ($progressCounts['PS'] ?? 0)
+                        + ($progressCounts['UJI TERIMA'] ?? 0) + ($progressCounts['REKON'] ?? 0)
+                        + ($progressCounts['SELESAI FISIK'] ?? 0);
+        $totalOnTrack   = $totalAll - $totalKendala;
+
+        // Recent progress updates (last 10)
+        $recentUpdates = EbisManualInput::whereNotNull('progres')
+            ->where('progres', '!=', '')
+            ->orderByDesc('updated_at')
+            ->take(10)
+            ->get(['star_click_id', 'nama_customer', 'progres', 'datel', 'sto', 'updated_at']);
+
+        return view('deployment.progress-overview', compact(
+            'labels', 'values', 'totalAll', 'totalKendala', 'totalSelesai', 'totalOnTrack', 'recentUpdates'
+        ));
     }
 
     private function getStatusClass($status)

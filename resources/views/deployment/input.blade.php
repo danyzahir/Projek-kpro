@@ -5,6 +5,12 @@
 @section('content')
 <div class="flex flex-col gap-6">
 
+    {{-- BREADCRUMB --}}
+    <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
+        <span>›</span>
+        <span class="font-semibold text-slate-800">Input Data</span>
+    </div>
     
 
     <!-- ================= FORM CARD ================= -->
@@ -22,7 +28,7 @@
                         Identitas Order
                     </h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <!-- NDE JT -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
@@ -45,6 +51,18 @@
                                 placeholder="Masukkan ID">
                             <p x-show="showError && errorField === 'star_click_id'" x-transition class="text-xs text-red-500 mt-1 font-medium">Wajib diisi</p>
                             @error('star_click_id') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
+                        </div>
+
+                        <!-- NOMOR BATCH -->
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+                                Nomor Batch
+                            </label>
+                            <input name="nomor_batch" type="number"
+                                class="w-full rounded-xl border-slate-400 bg-slate-100 px-4 py-3 text-sm focus:bg-white
+                                       focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition"
+                                placeholder="Contoh: 1234" min="0">
+                            @error('nomor_batch') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>

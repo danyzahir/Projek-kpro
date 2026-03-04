@@ -1,0 +1,472 @@
+@extends('layouts.app')
+
+@section('title', 'Detail Deployment')
+
+@section('content')
+<div class="flex flex-col gap-6 max-w-4xl mx-auto">
+
+    {{-- BREADCRUMB --}}
+    <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
+        <span>›</span>
+        <a href="{{ route('deployment.lihat-data') }}" class="hover:text-red-600 transition">Lihat Data</a>
+        <span>›</span>
+        <span class="font-semibold text-slate-800">Detail Deployment</span>
+    </div>
+
+    <!-- DETAIL CARD -->
+    <div class="bg-white rounded-2xl shadow-sm border overflow-hidden" style="border-color:#fde8e8; box-shadow: 0 4px 20px rgba(227,43,43,0.06);">
+
+        <!-- HEADER -->
+        <div class="px-8 py-5 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white flex items-center justify-between" x-data="{ showRiwayat: false }">
+            <div>
+                <h2 class="text-lg font-bold text-slate-800">Detail Deployment</h2>
+                <p class="text-sm text-slate-500 mt-0.5">{{ $data->nama_customer ?? '-' }}</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <x-status-badge :value="$data->progres" />
+                <button @click="showRiwayat = true"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold
+                           bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm
+                           hover:from-blue-600 hover:to-blue-700 hover:shadow-md transition-all duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Riwayat Order
+                </button>
+            </div>
+
+            <!-- ========== RIWAYAT ORDER MODAL ========== -->
+            <template x-teleport="body">
+                <div x-show="showRiwayat" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center">
+                    <!-- BACKDROP -->
+                    <div x-show="showRiwayat" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
+                         class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showRiwayat = false"></div>
+
+                    <!-- CONTENT -->
+                    <div x-show="showRiwayat" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 scale-95 translate-y-4" x-transition:enter-end="opacity-100 scale-100 translate-y-0" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-95 translate-y-4"
+                         class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col relative z-10 mx-4">
+
+                        <!-- MODAL HEADER -->
+                        <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-white rounded-t-2xl">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-800">Daftar Riwayat Proses Order</h3>
+                                <p class="text-xs text-slate-500 mt-0.5">{{ $data->nama_customer ?? '-' }} &mdash; {{ $data->star_click_id ?? '-' }}</p>
+                            </div>
+                            <button @click="showRiwayat = false" class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+
+                        <!-- MODAL BODY -->
+                        <div class="overflow-y-auto flex-1">
+                            @php
+                                $logs = optional($data->planning)->logs ?? collect();
+                            @endphp
+
+                            @if($logs->count() > 0)
+                            <table class="w-full text-sm">
+                                <thead class="text-xs text-slate-500 uppercase bg-slate-50 sticky top-0 z-10">
+                                    <tr>
+                                        <th class="px-5 py-3 font-semibold text-left">Pada</th>
+                                        <th class="px-5 py-3 font-semibold text-left">Oleh</th>
+                                        <th class="px-5 py-3 font-semibold text-left">Sebelum</th>
+                                        <th class="px-5 py-3 font-semibold text-left">Setelah</th>
+                                        <th class="px-5 py-3 font-semibold text-left">Durasi</th>
+                                        <th class="px-5 py-3 font-semibold text-left">Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-100">
+                                    @foreach($logs as $index => $log)
+                                    @php
+                                        // Calculate duration to next log (or to now for the latest)
+                                        $nextLog = $logs->get($index + 1);
+                                        if ($nextLog) {
+                                            $duration = $log->created_at->diff($nextLog->created_at);
+                                        } else {
+                                            $duration = null;
+                                        }
+
+                                        // Previous progress (the log below in chronological order = next in desc order)
+                                        $previousProgres = $nextLog ? $nextLog->progres : null;
+                                    @endphp
+                                    <tr class="hover:bg-blue-50/30 transition">
+                                        <!-- PADA -->
+                                        <td class="px-5 py-4 whitespace-nowrap align-middle">
+                                            <div class="font-medium text-slate-700 text-xs">{{ $log->created_at->format('Y-m-d H:i:s') }}</div>
+                                            <div class="mt-1">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-blue-50 text-blue-600 border border-blue-100">
+                                                    {{ $log->created_at->diffForHumans() }}
+                                                </span>
+                                            </div>
+                                        </td>
+
+                                        <!-- OLEH -->
+                                        <td class="px-5 py-4 align-middle" style="white-space:nowrap;">
+                                            <div style="display:inline-flex;align-items:center;gap:8px;">
+                                                <div style="width:28px;height:28px;min-width:28px;border-radius:50%;background:linear-gradient(135deg,#94a3b8,#475569);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:700;">
+                                                    {{ strtoupper(substr(optional($log->user)->name ?? '?', 0, 1)) }}
+                                                </div>
+                                                <span style="font-weight:600;font-size:12px;color:#334155;">{{ optional($log->user)->name ?? '-' }}</span>
+                                            </div>
+                                        </td>
+
+                                        <!-- SEBELUM -->
+                                        <td class="px-5 py-4 whitespace-nowrap align-middle">
+                                            @if($previousProgres)
+                                                <x-status-badge :value="$previousProgres" />
+                                            @else
+                                                <span class="text-xs text-slate-400 italic">—</span>
+                                            @endif
+                                        </td>
+
+                                        <!-- SETELAH -->
+                                        <td class="px-5 py-4 whitespace-nowrap align-middle">
+                                            <x-status-badge :value="$log->progres" />
+                                        </td>
+
+                                        <!-- DURASI -->
+                                        <td class="px-5 py-4 whitespace-nowrap align-middle">
+                                            @if($duration)
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-slate-50 text-slate-600 border border-slate-200">
+                                                    @if($duration->d > 0) {{ $duration->d }} hari @endif
+                                                    @if($duration->h > 0) {{ $duration->h }} jam @endif
+                                                    {{ $duration->i }} menit
+                                                </span>
+                                            @else
+                                                <span class="text-xs text-slate-400 italic">—</span>
+                                            @endif
+                                        </td>
+
+                                        <!-- KETERANGAN -->
+                                        <td class="px-5 py-4 align-middle">
+                                            <div class="text-xs text-slate-600 max-w-[200px] truncate" title="{{ $log->keterangan ?? '-' }}">
+                                                {{ $log->keterangan ?? '-' }}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            @else
+                            <div class="flex flex-col items-center justify-center py-16">
+                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                                    <svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-medium text-slate-700">Belum ada riwayat</h3>
+                                <p class="text-slate-500 mt-1 text-sm">Belum ada perubahan progres yang tercatat untuk order ini.</p>
+                            </div>
+                            @endif
+                        </div>
+
+                        <!-- MODAL FOOTER -->
+                        <div class="px-6 py-4 bg-slate-50 rounded-b-2xl border-t border-slate-100 flex items-center justify-between">
+                            <span class="text-xs text-slate-400">Total: {{ $logs->count() }} riwayat</span>
+                            <button @click="showRiwayat = false" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm text-sm">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+
+        <!-- BODY -->
+        <div class="p-8 space-y-8">
+
+            <!-- SECTION 1: INFORMASI PELANGGAN -->
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 pb-2 border-b border-slate-100">Informasi Pelanggan</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">NDE JT</div>
+                        <div class="font-medium text-slate-800">{{ $data->nde_jt ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Starclick ID</div>
+                        <div class="font-medium text-slate-800">{{ $data->star_click_id ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Nama Pelanggan</div>
+                        <div class="font-medium text-slate-800">{{ $data->nama_customer ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Nama Mitra</div>
+                        <div class="font-medium text-slate-800">{{ $data->nama_mitra ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Telepon</div>
+                        <div class="font-medium text-slate-800">{{ $data->telepon_pelanggan ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Tikor</div>
+                        <div class="font-medium text-slate-800 font-mono text-xs">{{ $data->tikor_pelanggan ?? '-' }}</div>
+                    </div>
+                    <div class="col-span-1 md:col-span-2">
+                        <div class="text-slate-500 text-xs mb-1">Alamat</div>
+                        <div class="font-medium text-slate-800">{{ $data->alamat_pelanggan ?? '-' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: DETAIL LOKASI & TEKNIS -->
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 pb-2 border-b border-slate-100">Detail Lokasi & Teknis</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-8 text-sm">
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Datel</div>
+                        <div class="font-medium text-slate-800">{{ $data->datel ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">STO</div>
+                        <div class="font-medium text-slate-800">{{ $data->sto ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Status Order</div>
+                        <x-status-badge :value="optional($data->planning)->status_order" />
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Status Alokasi</div>
+                        <x-status-badge :value="optional($data->planning)->status_alokasi_alpro" />
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Tipe Desain</div>
+                        <div class="font-medium text-slate-800">{{ optional($data->planning)->tipe_desain ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Jenis Program</div>
+                        <x-status-badge :value="optional($data->planning)->jenis_program" />
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">LoP ID</div>
+                        <div class="font-medium text-slate-800">{{ optional($data->planning)->ihld_lop_id ?? '-' }}</div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Total BOQ</div>
+                        <div class="font-medium text-slate-800 font-mono">
+                            {{ optional($data->planning)->total_boq ? number_format(optional($data->planning)->total_boq, 0, ',', '.') : '-' }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">CFU</div>
+                        <x-status-badge :value="optional($data->planning)->cfu" />
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Nama CFU</div>
+                        <x-status-badge :value="optional($data->planning)->nama_cfu" />
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Status Proyek</div>
+                        <x-status-badge :value="optional($data->planning)->status_proyek" />
+                    </div>
+                    <div>
+                        <div class="text-slate-500 text-xs mb-1">Keterangan</div>
+                        <div class="font-medium text-slate-800">{{ $data->keterangan ?? '-' }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: TIMELINE PROGRES -->
+            @php
+                $timelineLogs = optional($data->planning)->logs ? optional($data->planning)->logs->sortBy('created_at')->values() : collect();
+            @endphp
+
+            @if($timelineLogs->count() > 0)
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-6 pb-2 border-b border-slate-100">
+                    Timeline Progres ({{ $timelineLogs->count() }} tahap)
+                </h4>
+
+                <div class="relative">
+                    <!-- Vertical Line -->
+                    <div class="absolute left-[18px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-red-200 via-red-300 to-red-200 rounded-full"></div>
+
+                    <div class="space-y-0">
+                        @foreach($timelineLogs as $stepIndex => $log)
+                        @php
+                            $logData = is_array($log->data) ? $log->data : [];
+                            // Extract evidence images for this step
+                            $evidences = collect($logData)->filter(function($v, $k) {
+                                return $v && str_contains($k, 'evidence') && !str_starts_with($k, 'link_');
+                            });
+                            // Extract links
+                            $links = collect($logData)->filter(function($v, $k) {
+                                return $v && (str_starts_with($k, 'link_') || (is_string($v) && str_starts_with($v, 'http')));
+                            });
+                            // Extract other data
+                            $otherData = collect($logData)->filter(function($v, $k) {
+                                return $v && !str_contains($k, 'evidence') && !str_starts_with($k, 'link_') && !str_starts_with($v ?? '', 'http') && !in_array($k, ['commitment_date', 'commitment_updated_by']);
+                            });
+                            $isLast = $stepIndex === $timelineLogs->count() - 1;
+                        @endphp
+                        <div class="relative flex gap-5 pb-8 {{ $isLast ? 'pb-0' : '' }}">
+                            <!-- Step Circle -->
+                            <div class="relative z-10 shrink-0">
+                                <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shadow-sm
+                                    {{ $isLast ? 'bg-gradient-to-br from-red-500 to-red-600 text-white ring-4 ring-red-100' : 'bg-white border-2 border-red-300 text-red-600' }}">
+                                    {{ $stepIndex + 1 }}
+                                </div>
+                            </div>
+
+                            <!-- Step Content -->
+                            <div class="flex-1 bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden {{ $isLast ? 'ring-1 ring-red-100' : '' }}">
+                                <!-- Step Header -->
+                                <div class="px-5 py-3 bg-gradient-to-r {{ $isLast ? 'from-red-50 to-white' : 'from-slate-50 to-white' }} border-b border-slate-100 flex items-center justify-between flex-wrap gap-2">
+                                    <div class="flex items-center gap-3">
+                                        <x-status-badge :value="$log->progres" />
+                                        @if($isLast)
+                                            <span class="text-[10px] font-bold uppercase tracking-wider text-red-500 bg-red-50 px-2 py-0.5 rounded-md border border-red-100">Terkini</span>
+                                        @endif
+                                    </div>
+                                    <div class="flex items-center gap-3 text-xs text-slate-500">
+                                        <!-- Date -->
+                                        <div class="flex items-center gap-1">
+                                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            {{ $log->created_at->format('d M Y, H:i') }}
+                                        </div>
+                                        <!-- User -->
+                                        <div class="flex items-center gap-1.5">
+                                            <div class="w-5 h-5 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 flex items-center justify-center text-white text-[9px] font-bold">
+                                                {{ strtoupper(substr(optional($log->user)->name ?? '?', 0, 1)) }}
+                                            </div>
+                                            <span class="font-medium text-slate-600">{{ optional($log->user)->name ?? '-' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Step Body -->
+                                <div class="px-5 py-4">
+                                    <!-- Keterangan -->
+                                    @if($log->keterangan)
+                                    <div class="mb-4">
+                                        <div class="text-xs text-slate-500 mb-1">Keterangan</div>
+                                        <div class="text-sm text-slate-700 bg-slate-50 p-3 rounded-lg border border-slate-100">{{ $log->keterangan }}</div>
+                                    </div>
+                                    @endif
+
+                                    <!-- Evidence Images -->
+                                    @if($evidences->count() > 0)
+                                    <div class="mb-4">
+                                        <div class="text-xs text-slate-500 mb-2">Evidence</div>
+                                        <div class="flex flex-wrap gap-3">
+                                            @foreach($evidences as $eKey => $ePath)
+                                            <div class="group relative">
+                                                <img src="{{ asset('storage/' . $ePath) }}"
+                                                     class="h-28 w-auto rounded-lg border border-slate-200 shadow-sm cursor-zoom-in hover:shadow-md hover:border-red-200 transition-all duration-200"
+                                                     onclick="window.open(this.src)"
+                                                     title="{{ str_replace('_', ' ', $eKey) }}">
+                                                <div class="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-[9px] rounded font-medium capitalize">
+                                                    {{ str_replace(['evidence_', '_'], ['', ' '], $eKey) }}
+                                                </div>
+                                            </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    <!-- Links -->
+                                    @if($links->count() > 0)
+                                    <div class="mb-3">
+                                        <div class="text-xs text-slate-500 mb-2">Link</div>
+                                        <div class="flex flex-wrap gap-2">
+                                            @foreach($links as $lKey => $lValue)
+                                            <a href="{{ $lValue }}" target="_blank"
+                                               class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-600 text-xs font-semibold hover:bg-blue-100 transition border border-blue-100">
+                                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg>
+                                                {{ ucwords(str_replace('_', ' ', $lKey)) }}
+                                            </a>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                    @endif
+
+                                    <!-- Other Data -->
+                                    @if($otherData->count() > 0)
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        @foreach($otherData as $oKey => $oValue)
+                                        <div>
+                                            <div class="text-[10px] text-slate-400 uppercase tracking-wider mb-0.5">{{ str_replace('_', ' ', $oKey) }}</div>
+                                            <div class="text-xs font-medium text-slate-700">{{ $oValue }}</div>
+                                        </div>
+                                        @endforeach
+                                    </div>
+                                    @endif
+
+                                    @if(!$log->keterangan && $evidences->count() === 0 && $links->count() === 0 && $otherData->count() === 0)
+                                    <div class="text-xs text-slate-400 italic">Tidak ada data tambahan</div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @elseif(!empty($data->data) && is_array($data->data))
+            <!-- Fallback: show current data if no logs -->
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 pb-2 border-b border-slate-100">
+                    Evidence & Progres ({{ $data->progres }})
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    @foreach($data->data as $key => $value)
+                        @if($value)
+                            <div class="flex flex-col gap-2">
+                                <div class="text-sm font-medium text-slate-700 capitalize">{{ str_replace('_', ' ', $key) }}</div>
+                                @if(str_contains($key, 'evidence') && !str_starts_with($key, 'link_'))
+                                    <div class="relative group w-fit">
+                                        <img src="{{ asset('storage/' . $value) }}"
+                                             class="h-40 w-auto rounded-xl border border-slate-200 shadow-sm cursor-zoom-in hover:shadow-md transition"
+                                             onclick="window.open(this.src)">
+                                    </div>
+                                @elseif(str_starts_with($key, 'link_') || str_starts_with($value, 'http'))
+                                    <a href="{{ $value }}" target="_blank"
+                                       class="text-blue-600 hover:text-blue-700 hover:underline text-sm break-all flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                        Buka Link
+                                    </a>
+                                @else
+                                    <div class="text-sm text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-100">{{ $value }}</div>
+                                @endif
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            <!-- SECTION 4: LINK DOKUMEN -->
+            @if($data->link_dokumen)
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 pb-2 border-b border-slate-100">Link Dokumen</h4>
+                <a href="{{ $data->link_dokumen }}" target="_blank" 
+                   class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-blue-50 text-blue-600 text-sm font-semibold hover:bg-blue-100 transition">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Buka Dokumen
+                </a>
+            </div>
+            @endif
+
+        </div>
+
+        <!-- FOOTER -->
+        <div class="px-8 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-400">
+            <span>Dibuat: {{ $data->created_at?->format('d M Y, H:i') ?? '-' }}</span>
+            @if($data->tanggal_update_progres)
+                <span>Update terakhir: {{ \Carbon\Carbon::parse($data->tanggal_update_progres)->format('d M Y, H:i') }}</span>
+            @endif
+        </div>
+
+    </div>
+</div>
+@endsection

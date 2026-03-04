@@ -8,7 +8,7 @@
     <!-- ================= HEADER ================= -->
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-3 text-sm text-slate-500 mb-2">
-            <a href="{{ route('dashboard') }}" class="hover:text-red-600 transition">Dashboard</a>
+        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
             <span>›</span>
             <a href="{{ route('deployment.update') }}" class="hover:text-red-600 transition">Update Data</a>
             <span>›</span>
@@ -146,10 +146,10 @@
                             </div>
                         </div>
 
-                         <!-- TANGGAL KOMITMEN -->
+                         <!-- TANGGAL PROGRESS SELANJUTNYA -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">
-                                Tanggal Komitmen
+                                Tanggal Progress Selanjutnya
                             </label>
                             <input type="date" name="commitment_date"
                                 value="{{ old('commitment_date', $data->data['commitment_date'] ?? '') }}"
@@ -260,13 +260,17 @@
                                 <label class="block text-sm font-bold text-slate-700 mb-3 border-b border-slate-100 pb-2">${field.label}</label>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block text-xs text-slate-400 mb-1">Upload File</label>
-                                        <input type="file" name="${field.name}" class="w-full text-sm text-slate-500
+                                        <label class="block text-xs text-slate-400 mb-1">Upload Gambar <span class="text-slate-300">(Maks 2MB)</span></label>
+                                        <input type="file" name="${field.name}" accept="image/*"
+                                            onchange="validateImageFile(this)"
+                                            class="w-full text-sm text-slate-500
                                             file:mr-4 file:py-2 file:px-4
                                             file:rounded-full file:border-0
                                             file:text-xs file:font-semibold
                                             file:bg-red-50 file:text-red-700
                                             hover:file:bg-red-100">
+                                        <p class="text-xs text-slate-400 mt-1">Format: JPG, PNG, GIF, WEBP</p>
+                                        <p class="file-error text-xs text-red-500 mt-1 hidden"></p>
                                     </div>
                                     <div>
                                         <label class="block text-xs text-slate-400 mb-1">Link Dokumen (Opsional)</label>
@@ -317,6 +321,36 @@
         }],
         "REKON": [{ name: "boq_rekon", label: "BoQ Rekon", type: "number" }]
     };
+
+    function validateImageFile(input) {
+        const errorEl = input.parentElement.querySelector('.file-error');
+        const maxSize = 2 * 1024 * 1024; // 2MB
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+        if (errorEl) errorEl.classList.add('hidden');
+
+        if (input.files.length === 0) return;
+
+        const file = input.files[0];
+
+        if (!allowedTypes.includes(file.type)) {
+            if (errorEl) {
+                errorEl.textContent = 'Hanya file gambar (JPG, PNG, GIF, WEBP) yang diperbolehkan.';
+                errorEl.classList.remove('hidden');
+            }
+            input.value = '';
+            return;
+        }
+
+        if (file.size > maxSize) {
+            if (errorEl) {
+                errorEl.textContent = `Ukuran file terlalu besar (${(file.size / 1024 / 1024).toFixed(1)}MB). Maksimal 2MB.`;
+                errorEl.classList.remove('hidden');
+            }
+            input.value = '';
+            return;
+        }
+    }
 </script>
 <style>
     .animate-fade-in { animation: fadeIn 0.3s ease-in-out; }

@@ -2,9 +2,9 @@
     <table class="w-full text-sm text-left text-slate-600">
 
         <!-- HEADER -->
-        <thead class="text-xs text-slate-500 uppercase border-b border-slate-200" style="background:#fafafa;">
+        <thead class="text-xs text-slate-500 uppercase border-b border-slate-200 sticky top-0 z-20" style="background:#fafafa;">
             <tr>
-                <th class="sticky left-0 z-30 bg-slate-50 px-6 py-4 border-r border-slate-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] whitespace-nowrap">
+                <th class="sticky left-0 z-40 bg-slate-50 px-6 py-4 border-r border-slate-200 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)] whitespace-nowrap">
                     Star Click ID
                 </th>
 

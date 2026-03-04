@@ -5,7 +5,12 @@
 @section('content')
 <div class="flex flex-col gap-6">
 
-   
+    {{-- BREADCRUMB --}}
+    <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
+        <span>›</span>
+        <span class="font-semibold text-slate-800">Update Data</span>
+    </div>
 
     <!-- ================= FILTER CARD ================= -->
     <div class="bg-white rounded-2xl shadow-sm border p-5" style="border-color:#fde8e8; box-shadow: 0 4px 20px rgba(227,43,43,0.06);" x-data="tagSearch()">
@@ -89,7 +94,7 @@
                     </div>
                 </div>
             
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
                     <select name="status_order" class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
                         <option value="">Semua Status Order</option>
                         @foreach ($filters['status_orders'] as $item)
@@ -108,6 +113,43 @@
                         <option value="">Semua Jenis Program</option>
                         @foreach ($filters['jenis_programs'] as $item)
                             <option value="{{ $item }}" {{ request('jenis_program') == $item ? 'selected' : '' }}>{{ $item }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="datel" class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
+                        <option value="">Semua Datel</option>
+                        @foreach ($filters['datels'] as $item)
+                            <option value="{{ $item }}" {{ request('datel') == $item ? 'selected' : '' }}>{{ $item }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <select name="tipe_desain" class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
+                        <option value="">Semua Tipe Desain</option>
+                        @foreach ($filters['tipe_desains'] as $item)
+                            <option value="{{ $item }}" {{ request('tipe_desain') == $item ? 'selected' : '' }}>{{ $item }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="cfu" class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
+                        <option value="">Semua CFU</option>
+                        @foreach ($filters['cfus'] as $item)
+                            <option value="{{ $item }}" {{ request('cfu') == $item ? 'selected' : '' }}>{{ $item }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="progres" class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
+                        <option value="">Semua Progress</option>
+                        @foreach ($filters['progresses'] as $item)
+                            <option value="{{ $item }}" {{ request('progres') == $item ? 'selected' : '' }}>{{ $item }}</option>
+                        @endforeach
+                    </select>
+
+                    <select name="status_proyek" class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
+                        <option value="">Semua Status Proyek</option>
+                        @foreach ($filters['status_proyeks'] as $item)
+                            <option value="{{ $item }}" {{ request('status_proyek') == $item ? 'selected' : '' }}>{{ $item }}</option>
                         @endforeach
                     </select>
 
@@ -156,27 +198,18 @@
                 if (this.input.trim() !== '' && !this.tags.includes(this.input.trim())) {
                     this.tags.push(this.input.trim());
                     this.input = '';
-                    this.updateHiddenInput();
                 }
             },
 
             removeTag(index) {
                 this.tags.splice(index, 1);
-                this.updateHiddenInput();
+                this.doSearch();
             },
 
             handleBackspace() {
                 if (this.input === '' && this.tags.length > 0) {
                     this.tags.pop();
-                    this.updateHiddenInput();
-                }
-            },
-
-            updateHiddenInput() {
-                // Sync to hidden input in the main form
-                const hiddenInput = document.getElementById('hiddenSearchInput');
-                if(hiddenInput) {
-                    hiddenInput.value = this.tags.join(',');
+                    this.doSearch();
                 }
             },
 
@@ -185,14 +218,41 @@
                 if (this.input.trim() !== '') {
                     this.addTag();
                 }
-                
-                // Show loading overlay
+                this.doSearch();
+            },
+
+            doSearch() {
+                const tableContainer = document.getElementById('table-container');
                 const loading = document.getElementById('tableLoading');
+                const query = this.tags.join(',');
+
+                // Sync hidden input for advanced filter form
+                const hiddenInput = document.getElementById('hiddenSearchInput');
+                if (hiddenInput) hiddenInput.value = query;
+
                 if (loading) loading.classList.remove('hidden');
 
-                // Wait for Alpine to process updates then submit
-                this.$nextTick(() => {
-                    document.getElementById('filterForm').submit();
+                const url = `{{ route('deployment.update') }}?search=${encodeURIComponent(query)}`;
+
+                fetch(url, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    if (loading) loading.classList.add('hidden');
+                    const existingLoading = tableContainer.querySelector('#tableLoading');
+                    tableContainer.innerHTML = html;
+                    if (existingLoading) tableContainer.prepend(existingLoading);
+                    bindPaginationLinks();
+
+                    // Update URL without reload
+                    const newUrl = query
+                        ? `{{ route('deployment.update') }}?search=${encodeURIComponent(query)}`
+                        : `{{ route('deployment.update') }}`;
+                    window.history.replaceState({}, '', newUrl);
+                })
+                .catch(() => {
+                    if (loading) loading.classList.add('hidden');
                 });
             }
         }

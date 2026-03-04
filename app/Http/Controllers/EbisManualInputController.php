@@ -40,6 +40,7 @@ class EbisManualInputController extends Controller
             [
                 'nde_jt' => 'nullable|string|max:255',
                 'star_click_id' => 'required|string|max:50',
+                'nomor_batch' => 'nullable|numeric',
                 'nama_customer' => 'required|string|max:255',
                 'nama_mitra' => 'required|string|max:255',
                 'alamat_pelanggan' => 'nullable|string|max:255',
@@ -99,8 +100,16 @@ class EbisManualInputController extends Controller
             $rows->where('ebis_manual_inputs.sto', $request->sto);
         }
 
+        if ($request->filled('datel')) {
+            $rows->where('ebis_manual_inputs.datel', $request->datel);
+        }
+
+        if ($request->filled('progres')) {
+            $rows->where('ebis_manual_inputs.progres', $request->progres);
+        }
+
         // FILTER DARI RELASI PLANNING
-        if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program')) {
+        if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek')) {
             $rows->whereHas('planning', function ($q) use ($request) {
                 if ($request->filled('status_order')) {
                     $q->where('status_order', $request->status_order);
@@ -112,6 +121,14 @@ class EbisManualInputController extends Controller
 
                 if ($request->filled('jenis_program')) {
                     $q->where('jenis_program', $request->jenis_program);
+                }
+
+                if ($request->filled('cfu')) {
+                    $q->where('cfu', $request->cfu);
+                }
+
+                if ($request->filled('status_proyek')) {
+                    $q->where('status_proyek', $request->status_proyek);
                 }
             });
         }
@@ -210,13 +227,20 @@ class EbisManualInputController extends Controller
 
             'stos' => EbisManualInput::select('sto')->whereNotNull('sto')->distinct()->pluck('sto'),
 
+            'datels' => EbisManualInput::select('datel')->whereNotNull('datel')->where('datel', '!=', '')->distinct()->orderBy('datel')->pluck('datel'),
+
+            'progresses' => EbisManualInput::select('progres')->whereNotNull('progres')->where('progres', '!=', '')->distinct()->orderBy('progres')->pluck('progres'),
+
             // dari relasi planning
             'status_orders' => EbisPlanningOrder::select('status_order')->whereNotNull('status_order')->distinct()->pluck('status_order'),
 
             'tipe_desains' => EbisPlanningOrder::select('tipe_desain')->whereNotNull('tipe_desain')->distinct()->pluck('tipe_desain'),
 
             'jenis_programs' => EbisPlanningOrder::select('jenis_program')->whereNotNull('jenis_program')->distinct()->pluck('jenis_program'),
-            'jenis_programs' => EbisPlanningOrder::select('jenis_program')->whereNotNull('jenis_program')->distinct()->pluck('jenis_program'),
+
+            'cfus' => EbisPlanningOrder::select('cfu')->whereNotNull('cfu')->where('cfu', '!=', '')->distinct()->orderBy('cfu')->pluck('cfu'),
+
+            'status_proyeks' => EbisPlanningOrder::select('status_proyek')->whereNotNull('status_proyek')->where('status_proyek', '!=', '')->distinct()->orderBy('status_proyek')->pluck('status_proyek'),
         ];
 
         if ($request->ajax()) {

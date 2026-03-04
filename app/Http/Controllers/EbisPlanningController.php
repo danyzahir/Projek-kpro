@@ -184,7 +184,15 @@ class EbisPlanningController extends Controller
             $query->where('ebis_manual_inputs.sto', $request->sto);
         }
 
-        if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program')) {
+        if ($request->filled('datel')) {
+            $query->where('ebis_manual_inputs.datel', $request->datel);
+        }
+
+        if ($request->filled('progres')) {
+            $query->where('ebis_manual_inputs.progres', $request->progres);
+        }
+
+        if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek')) {
             $query->whereHas('planning', function ($q) use ($request) {
                 if ($request->filled('status_order')) {
                     $q->where('status_order', $request->status_order);
@@ -196,6 +204,14 @@ class EbisPlanningController extends Controller
 
                 if ($request->filled('jenis_program')) {
                     $q->where('jenis_program', $request->jenis_program);
+                }
+
+                if ($request->filled('cfu')) {
+                    $q->where('cfu', $request->cfu);
+                }
+
+                if ($request->filled('status_proyek')) {
+                    $q->where('status_proyek', $request->status_proyek);
                 }
             });
         }
@@ -289,11 +305,19 @@ class EbisPlanningController extends Controller
 
             'stos' => EbisManualInput::select('sto')->whereNotNull('sto')->distinct()->pluck('sto'),
 
+            'datels' => EbisManualInput::select('datel')->whereNotNull('datel')->where('datel', '!=', '')->distinct()->orderBy('datel')->pluck('datel'),
+
+            'progresses' => EbisManualInput::select('progres')->whereNotNull('progres')->where('progres', '!=', '')->distinct()->orderBy('progres')->pluck('progres'),
+
             'status_orders' => EbisPlanningOrder::select('status_order')->whereNotNull('status_order')->distinct()->pluck('status_order'),
 
             'tipe_desains' => EbisPlanningOrder::select('tipe_desain')->whereNotNull('tipe_desain')->distinct()->pluck('tipe_desain'),
 
             'jenis_programs' => EbisPlanningOrder::select('jenis_program')->whereNotNull('jenis_program')->distinct()->pluck('jenis_program'),
+
+            'cfus' => EbisPlanningOrder::select('cfu')->whereNotNull('cfu')->where('cfu', '!=', '')->distinct()->orderBy('cfu')->pluck('cfu'),
+
+            'status_proyeks' => EbisPlanningOrder::select('status_proyek')->whereNotNull('status_proyek')->where('status_proyek', '!=', '')->distinct()->orderBy('status_proyek')->pluck('status_proyek'),
         ];
 
         /**
@@ -313,6 +337,20 @@ class EbisPlanningController extends Controller
         }
 
         return view('deployment.lihat_data', compact('rows', 'filters'));
+    }
+
+    /**
+     * =============================
+     * DETAIL LIHAT DATA
+     * =============================
+     */
+    public function detailLihatData($id)
+    {
+        $data = EbisManualInput::with(['planning.logs' => function ($q) {
+            $q->with('user')->orderBy('created_at', 'desc');
+        }])->findOrFail($id);
+
+        return view('deployment.detail_lihat', compact('data'));
     }
 
     /**

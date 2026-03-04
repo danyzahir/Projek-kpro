@@ -65,6 +65,11 @@ Route::middleware(['auth', 'role:optima,admin,tif,telkom_akses'])->group(functio
         return view('deployment.b2b');
     })->name('deployment.b2b');
 
+    /* ================= MENU OLO ================= */
+    Route::get('/deployment/olo', function () {
+        return view('deployment.olo');
+    })->name('deployment.olo');
+
     /* ================= MANUAL INPUT ================= */
     Route::get('/deployment/input', [EbisManualInputController::class, 'index'])
         ->name('deployment.input');
@@ -75,6 +80,9 @@ Route::middleware(['auth', 'role:optima,admin,tif,telkom_akses'])->group(functio
     /* ================= LIHAT DATA ================= */
     Route::get('/deployment/lihat-data', [EbisPlanningController::class, 'lihatData'])
         ->name('deployment.lihat-data');
+
+    Route::get('/deployment/lihat-data/{id}/detail', [EbisPlanningController::class, 'detailLihatData'])
+        ->name('deployment.lihat-data.detail');
 
     Route::get('/deployment/lihat-data/export', [EbisPlanningController::class, 'exportLihatData'])
         ->name('deployment.lihat-data.export');
@@ -112,6 +120,10 @@ Route::middleware(['auth', 'role:optima,admin,tif,telkom_akses'])->group(functio
     //route deployment.update.list
     Route::get('/deployment/update/list', [EbisManualInputController::class, 'updateList'])
         ->name('deployment.update.list');
+
+    /* ================= PROGRESS OVERVIEW DASHBOARD ================= */
+    Route::get('/deployment/progress-overview', [AdminController::class, 'progressOverview'])
+        ->name('deployment.progress-overview');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

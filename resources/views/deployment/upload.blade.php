@@ -5,6 +5,12 @@
 @section('content')
 <div class="flex flex-col gap-6">
 
+    {{-- BREADCRUMB --}}
+    <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
+        <span>›</span>
+        <span class="font-semibold text-slate-800">Upload Data</span>
+    </div>
     <!-- ================= HEADER ================= -->
     
 

@@ -10,6 +10,7 @@ use App\Models\EbisPlanningProgressLog;
 use App\Models\MasterDatel;
 use App\Models\MasterSto;
 use App\Models\MasterMitra;
+use App\Services\TelegramService;
 
 class EbisManualInputController extends Controller
 {
@@ -64,7 +65,14 @@ class EbisManualInputController extends Controller
             ],
         );
 
-        EbisManualInput::create($validated);
+        $order = EbisManualInput::create($validated);
+
+        // Kirim notifikasi Telegram
+        try {
+            (new TelegramService())->notifyNewOrder($order);
+        } catch (\Exception $e) {
+            \Log::error('Telegram notif gagal (new order)', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->back()->with('success', 'Data berhasil disimpan');
     }
@@ -396,6 +404,14 @@ class EbisManualInputController extends Controller
             'keterangan' => $request->keterangan,
             'data' => $data,
         ]);
+
+        // Kirim notifikasi Telegram
+        try {
+            $manual->refresh();
+            (new TelegramService())->notifyProgressUpdate($manual, $request->progres, $request->keterangan);
+        } catch (\Exception $e) {
+            \Log::error('Telegram notif gagal (update progress)', ['error' => $e->getMessage()]);
+        }
 
         return redirect()->route('deployment.update')->with('success', 'Progress deployment berhasil diperbarui');
     }

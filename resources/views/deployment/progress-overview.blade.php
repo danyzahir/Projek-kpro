@@ -39,6 +39,8 @@
         </div>
     </div>
 
+
+
     {{-- ===== STAT CARDS ===== --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
 
@@ -102,6 +104,87 @@
             </div>
         </div>
 
+    </div>
+
+    <div class="bg-white rounded-[2rem] p-6 sm:p-8 shadow-xl border" style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.06);">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="p-3 rounded-2xl" style="background:#fef2f2; color:#e32b2b;">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+            </div>
+            <div>
+                <h3 class="text-xl font-extrabold tracking-tight" style="color:#1a1a2e;">Filter Data</h3>
+                <p class="text-[10px] font-bold uppercase tracking-widest mt-0.5" style="color:#9ca3af;">Filter berdasarkan STO, Datel, atau Mitra</p>
+            </div>
+        </div>
+
+        <form method="GET" action="{{ route('deployment.progress-overview') }}">
+            <div class="flex flex-wrap items-end gap-3 p-4 rounded-2xl border" style="background:#fafafa; border-color:#f3f4f6;">
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-1" style="color:#9ca3af;">STO</label>
+                    <select name="sto" class="w-full rounded-xl border-slate-200 bg-white text-xs font-semibold py-2 px-3 focus:ring-red-500 focus:border-red-500 transition">
+                        <option value="">Semua STO</option>
+                        @foreach($stoList as $sto)
+                            <option value="{{ $sto }}" {{ $filterSto == $sto ? 'selected' : '' }}>{{ strtoupper($sto) }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-1" style="color:#9ca3af;">Datel</label>
+                    <select name="datel" class="w-full rounded-xl border-slate-200 bg-white text-xs font-semibold py-2 px-3 focus:ring-red-500 focus:border-red-500 transition">
+                        <option value="">Semua Datel</option>
+                        @foreach($datelList as $datel)
+                            <option value="{{ $datel }}" {{ $filterDatel == $datel ? 'selected' : '' }}>{{ $datel }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex-1 min-w-[120px]">
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-1" style="color:#9ca3af;">Mitra</label>
+                    <select name="mitra" class="w-full rounded-xl border-slate-200 bg-white text-xs font-semibold py-2 px-3 focus:ring-red-500 focus:border-red-500 transition">
+                        <option value="">Semua Mitra</option>
+                        @foreach($mitraList as $mitra)
+                            <option value="{{ $mitra }}" {{ $filterMitra == $mitra ? 'selected' : '' }}>{{ $mitra }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider text-white transition hover:shadow-lg hover:-translate-y-0.5" style="background: linear-gradient(135deg, #e32b2b 0%, #b91c1c 100%);">
+                        Filter
+                    </button>
+                    @if($filterSto || $filterDatel || $filterMitra)
+                    <a href="{{ route('deployment.progress-overview') }}" class="px-3 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition hover:bg-red-50" style="color:#e32b2b; border: 1px solid #fde8e8;">
+                        Reset
+                    </a>
+                    @endif
+                </div>
+            </div>
+        </form>
+
+        {{-- Filter Result Info --}}
+        @if($filterSto || $filterDatel || $filterMitra)
+        <div class="mt-6 pt-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4" style="border-top: 1px solid #fef2f2;">
+            <div class="flex items-center gap-3">
+                <div class="p-2 rounded-xl" style="background:#fef2f2;">
+                    <svg class="w-5 h-5" style="color:#e32b2b;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <div>
+                    <p class="text-sm font-bold" style="color:#374151;">
+                        Hasil Filter: <span class="text-lg font-black" style="color:#e32b2b;">{{ number_format($totalAll) }}</span> order
+                    </p>
+                    <p class="text-[10px] font-bold uppercase tracking-widest mt-0.5" style="color:#9ca3af;">
+                        @if($filterSto) STO: {{ strtoupper($filterSto) }} @endif
+                        @if($filterDatel) {{ $filterSto ? '·' : '' }} Datel: {{ $filterDatel }} @endif
+                        @if($filterMitra) {{ ($filterSto || $filterDatel) ? '·' : '' }} Mitra: {{ $filterMitra }} @endif
+                    </p>
+                </div>
+            </div>
+            @if($topProgress)
+            <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl" style="background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%); border: 1px solid #fde8e8;">
+                <svg class="w-4 h-4" style="color:#e32b2b;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                <span class="text-xs font-bold" style="color:#374151;">Terbanyak di <span class="font-black" style="color:#e32b2b;">{{ $topProgress }}</span> — {{ number_format($topProgressCount) }} order</span>
+            </div>
+            @endif
+        </div>
+        @endif
     </div>
 
     {{-- ===== BAR CHART ===== --}}

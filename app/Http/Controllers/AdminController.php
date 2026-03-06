@@ -562,8 +562,27 @@ class AdminController extends Controller
     /**
      * Progress Overview Dashboard — accessible to all deployment roles (non-admin).
      */
-    public function progressOverview()
+    public function progressOverview(Request $request)
     {
+        // --- Filter parameters ---
+        $filterSto   = $request->get('sto');
+        $filterDatel = $request->get('datel');
+        $filterMitra = $request->get('mitra');
+
+        // Helper: build base query with optional filters
+        $baseQuery = function () use ($filterSto, $filterDatel, $filterMitra) {
+            $q = EbisManualInput::query();
+            if ($filterSto)   $q->where('sto', $filterSto);
+            if ($filterDatel) $q->where('datel', $filterDatel);
+            if ($filterMitra) $q->where('nama_mitra', $filterMitra);
+            return $q;
+        };
+
+        // --- Filter option lists (unfiltered, for dropdowns) ---
+        $stoList   = EbisManualInput::whereNotNull('sto')->where('sto', '!=', '')->distinct()->orderBy('sto')->pluck('sto');
+        $datelList = EbisManualInput::whereNotNull('datel')->where('datel', '!=', '')->distinct()->orderBy('datel')->pluck('datel');
+        $mitraList = EbisManualInput::whereNotNull('nama_mitra')->where('nama_mitra', '!=', '')->distinct()->orderBy('nama_mitra')->pluck('nama_mitra');
+
         // Define the ordered progress stages
         $stages = [
             'ON DESK', 'SURVEY', 'PERIJINAN', 'DRM', 'APPROVED BY EBIS',
@@ -571,8 +590,9 @@ class AdminController extends Controller
             'PS', 'KENDALA', 'UJI TERIMA', 'REKON',
         ];
 
-        // Count deployments per progress stage
-        $progressCounts = EbisManualInput::select('progres', DB::raw('count(*) as total'))
+        // Count deployments per progress stage (filtered)
+        $progressCounts = $baseQuery()
+            ->select('progres', DB::raw('count(*) as total'))
             ->whereNotNull('progres')
             ->where('progres', '!=', '')
             ->groupBy('progres')
@@ -585,23 +605,37 @@ class AdminController extends Controller
             $values[] = $progressCounts[$stage] ?? 0;
         }
 
-        // Summary stats
-        $totalAll       = EbisManualInput::count();
+        // Summary stats (filtered)
+        $totalAll       = $baseQuery()->count();
         $totalKendala   = $progressCounts['KENDALA'] ?? 0;
         $totalSelesai   = ($progressCounts['GOLIVE'] ?? 0) + ($progressCounts['PS'] ?? 0)
                         + ($progressCounts['UJI TERIMA'] ?? 0) + ($progressCounts['REKON'] ?? 0)
                         + ($progressCounts['SELESAI FISIK'] ?? 0);
         $totalOnTrack   = $totalAll - $totalKendala;
 
-        // Recent progress updates (last 10)
-        $recentUpdates = EbisManualInput::whereNotNull('progres')
+        // Top progress status (stage with most deployments)
+        $topProgress = null;
+        $topProgressCount = 0;
+        foreach ($progressCounts as $stage => $count) {
+            if ($count > $topProgressCount) {
+                $topProgressCount = $count;
+                $topProgress = $stage;
+            }
+        }
+
+        // Recent progress updates (last 10, filtered)
+        $recentUpdates = $baseQuery()
+            ->whereNotNull('progres')
             ->where('progres', '!=', '')
             ->orderByDesc('updated_at')
             ->take(10)
             ->get(['star_click_id', 'nama_customer', 'progres', 'datel', 'sto', 'updated_at']);
 
         return view('deployment.progress-overview', compact(
-            'labels', 'values', 'totalAll', 'totalKendala', 'totalSelesai', 'totalOnTrack', 'recentUpdates'
+            'labels', 'values', 'totalAll', 'totalKendala', 'totalSelesai', 'totalOnTrack',
+            'recentUpdates', 'stoList', 'datelList', 'mitraList',
+            'filterSto', 'filterDatel', 'filterMitra',
+            'topProgress', 'topProgressCount'
         ));
     }
 

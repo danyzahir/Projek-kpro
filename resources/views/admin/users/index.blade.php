@@ -5,7 +5,11 @@
 @section('content')
 <div class="max-w-7xl mx-auto space-y-6">
 
-
+ <div class="flex items-center gap-3 text-sm text-slate-500">
+            <a href="{{ route('admin.dashboard') }}" class="hover:text-red-600 transition">Dashboard</a>
+            <span>›</span>
+            <span class="font-semibold text-slate-800">Manajemen User</span>
+        </div>
     <!-- ================= CARD TABLE ================= -->
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         

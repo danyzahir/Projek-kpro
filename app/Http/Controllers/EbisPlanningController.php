@@ -80,6 +80,13 @@ class EbisPlanningController extends Controller
         $searchableColumns = ['star_click_id', 'track_id', 'ticket_id', 'nama_customer', 'status_order', 'tipe_desain', 'jenis_program', 'datel', 'sto', 'nama_pengguna_melakukan_alokasi_alpro', 'id_odp_alokasi_alpro', 'nama_odp_alokasi_alpro', 'reservation_id_alokasi_alpro', 'username_nik_melakukan_alokasi_alpro', 'sales_code', 'segment', 'cfu', 'source_app', 'regional', 'witel', 'witel_lama', 'wok', 'status_eproposal', 'status_tomps', 'status_sap', 'status_proyek', 'kode_program', 'nama_proyek', 'batch_program', 'kategori', 'tahun'];
 
         $rows = EbisPlanningOrder::query()
+            
+            // ❌ FILTER DUMMY RECORDS: Sembunyikan relasi fiktif yang terbuat dari Input Manual
+            ->where(function($q) {
+                $q->whereNotNull('sto')
+                  ->orWhereNotNull('status_order')
+                  ->orWhereNotNull('track_id');
+            })
 
             // 🔍 GLOBAL SEARCH (SEMUA KOLOM)
             ->when($request->search, function ($query) use ($request, $searchableColumns) {
@@ -190,6 +197,10 @@ class EbisPlanningController extends Controller
 
         if ($request->filled('progres')) {
             $query->where('ebis_manual_inputs.progres', $request->progres);
+        }
+
+        if ($request->filled('nomor_batch')) {
+            $query->where('ebis_manual_inputs.nomor_batch', $request->nomor_batch);
         }
 
         if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek')) {
@@ -318,6 +329,8 @@ class EbisPlanningController extends Controller
             'cfus' => EbisPlanningOrder::select('cfu')->whereNotNull('cfu')->where('cfu', '!=', '')->distinct()->orderBy('cfu')->pluck('cfu'),
 
             'status_proyeks' => EbisPlanningOrder::select('status_proyek')->whereNotNull('status_proyek')->where('status_proyek', '!=', '')->distinct()->orderBy('status_proyek')->pluck('status_proyek'),
+
+            'nomor_batches' => EbisManualInput::select('nomor_batch')->whereNotNull('nomor_batch')->where('nomor_batch', '!=', '')->distinct()->orderBy('nomor_batch')->pluck('nomor_batch'),
         ];
 
         /**

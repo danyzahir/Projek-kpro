@@ -18,9 +18,6 @@ class TelegramService
         $this->chatId   = config('services.telegram.chat_id', '');
     }
 
-    /**
-     * Kirim pesan teks ke Telegram Bot API.
-     */
     public function sendMessage(string $text, ?string $chatId = null): bool
     {
         if (empty($this->botToken) || empty($chatId ?? $this->chatId)) {
@@ -28,26 +25,10 @@ class TelegramService
             return false;
         }
 
-        try {
-            $response = Http::post("https://api.telegram.org/bot{$this->botToken}/sendMessage", [
-                'chat_id'    => $chatId ?? $this->chatId,
-                'text'       => $text,
-                'parse_mode' => 'HTML',
-            ]);
+        // Tembak secara asinkron agar tidak membebani request (menggunakan antrian)
+        dispatch(new \App\Jobs\SendTelegramNotification($text, $chatId ?? $this->chatId));
 
-            if ($response->failed()) {
-                Log::error('Telegram sendMessage gagal', [
-                    'status' => $response->status(),
-                    'body'   => $response->body(),
-                ]);
-                return false;
-            }
-
-            return true;
-        } catch (\Exception $e) {
-            Log::error('Telegram sendMessage exception', ['error' => $e->getMessage()]);
-            return false;
-        }
+        return true;
     }
 
     /**
@@ -87,18 +68,11 @@ class TelegramService
         $text .= "🔧 <b>Mitra:</b> {$order->nama_mitra}\n\n";
 
         $text .= "📊 <b>Progress:</b> {$progres}\n";
-        if ($keterangan) {
-            $text .= "📝 <b>Keterangan:</b> {$keterangan}\n";
-        }
 
         // Ambil riwayat progress dari log
         $planning = $order->planning;
         if ($planning) {
-            $logs = EbisPlanningProgressLog::where('ebis_planning_order_id', $planning->id)
-                ->with('user')
-                ->orderBy('created_at', 'asc')
-                ->get();
-
+            $logs = $planning->logs()->with('user')->orderBy('created_at', 'asc')->get();
             if ($logs->isNotEmpty()) {
                 $text .= "\n📅 <b>Riwayat Progress:</b>\n";
                 foreach ($logs as $i => $log) {
@@ -106,14 +80,63 @@ class TelegramService
                     $date = $log->created_at->format('d M Y');
                     $user = $log->user->name ?? 'System';
                     $isLast = ($i === $logs->count() - 1);
-                    $marker = $isLast ? ' ← <i>Sekarang</i>' : '';
-                    $text .= "{$no}. <b>{$log->progres}</b> — {$date} ({$user}){$marker}\n";
+                    $marker = $isLast ? ' ← Sekarang' : '';
+                    $text .= "{$no}. {$log->progres} — {$date} ({$user}){$marker}\n";
                 }
             }
         }
 
         $text .= "\n🕐 <b>Update:</b> " . now()->format('d M Y H:i') . " WIB";
         $text .= "\n👷 <b>Oleh:</b> " . (auth()->user()->name ?? 'Unknown');
+
+        $this->sendMessage($text);
+    }
+
+    /**
+     * Laporan Harian: Semua progress hari ini.
+     */
+    public function sendDailyReport(): void
+    {
+        // Ambil semua log hari ini
+        $logs = EbisPlanningProgressLog::with(['planning.manualInput', 'user'])
+            ->whereDate('created_at', now()->format('Y-m-d'))
+            ->orderBy('created_at', 'asc')
+            ->get();
+
+        $dateStr = now()->format('d M Y');
+
+        if ($logs->isEmpty()) {
+            $text  = "📅 <b>LAPORAN HARIAN DEPLOYMENT</b>\n";
+            $text .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+            $text .= "Hari/Tgl: <b>{$dateStr}</b>\n\n";
+            $text .= "<i>Tidak ada update progress hari ini.</i> 📭\n";
+            
+            $this->sendMessage($text);
+            return;
+        }
+
+        $text  = "📅 <b>LAPORAN HARIAN DEPLOYMENT</b>\n";
+        $text .= "━━━━━━━━━━━━━━━━━━━━\n\n";
+        $text .= "Hari/Tgl: <b>{$dateStr}</b>\n";
+        $text .= "Total Update: <b>{$logs->count()} Aktivitas</b>\n\n";
+
+        // Grouping logs (optional) or just list them sequentially
+        foreach ($logs as $i => $log) {
+            $no = $i + 1;
+            $order = $log->planning->manualInput ?? null;
+            
+            $customer = $order ? $order->nama_customer : 'Unknown Customer';
+            $starclick = $order ? $order->star_click_id : '-';
+            
+            $user = $log->user->name ?? 'System';
+            $time = $log->created_at->format('H:i');
+            $progres = $log->progres;
+
+            $text .= "<b>{$no}. {$customer}</b> ({$starclick})\n";
+            $text .= "   👉 <b>{$progres}</b> pada {$time} (oleh <i>{$user}</i>)\n\n";
+        }
+
+        $text .= "Semangat terus rekan-rekan! 🚀";
 
         $this->sendMessage($text);
     }

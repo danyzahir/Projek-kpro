@@ -116,6 +116,10 @@ class EbisManualInputController extends Controller
             $rows->where('ebis_manual_inputs.progres', $request->progres);
         }
 
+        if ($request->filled('nomor_batch')) {
+            $rows->where('ebis_manual_inputs.nomor_batch', $request->nomor_batch);
+        }
+
         // FILTER DARI RELASI PLANNING
         if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek')) {
             $rows->whereHas('planning', function ($q) use ($request) {
@@ -139,6 +143,24 @@ class EbisManualInputController extends Controller
                     $q->where('status_proyek', $request->status_proyek);
                 }
             });
+        }
+
+        /**
+         * =============================
+         * FILTER KHUSUS (OVERDUE dll)
+         * =============================
+         */
+        if ($request->usia == 'overdue') {
+            $today = \Carbon\Carbon::now()->startOfDay()->format('Y-m-d');
+            
+            $rows->whereHas('planning', function($q) {
+                // Ensure we only count active orders (not already finished)
+                $q->whereNotIn('status_order', ['Success', 'Gagal', 'Cancel']);
+            })
+            ->whereNotIn('ebis_manual_inputs.progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])
+            ->whereNotNull('data')
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_date')) IS NOT NULL")
+            ->whereRaw("STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_date')), '%Y-%m-%d') < ?", [$today]);
         }
 
         /**
@@ -249,6 +271,8 @@ class EbisManualInputController extends Controller
             'cfus' => EbisPlanningOrder::select('cfu')->whereNotNull('cfu')->where('cfu', '!=', '')->distinct()->orderBy('cfu')->pluck('cfu'),
 
             'status_proyeks' => EbisPlanningOrder::select('status_proyek')->whereNotNull('status_proyek')->where('status_proyek', '!=', '')->distinct()->orderBy('status_proyek')->pluck('status_proyek'),
+
+            'nomor_batches' => EbisManualInput::select('nomor_batch')->whereNotNull('nomor_batch')->where('nomor_batch', '!=', '')->distinct()->orderBy('nomor_batch')->pluck('nomor_batch'),
         ];
 
         if ($request->ajax()) {
@@ -351,7 +375,6 @@ class EbisManualInputController extends Controller
             $planning->nama_customer = $manual->nama_customer;
             $planning->progres = $request->progres;
             $planning->tanggal_update_progres = now();
-            $planning->data = [];
             $planning->save();
         }
 

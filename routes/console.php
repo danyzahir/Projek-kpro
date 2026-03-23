@@ -2,7 +2,19 @@
 
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
+use App\Services\TelegramService;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+// Jadwal Pengiriman Laporan Harian Telegram (Jam 5 Sore)
+Schedule::call(function () {
+    try {
+        (new TelegramService())->sendDailyReport();
+        \Log::info('Daily Telegram Report sent successfully.');
+    } catch (\Exception $e) {
+        \Log::error('Failed to send Daily Telegram Report: ' . $e->getMessage());
+    }
+})->dailyAt('17:00')->name('telegram:daily-report');

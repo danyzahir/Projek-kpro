@@ -7,14 +7,28 @@
 
     <!-- ================= HEADER ================= -->
     <div class="flex items-center justify-between">
-        <div class="flex items-center gap-3 text-sm text-slate-500 mb-2">
-        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
-            <span>›</span>
-            <a href="{{ route('deployment.update') }}" class="hover:text-red-600 transition">Update Data</a>
-            <span>›</span>
-            <span class="font-semibold text-slate-800">Edit Deployment</span>
-        </div>
+    <div class="flex items-center gap-3 text-slate-500 mb-2">
+
+        <a href="{{ route('deployment.progress-overview') }}"
+           class="font-bold text-slate-800 text-xs uppercase tracking-wider hover:text-red-600 transition">
+           Progress Overview
+        </a>
+
+        <span class="text-slate-300 font-bold">❯</span>
+
+        <a href="{{ route('deployment.update') }}"
+           class="font-bold text-slate-800 text-xs uppercase tracking-wider hover:text-red-600 transition">
+           Update Data
+        </a>
+
+        <span class="text-slate-300 font-bold">❯</span>
+
+        <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">
+           Edit Deployment
+        </span>
+
     </div>
+</div>
 
     <form action="{{ route('deployment.update.process', $data->id) }}" method="POST" enctype="multipart/form-data" data-turbo="false"
           x-data="editForm()" x-init="initForm()">
@@ -149,7 +163,7 @@
                          <!-- TANGGAL PROGRESS SELANJUTNYA -->
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 mb-2">
-                                Tanggal Progress Selanjutnya
+                                Komitmen Progress Selanjutnya
                             </label>
                             <input type="date" name="commitment_date"
                                 value="{{ old('commitment_date', $data->data['commitment_date'] ?? '') }}"

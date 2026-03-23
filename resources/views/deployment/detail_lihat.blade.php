@@ -3,16 +3,47 @@
 @section('title', 'Detail Deployment')
 
 @section('content')
-<div class="flex flex-col gap-6 max-w-4xl mx-auto">
+<div class="flex flex-col gap-6 max-w-4xl mx-auto" x-data="{ showImageModal: false, imageUrl: '' }">
+
+    <!-- ========== IMAGE LIGHTBOX MODAL ========== -->
+    <template x-teleport="body">
+        <div x-show="showImageModal" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center">
+            <!-- BACKDROP -->
+            <div x-show="showImageModal" x-transition.opacity duration.300ms class="absolute inset-0 bg-black/80 backdrop-blur-sm cursor-pointer" @click="showImageModal = false"></div>
+
+            <!-- IMAGE CONTENT -->
+            <div x-show="showImageModal" x-transition.scale.90 duration.300ms class="relative z-10 max-w-5xl max-h-[90vh] w-full p-4 flex items-center justify-center pointer-events-none">
+                <!-- Close Button -->
+                <button @click="showImageModal = false" class="absolute top-0 right-0 m-4 p-2 bg-black/60 hover:bg-black text-white rounded-full transition-colors z-20 pointer-events-auto">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+                <img :src="imageUrl" class="max-w-full max-h-[85vh] object-contain rounded-lg shadow-2xl ring-1 ring-white/20 pointer-events-auto" @click.stop>
+            </div>
+        </div>
+    </template>
 
     {{-- BREADCRUMB --}}
-    <div class="flex items-center gap-3 text-sm text-slate-500">
-        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
-        <span>›</span>
-        <a href="{{ route('deployment.lihat-data') }}" class="hover:text-red-600 transition">Lihat Data</a>
-        <span>›</span>
-        <span class="font-semibold text-slate-800">Detail Deployment</span>
-    </div>
+   <div class="flex items-center gap-3 text-slate-500">
+
+    <a href="{{ route('deployment.progress-overview') }}"
+       class="font-bold text-slate-800 text-xs uppercase tracking-wider hover:text-red-600 transition">
+       Progress Overview
+    </a>
+
+    <span class="text-slate-300 font-bold">❯</span>
+
+    <a href="{{ route('deployment.lihat-data') }}"
+       class="font-bold text-slate-800 text-xs uppercase tracking-wider hover:text-red-600 transition">
+       Lihat Data
+    </a>
+
+    <span class="text-slate-300 font-bold">❯</span>
+
+    <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">
+       Detail Deployment
+    </span>
+
+</div>
 
     <!-- DETAIL CARD -->
     <div class="bg-white rounded-2xl shadow-sm border overflow-hidden" style="border-color:#fde8e8; box-shadow: 0 4px 20px rgba(227,43,43,0.06);">
@@ -51,7 +82,26 @@
                         <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-blue-50 to-white rounded-t-2xl">
                             <div>
                                 <h3 class="text-lg font-bold text-slate-800">Daftar Riwayat Proses Order</h3>
-                                <p class="text-xs text-slate-500 mt-0.5">{{ $data->nama_customer ?? '-' }} &mdash; {{ $data->star_click_id ?? '-' }}</p>
+                                <div class="flex items-center gap-2 mt-0.5">
+                                    <p class="text-xs text-slate-500">{{ $data->nama_customer ?? '-' }} &mdash; {{ $data->star_click_id ?? '-' }}</p>
+                                    @if($data->created_at)
+                                        @php
+                                            $isSelesai = in_array(strtolower(optional($data->planning)->status_order ?? ''), ['selesai', 'closed', 'cancel', 'drop', 'completed']);
+                                            $akhir = ($isSelesai && $data->tanggal_update_progres) ? \Carbon\Carbon::parse($data->tanggal_update_progres) : now();
+                                            $diffUsia = $data->created_at->diff($akhir);
+                                            $usiaArr = [];
+                                            if ($diffUsia->d > 0) $usiaArr[] = $diffUsia->d . ' hr';
+                                            if ($diffUsia->h > 0) $usiaArr[] = $diffUsia->h . ' jam';
+                                            if ($diffUsia->i > 0) $usiaArr[] = $diffUsia->i . ' mnt';
+                                            $strUsiaOrder = empty($usiaArr) ? 'Baru saja' : implode(' ', $usiaArr);
+                                        @endphp
+                                        <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                        <span class="inline-flex items-center gap-1 font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-100 text-[10px]">
+                                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                            Usia Order: {{ $strUsiaOrder }}
+                                        </span>
+                                    @endif
+                                </div>
                             </div>
                             <button @click="showRiwayat = false" class="p-2 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition">
                                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
@@ -73,6 +123,7 @@
                                         <th class="px-5 py-3 font-semibold text-left">Sebelum</th>
                                         <th class="px-5 py-3 font-semibold text-left">Setelah</th>
                                         <th class="px-5 py-3 font-semibold text-left">Durasi</th>
+                                        <th class="px-5 py-3 font-semibold text-left">Usia Order</th>
                                         <th class="px-5 py-3 font-semibold text-left">Keterangan</th>
                                     </tr>
                                 </thead>
@@ -132,6 +183,24 @@
                                                     @if($duration->d > 0) {{ $duration->d }} hari @endif
                                                     @if($duration->h > 0) {{ $duration->h }} jam @endif
                                                     {{ $duration->i }} menit
+                                                </span>
+                                            @else
+                                                <span class="text-xs text-slate-400 italic">—</span>
+                                            @endif
+                                        </td>
+
+                                        <!-- USIA ORDER -->
+                                        <td class="px-5 py-4 whitespace-nowrap align-middle">
+                                            @if($data->created_at)
+                                                @php
+                                                    $diffAg = $data->created_at->diff($log->created_at);
+                                                    $agArr = [];
+                                                    if ($diffAg->d > 0) $agArr[] = $diffAg->d . ' hari';
+                                                    if ($diffAg->h > 0) $agArr[] = $diffAg->h . ' jam';
+                                                    if ($diffAg->i > 0) $agArr[] = $diffAg->i . ' mnt';
+                                                @endphp
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-blue-50 text-blue-600 border border-blue-100">
+                                                    {{ empty($agArr) ? 'Baru saja' : implode(' ', $agArr) }}
                                                 </span>
                                             @else
                                                 <span class="text-xs text-slate-400 italic">—</span>
@@ -287,9 +356,10 @@
                         @foreach($timelineLogs as $stepIndex => $log)
                         @php
                             $logData = is_array($log->data) ? $log->data : [];
-                            // Extract evidence images for this step
-                            $evidences = collect($logData)->filter(function($v, $k) {
-                                return $v && str_contains($k, 'evidence') && !str_starts_with($k, 'link_');
+                            // Extract evidence images for this step — only show evidence relevant to THIS step
+                            $stepKey = strtolower(str_replace(' ', '_', $log->progres));
+                            $evidences = collect($logData)->filter(function($v, $k) use ($stepKey) {
+                                return $v && str_contains($k, 'evidence') && !str_starts_with($k, 'link_') && str_contains($k, $stepKey);
                             });
                             // Extract links
                             $links = collect($logData)->filter(function($v, $k) {
@@ -303,7 +373,7 @@
                         @endphp
                         <div class="relative flex gap-5 pb-8 {{ $isLast ? 'pb-0' : '' }}">
                             <!-- Step Circle -->
-                            <div class="relative z-10 shrink-0">
+                            <div class="relative z-0 shrink-0">
                                 <div class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shadow-sm
                                     {{ $isLast ? 'bg-gradient-to-br from-red-500 to-red-600 text-white ring-4 ring-red-100' : 'bg-white border-2 border-red-300 text-red-600' }}">
                                     {{ $stepIndex + 1 }}
@@ -356,10 +426,10 @@
                                             @foreach($evidences as $eKey => $ePath)
                                             <div class="group relative">
                                                 <img src="{{ asset('storage/' . $ePath) }}"
-                                                     class="h-28 w-auto rounded-lg border border-slate-200 shadow-sm cursor-zoom-in hover:shadow-md hover:border-red-200 transition-all duration-200"
-                                                     onclick="window.open(this.src)"
+                                                     class="h-14 w-auto rounded border border-slate-200 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] cursor-zoom-in group-hover:shadow-[0_4px_12px_-4px_rgba(227,43,43,0.3)] group-hover:border-red-200 transition-all duration-300"
+                                                     @click.prevent="imageUrl = '{{ asset('storage/' . $ePath) }}'; showImageModal = true"
                                                      title="{{ str_replace('_', ' ', $eKey) }}">
-                                                <div class="absolute bottom-1 left-1 px-1.5 py-0.5 bg-black/60 text-white text-[9px] rounded font-medium capitalize">
+                                                <div class="absolute bottom-1 left-1 opacity-0 group-hover:opacity-100 px-1.5 py-0.5 bg-black/70 text-white text-[9px] rounded font-medium capitalize transition-opacity pointer-events-none">
                                                     {{ str_replace(['evidence_', '_'], ['', ' '], $eKey) }}
                                                 </div>
                                             </div>
@@ -416,14 +486,20 @@
                 </h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @foreach($data->data as $key => $value)
-                        @if($value)
+                        @if($value && $key !== 'commitment_updated_by')
                             <div class="flex flex-col gap-2">
                                 <div class="text-sm font-medium text-slate-700 capitalize">{{ str_replace('_', ' ', $key) }}</div>
                                 @if(str_contains($key, 'evidence') && !str_starts_with($key, 'link_'))
                                     <div class="relative group w-fit">
                                         <img src="{{ asset('storage/' . $value) }}"
-                                             class="h-40 w-auto rounded-xl border border-slate-200 shadow-sm cursor-zoom-in hover:shadow-md transition"
-                                             onclick="window.open(this.src)">
+                                             class="h-20 w-auto rounded-lg border border-slate-200 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.1)] cursor-zoom-in group-hover:shadow-[0_4px_12px_-4px_rgba(227,43,43,0.3)] group-hover:border-red-200 transition-all duration-300"
+                                             @click.prevent="imageUrl = '{{ asset('storage/' . $value) }}'; showImageModal = true">
+                                             
+                                        <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg flex items-center justify-center pointer-events-none">
+                                            <svg class="w-6 h-6 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow-md" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                                            </svg>
+                                        </div>
                                     </div>
                                 @elseif(str_starts_with($key, 'link_') || str_starts_with($value, 'http'))
                                     <a href="{{ $value }}" target="_blank"

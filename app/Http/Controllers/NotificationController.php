@@ -27,6 +27,7 @@ class NotificationController extends Controller
         $overdueOrders = EbisManualInput::whereHas('planning', function($q) {
                 $q->whereNotIn('status_order', ['Success', 'Gagal', 'Cancel']);
             })
+            ->whereNotIn('progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])
             ->get()
             ->filter(function ($item) use ($today) {
                 // Determine if data has commitment_date

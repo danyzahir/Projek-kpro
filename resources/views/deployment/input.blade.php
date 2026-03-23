@@ -7,9 +7,9 @@
 
     {{-- BREADCRUMB --}}
     <div class="flex items-center gap-3 text-sm text-slate-500">
-        <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
-        <span>›</span>
-        <span class="font-semibold text-slate-800">Input Data</span>
+        <a href="{{ route('deployment.progress-overview') }}" class="font-bold text-slate-800 text-xs uppercase tracking-wider">Dashboard</a>
+        <span class="text-slate-300 font-bold">❯</span>
+        <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">input data</span>
     </div>
     
 

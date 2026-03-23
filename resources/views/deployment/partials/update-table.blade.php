@@ -5,7 +5,7 @@
                 <th class="px-6 py-4 font-semibold sticky left-0 bg-slate-50 z-10 border-r border-slate-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                     NDE JT
                 </th>
-                @foreach (['Starclick ID', 'Nama', 'Alamat', 'Telepon', 'Tikor', 'Datel', 'STO', 'Status Alokasi', 'Status Order', 'LoP ID', 'Tipe Desain', 'Total BOQ', 'Program', 'CFU', 'Status Proyek', 'Progres', 'Action'] as $head)
+                @foreach (['Starclick ID', 'Nama', 'Alamat', 'Telepon', 'Tikor', 'Datel', 'STO', 'Batch', 'Status Alokasi', 'Status Order', 'LoP ID', 'Tipe Desain', 'Total BOQ', 'Program', 'CFU', 'Status Proyek', 'Progres', 'Usia Order', 'Action'] as $head)
                     <th class="px-6 py-4 font-semibold whitespace-nowrap {{ $head === 'Action' ? 'text-center sticky right-0 bg-slate-50 z-10 border-l border-slate-100' : '' }}">
                         {{ $head }}
                     </th>
@@ -27,6 +27,7 @@
                 <td class="px-6 py-4 whitespace-nowrap font-mono text-xs">{{ $row->tikor_pelanggan ?? '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ $row->datel ?? '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ $row->sto ?? '-' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ $row->nomor_batch ?? '-' }}</td>
 
                 <!-- STATUS BADGES -->
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -58,6 +59,55 @@
                     <x-status-badge :value="$row->progres" />
                 </td>
 
+                <!-- USIA ORDER (Telat dari Komitmen) -->
+                 <td class="px-6 py-4 whitespace-nowrap">
+                    @php
+                        $commitmentDate = $row->data['commitment_date'] ?? null;
+                    @endphp
+                    
+                    @if($commitmentDate)
+                        @php
+                            $target = \Carbon\Carbon::parse($commitmentDate)->startOfDay();
+                            $isSelesai = in_array(strtoupper($row->progres ?? ''), ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON', 'SELESAI FISIK']);
+                            
+                            if ($isSelesai && $row->tanggal_update_progres) {
+                                // Sudah selesai: hitung selisih hari waktu selesai vs deadline
+                                $selesaiDate = \Carbon\Carbon::parse($row->tanggal_update_progres)->startOfDay();
+                                $diffHari = $selesaiDate->diffInDays($target, false); // false = return negative if target < selesaiDate
+                                
+                                if ($diffHari < 0) {
+                                    $statusText = 'Telat ' . abs($diffHari) . ' hr';
+                                    $bgClass = 'bg-red-50 text-red-600 border-red-200';
+                                } else {
+                                    $statusText = 'Tepat Waktu';
+                                    $bgClass = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                                }
+                            } else {
+                                // Belum selesai: hitung selisih hari ini vs deadline
+                                $today = now()->startOfDay();
+                                $diffHari = $today->diffInDays($target, false); // false = return negative if target < today
+                                
+                                if ($diffHari < 0) {
+                                    $statusText = 'Overdue ' . abs($diffHari) . ' hr';
+                                    $bgClass = 'bg-red-50 text-red-600 border-red-200 font-bold animate-pulse';
+                                } elseif ($diffHari <= 3) {
+                                    $statusText = 'Sisa ' . $diffHari . ' hr';
+                                    $bgClass = 'bg-amber-50 text-amber-600 border-amber-200';
+                                } else {
+                                    $statusText = 'Sisa ' . $diffHari . ' hr';
+                                    $bgClass = 'bg-emerald-50 text-emerald-600 border-emerald-200';
+                                }
+                            }
+                        @endphp
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium border {{ $bgClass }}">
+                            {{ $statusText }}
+                        </span>
+                        <div class="text-[9px] text-slate-400 mt-0.5">Tgt: {{ $target->format('d/m/y') }}</div>
+                    @else
+                        <span class="text-xs text-slate-400 italic">—</span>
+                    @endif
+                </td>
+
                 <!-- ACTION (Sticky Right) -->
                 <td class="px-4 py-3 text-center whitespace-nowrap sticky right-0 bg-white group-hover:bg-red-50 z-10 border-l border-slate-100">
                    <a href="{{ route('deployment.edit', $row->id) }}" 
@@ -73,7 +123,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="18" class="px-6 py-12 text-center">
+                <td colspan="19" class="px-6 py-12 text-center">
                     <div class="flex flex-col items-center justify-center">
                         <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                             <svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">

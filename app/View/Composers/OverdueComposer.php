@@ -24,32 +24,25 @@ class OverdueComposer
 
             $today = Carbon::now()->startOfDay();
 
+            $todayStr = Carbon::now()->startOfDay()->format('Y-m-d');
+
+            $userId = Auth::id();
+
             $overdueOrders = EbisManualInput::whereHas('planning', function($q) {
                 // Ensure we only count active orders (not already finished)
-                // Adjust status check based on how "Done" is defined in your system.
                 $q->whereNotIn('status_order', ['Success', 'Gagal', 'Cancel']);
             })
-            ->get()
-            ->filter(function ($item) use ($today) {
-                // Determine if data has commitment_date
-                if (!empty($item->data['commitment_date'])) {
-                    
-                    // Strict filtering: Only show if MATCHES auth()->id()
-                    if (isset($item->data['commitment_updated_by']) && $item->data['commitment_updated_by'] != Auth::id()) {
-                        return false;
-                    }
-
-                    try {
-                         // Parse the commitment date
-                        $commitmentDate = Carbon::parse($item->data['commitment_date'])->startOfDay();
-                        // If commitment date is in the past (lt = less than today), it's overdue
-                        return $commitmentDate->lt($today);
-                    } catch (\Exception $e) {
-                        return false;
-                    }
-                }
-                return false;
-            });
+            ->whereNotNull('data')
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_date')) IS NOT NULL")
+            ->whereRaw("STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_date')), '%Y-%m-%d') < ?", [$todayStr])
+            ->where(function($q) use ($userId) {
+                // Strict filtering: Only show if MATCHES auth()->id() or if it's null (not set yet)
+                $q->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_updated_by')) IS NULL")
+                  ->orWhereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_updated_by')) = ?", [$userId]);
+            })
+            // Tambahkan whereNotIn progres agar selaras dengan dashboard
+            ->whereNotIn('progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])
+            ->get();
 
             $overdueCount = $overdueOrders->count();
         }

@@ -7,10 +7,10 @@
 
         {{-- BREADCRUMB --}}
         <div class="flex items-center gap-3 text-sm text-slate-500">
-            <a href="{{ route('deployment.progress-overview') }}" class="hover:text-red-600 transition">Progress Overview</a>
-            <span>›</span>
-            <span class="font-semibold text-slate-800">Lihat Data</span>
-        </div>
+        <a href="{{ route('deployment.progress-overview') }}" class="font-bold text-slate-800 text-xs uppercase tracking-wider">Dashboard</a>
+        <span class="text-slate-300 font-bold">❯</span>
+        <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">lihat data</span>
+    </div>
         <!-- ================= button export================= -->
 
         <!-- ================= FILTER CARD ================= -->
@@ -192,6 +192,15 @@
                             @foreach ($filters['status_proyeks'] as $item)
                                 <option value="{{ $item }}"
                                     {{ request('status_proyek') == $item ? 'selected' : '' }}>{{ $item }}</option>
+                            @endforeach
+                        </select>
+
+                        <select name="nomor_batch"
+                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
+                            <option value="">Semua Batch</option>
+                            @foreach ($filters['nomor_batches'] as $item)
+                                <option value="{{ $item }}"
+                                    {{ request('nomor_batch') == $item ? 'selected' : '' }}>{{ $item }}</option>
                             @endforeach
                         </select>
 

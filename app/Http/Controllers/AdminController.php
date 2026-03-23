@@ -10,9 +10,21 @@ use Carbon\Carbon;
 
 use App\Models\EbisPlanningOrder;
 use App\Models\EbisPlanningProgressLog;
+use App\Services\TelegramService;
 
 class AdminController extends Controller
 {
+    public function sendDailyTelegramReport()
+    {
+        try {
+            (new TelegramService())->sendDailyReport();
+            return back()->with('success', 'Laporan harian berhasil dikirim ke Telegram! 🚀');
+        } catch (\Exception $e) {
+            \Log::error('Gagal kirim laporan harian Telegram via UI: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengirim laporan Telegram. Cek logs.');
+        }
+    }
+
     public function dashboard()
     {
         // --- 1. STATS CARDS ---
@@ -565,16 +577,24 @@ class AdminController extends Controller
     public function progressOverview(Request $request)
     {
         // --- Filter parameters ---
-        $filterSto   = $request->get('sto');
-        $filterDatel = $request->get('datel');
-        $filterMitra = $request->get('mitra');
+        $filterStoArr   = array_filter((array) $request->get('sto', []));
+        $filterDatelArr = array_filter((array) $request->get('datel', []));
+        $filterMitraArr = array_filter((array) $request->get('mitra', []));
+
+        $progA = $request->get('prog_a');
+        $progB = $request->get('prog_b');
+
+        // Keep backward-compat single values for old links
+        $filterSto   = count($filterStoArr) === 1 ? $filterStoArr[0] : null;
+        $filterDatel = count($filterDatelArr) === 1 ? $filterDatelArr[0] : null;
+        $filterMitra = count($filterMitraArr) === 1 ? $filterMitraArr[0] : null;
 
         // Helper: build base query with optional filters
-        $baseQuery = function () use ($filterSto, $filterDatel, $filterMitra) {
+        $baseQuery = function () use ($filterStoArr, $filterDatelArr, $filterMitraArr) {
             $q = EbisManualInput::query();
-            if ($filterSto)   $q->where('sto', $filterSto);
-            if ($filterDatel) $q->where('datel', $filterDatel);
-            if ($filterMitra) $q->where('nama_mitra', $filterMitra);
+            if (!empty($filterStoArr))   $q->whereIn('ebis_manual_inputs.sto', $filterStoArr);
+            if (!empty($filterDatelArr)) $q->whereIn('ebis_manual_inputs.datel', $filterDatelArr);
+            if (!empty($filterMitraArr)) $q->whereIn('ebis_manual_inputs.nama_mitra', $filterMitraArr);
             return $q;
         };
 
@@ -590,36 +610,74 @@ class AdminController extends Controller
             'PS', 'KENDALA', 'UJI TERIMA', 'REKON',
         ];
 
-        // Count deployments per progress stage (filtered)
-        $progressCounts = $baseQuery()
-            ->select('progres', DB::raw('count(*) as total'))
-            ->whereNotNull('progres')
-            ->where('progres', '!=', '')
-            ->groupBy('progres')
-            ->pluck('total', 'progres');
+        // Count deployments per Datel for stacked calculation (filtered)
+        $datels = $baseQuery()
+            ->whereNotNull('datel')
+            ->where('datel', '!=', '')
+            ->distinct()
+            ->pluck('datel')
+            ->map(fn($d) => strtoupper($d))
+            ->toArray();
 
-        $labels = [];
-        $values = [];
+        // Get total per Datel and per Progress Stage
+        $rawStackedCounts = $baseQuery()
+            ->select('datel', 'progres', DB::raw('count(*) as total'))
+            ->whereNotNull('datel')->where('datel', '!=', '')
+            ->whereNotNull('progres')->where('progres', '!=', '')
+            ->groupBy('datel', 'progres')
+            ->get();
+
+        // Prepare labels (Datels) and datasets (Progress Stages)
+        $datelLabels = array_values(array_unique($datels));
+        $stackedData = [];
+        
         foreach ($stages as $stage) {
-            $labels[] = $stage;
-            $values[] = $progressCounts[$stage] ?? 0;
+            $stackedData[$stage] = [];
+            foreach ($datelLabels as $datel) {
+                // Find count for this specific datel and stage
+                $match = $rawStackedCounts->first(function ($item) use ($datel, $stage) {
+                    return strtoupper($item->datel) === $datel && strtoupper($item->progres) === $stage;
+                });
+                $stackedData[$stage][] = $match ? $match->total : 0;
+            }
         }
 
         // Summary stats (filtered)
-        $totalAll       = $baseQuery()->count();
-        $totalKendala   = $progressCounts['KENDALA'] ?? 0;
-        $totalSelesai   = ($progressCounts['GOLIVE'] ?? 0) + ($progressCounts['PS'] ?? 0)
-                        + ($progressCounts['UJI TERIMA'] ?? 0) + ($progressCounts['REKON'] ?? 0)
-                        + ($progressCounts['SELESAI FISIK'] ?? 0);
-        $totalOnTrack   = $totalAll - $totalKendala;
+        $totalAll       = (clone $baseQuery())->count();
+        $totalSelesai   = (clone $baseQuery())->whereNotNull('progres')->whereIn('progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])->count();
+        
+        $todayStr = now()->startOfDay()->format('Y-m-d');
+        $overdueQuery = (clone $baseQuery())
+            ->whereHas('planning', function($q) {
+                $q->whereNotIn('status_order', ['Success', 'Gagal', 'Cancel']);
+            })
+            ->whereNotIn('ebis_manual_inputs.progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])
+            ->whereNotNull('data')
+            ->whereRaw("JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_date')) IS NOT NULL")
+            ->whereRaw("STR_TO_DATE(JSON_UNQUOTE(JSON_EXTRACT(data, '$.commitment_date')), '%Y-%m-%d') < ?", [$todayStr]);
 
-        // Top progress status (stage with most deployments)
+        $totalOverdue = $overdueQuery->count();
+            
+        // ON TRACK = Seluruh deployment dikurangi deployment yang secara global Overdue
+        $totalOnTrack   = $totalAll - $totalOverdue;
+        if ($totalOnTrack < 0) $totalOnTrack = 0;
+
+        // Top datel (stage with most deployments)
         $topProgress = null;
         $topProgressCount = 0;
-        foreach ($progressCounts as $stage => $count) {
+        
+        // Calculate total per datel to find the top one
+        $datelTotals = [];
+        foreach ($rawStackedCounts as $item) {
+            $datel = strtoupper($item->datel);
+            if (!isset($datelTotals[$datel])) $datelTotals[$datel] = 0;
+            $datelTotals[$datel] += $item->total;
+        }
+
+        foreach ($datelTotals as $datel => $count) {
             if ($count > $topProgressCount) {
                 $topProgressCount = $count;
-                $topProgress = $stage;
+                $topProgress = strtoupper($datel);
             }
         }
 
@@ -631,11 +689,132 @@ class AdminController extends Controller
             ->take(10)
             ->get(['star_click_id', 'nama_customer', 'progres', 'datel', 'sto', 'updated_at']);
 
+        // Group iHLD Status Order by Datel and Status Order
+        $ihldQuery = clone $baseQuery();
+        $rawIhldCounts = $ihldQuery->select('ebis_manual_inputs.datel', 'ebis_planning_orders.status_order', DB::raw('count(*) as total'))
+            ->join('ebis_planning_orders', 'ebis_manual_inputs.star_click_id', '=', 'ebis_planning_orders.star_click_id')
+            ->whereNotNull('ebis_manual_inputs.datel')->where('ebis_manual_inputs.datel', '!=', '')
+            ->whereNotNull('ebis_planning_orders.status_order')
+            ->groupBy('ebis_manual_inputs.datel', 'ebis_planning_orders.status_order')
+            ->get();
+
+        $ihldStatuses = $rawIhldCounts->pluck('status_order')->unique()->values()->toArray();
+        $ihldStackedData = [];
+
+        foreach ($ihldStatuses as $status) {
+            $ihldStackedData[$status] = [];
+            foreach ($datelLabels as $datel) {
+                $match = $rawIhldCounts->first(function ($item) use ($datel, $status) {
+                    return strtoupper($item->datel) === $datel && $item->status_order === $status;
+                });
+                $ihldStackedData[$status][] = $match ? $match->total : 0;
+            }
+        }
+
+        $avgDurationAB = null;
+        if ($progA && $progB) {
+            $starClickIds = (clone $baseQuery())->pluck('ebis_manual_inputs.star_click_id');
+            if ($starClickIds->isNotEmpty()) {
+                $avgQuery = DB::table('ebis_planning_progress_logs as log_a')
+                    ->join('ebis_planning_progress_logs as log_b', 'log_a.ebis_planning_order_id', '=', 'log_b.ebis_planning_order_id')
+                    ->join('ebis_planning_orders as p', 'log_a.ebis_planning_order_id', '=', 'p.id')
+                    ->whereIn('p.star_click_id', $starClickIds)
+                    ->where('log_a.progres', $progA)
+                    ->where('log_b.progres', $progB)
+                    ->whereRaw('log_b.created_at >= log_a.created_at')
+                    ->selectRaw('AVG(TIMESTAMPDIFF(MINUTE, log_a.created_at, log_b.created_at)) as avg_minutes')
+                    ->first();
+                    
+                if ($avgQuery && $avgQuery->avg_minutes !== null) {
+                    $totalMinutesAB = abs($avgQuery->avg_minutes);
+                    $daysAB = floor($totalMinutesAB / 1440);
+                    $hoursAB = floor(($totalMinutesAB % 1440) / 60);
+                    
+                    $avgDurationAB = "{$daysAB} Hari";
+                    if ($hoursAB > 0) $avgDurationAB .= " {$hoursAB} Jam";
+                }
+            }
+        }
+
+        $finishedOrders = (clone $baseQuery())
+            ->whereIn('ebis_manual_inputs.progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])
+            ->whereNotNull('ebis_manual_inputs.nama_mitra')
+            ->where('ebis_manual_inputs.nama_mitra', '!=', '')
+            ->with(['planning' => function($q) {
+                $q->with(['logs' => function($q2) {
+                    $q2->whereIn('progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])
+                       ->orderBy('created_at', 'asc');
+                }]);
+            }])
+            ->get(['ebis_manual_inputs.star_click_id', 'ebis_manual_inputs.nama_mitra', 'ebis_manual_inputs.created_at', 'ebis_manual_inputs.tanggal_update_progres']);
+
+        $mitraStats = [];
+        foreach ($finishedOrders as $order) {
+            $firstLog = $order->planning?->logs->first();
+            $finishTime = null;
+
+            if ($firstLog) {
+                $finishTime = $firstLog->created_at;
+            } elseif ($order->tanggal_update_progres) {
+                $finishTime = \Carbon\Carbon::parse($order->tanggal_update_progres);
+            }
+
+            if ($finishTime && $order->created_at) {
+                $minutes = abs($order->created_at->diffInMinutes($finishTime, false));
+                $mitra = $order->nama_mitra;
+                if (!isset($mitraStats[$mitra])) {
+                    $mitraStats[$mitra] = ['total_minutes' => 0, 'count' => 0];
+                }
+                $mitraStats[$mitra]['total_minutes'] += $minutes;
+                $mitraStats[$mitra]['count']++;
+            }
+        }
+
+        $mitraAvgArray = [];
+        foreach ($mitraStats as $mitra => $stat) {
+            if ($stat['count'] > 0) {
+                $avgMinutes = $stat['total_minutes'] / $stat['count'];
+                $avgDaysRaw = $avgMinutes / 1440;
+                
+                $days = floor($avgMinutes / 1440);
+                $hours = floor(($avgMinutes % 1440) / 60);
+                
+                $labelStr = "{$days} Hari";
+                if ($hours > 0) $labelStr .= " {$hours} Jam";
+
+                $mitraAvgArray[] = [
+                    'mitra' => $mitra,
+                    'avg_raw' => round($avgDaysRaw, 2),
+                    'avg_label' => $labelStr
+                ];
+            }
+        }
+
+        usort($mitraAvgArray, function($a, $b) {
+            return $b['avg_raw'] <=> $a['avg_raw'];
+        });
+
+        $mitraAvgLabels = [];
+        $mitraAvgValues = [];
+        $mitraAvgTextLabels = [];
+
+        foreach ($mitraAvgArray as $item) {
+            $mitraAvgLabels[] = $item['mitra'];
+            $mitraAvgValues[] = $item['avg_raw'];
+            $mitraAvgTextLabels[] = $item['avg_label'];
+        }
+
+        // Check if any filter is active
+        $hasFilter = !empty($filterStoArr) || !empty($filterDatelArr) || !empty($filterMitraArr) || ($progA && $progB);
+
         return view('deployment.progress-overview', compact(
-            'labels', 'values', 'totalAll', 'totalKendala', 'totalSelesai', 'totalOnTrack',
+            'datelLabels', 'stackedData', 'totalAll', 'totalOverdue', 'totalSelesai', 'totalOnTrack',
             'recentUpdates', 'stoList', 'datelList', 'mitraList',
             'filterSto', 'filterDatel', 'filterMitra',
-            'topProgress', 'topProgressCount'
+            'filterStoArr', 'filterDatelArr', 'filterMitraArr', 'hasFilter',
+            'topProgress', 'topProgressCount',
+            'ihldStatuses', 'ihldStackedData',
+            'progA', 'progB', 'avgDurationAB', 'mitraAvgLabels', 'mitraAvgValues', 'mitraAvgTextLabels', 'mitraAvgArray', 'stages'
         ));
     }
 
@@ -644,6 +823,6 @@ class AdminController extends Controller
         if (stripos($status, 'Success') !== false) return 'bg-green-100 text-green-800';
         if (stripos($status, 'Pending') !== false || stripos($status, 'Wait') !== false) return 'bg-yellow-100 text-yellow-800';
         if (stripos($status, 'Kendala') !== false || stripos($status, 'Gagal') !== false) return 'bg-red-100 text-red-800';
-        return 'bg-blue-100 text-blue-800'; // Default / Progress
+        return 'bg-blue-100 text-blue-800'; 
     }
 }

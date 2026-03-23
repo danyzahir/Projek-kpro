@@ -5,11 +5,11 @@
 @section('content')
 <div class="max-w-7xl mx-auto space-y-8">
 
-     <div class="flex items-center gap-3 text-sm text-slate-500">
-            <a href="{{ route('admin.dashboard') }}" class="hover:text-red-600 transition">Dashboard</a>
-            <span>›</span>
-            <span class="font-semibold text-slate-800">Master Input</span>
-        </div>
+       <div class="flex items-center gap-3 text-sm text-slate-500">
+        <a href="{{ route('admin.dashboard') }}" class="font-bold text-slate-800 text-xs uppercase tracking-wider">Dashboard</a>
+        <span class="text-slate-300 font-bold">❯</span>
+        <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">master input</span>
+    </div>
 
     <!-- ================= MASTER DATA SECTIONS ================= -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">

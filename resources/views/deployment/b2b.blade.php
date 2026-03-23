@@ -111,7 +111,35 @@
             </div>
         </a>
 
+        <!-- ================= PROGRESS OVERVIEW ================= -->
+        @if(in_array(auth()->user()->role, ['admin', 'optima']))
+        <a href="{{ route('deployment.progress-overview') }}"
+           class="group relative overflow-hidden rounded-3xl p-8 h-64
+                  bg-white border border-slate-200
+                  hover:border-red-200 hover:shadow-xl hover:-translate-y-1
+                  transition-all duration-300 flex flex-col justify-between">
+            
+            <div class="absolute -right-4 -top-4 w-24 h-24 rounded-full blur-xl transition" style="background:#fef2f2;"></div>
+
+            <div class="w-14 h-14 flex items-center justify-center
+                        rounded-2xl group-hover:scale-110 transition z-10" style="background:#fef2f2; color:#e32b2b;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+            </div>
+
+            <div class="z-10">
+                <h3 class="text-xl font-bold text-slate-800 group-hover:text-red-600 transition">Progress Overview</h3>
+                <p class="text-slate-500 mt-1 text-sm">
+                    Monitoring grafik dan statistik deployment
+                </p>
+            </div>
+        </a>
+        @endif
+
     </div>
 
 </div>
 @endsection
+
+

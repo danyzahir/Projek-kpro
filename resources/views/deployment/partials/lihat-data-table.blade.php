@@ -5,7 +5,7 @@
                 <th class="px-6 py-4 font-semibold sticky left-0 bg-slate-50 z-10 border-r border-slate-100 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                     NDE JT
                 </th>
-                @foreach (['Starclick ID', 'Nama', 'Nama Mitra', 'Alamat', 'Telepon', 'Tikor', 'Datel', 'STO', 'Status Alokasi', 'Status Order', 'LoP ID', 'Tipe Desain', 'Total BOQ', 'Jenis Program', 'Nama CFU', 'Status Proyek', 'Progres', 'Action'] as $head)
+                @foreach (['Starclick ID', 'Nama', 'Nama Mitra', 'Alamat', 'Telepon', 'Tikor', 'Datel', 'STO', 'Batch', 'Status Alokasi', 'Status Order', 'LoP ID', 'Tipe Desain', 'Total BOQ', 'Jenis Program', 'Nama CFU', 'Status Proyek', 'Progres', 'Usia Order', 'Action'] as $head)
                     <th class="px-6 py-4 font-semibold whitespace-nowrap {{ $head === 'Action' ? 'text-center sticky right-0 bg-slate-50 z-10 border-l border-slate-100' : '' }}">
                         {{ $head }}
                     </th>
@@ -28,6 +28,7 @@
                 <td class="px-6 py-4 whitespace-nowrap font-mono text-xs">{{ $row->tikor_pelanggan ?? '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ $row->datel ?? '-' }}</td>
                 <td class="px-6 py-4 whitespace-nowrap">{{ $row->sto ?? '-' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">{{ $row->nomor_batch ?? '-' }}</td>
 
                 <!-- STATUS BADGES -->
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -59,6 +60,27 @@
                     <x-status-badge :value="$row->progres" />
                 </td>
 
+                <!-- USIA ORDER -->
+                <td class="px-6 py-4 whitespace-nowrap">
+                    @if($row->created_at)
+                        @php
+                            $isSelesai = in_array(strtolower(optional($row->planning)->status_order ?? ''), ['selesai', 'closed', 'cancel', 'drop', 'completed']);
+                            $akhir = ($isSelesai && $row->tanggal_update_progres) ? \Carbon\Carbon::parse($row->tanggal_update_progres) : now();
+                            $diffUsia = $row->created_at->diff($akhir);
+                            $usiaArr = [];
+                            if ($diffUsia->d > 0) $usiaArr[] = $diffUsia->d . ' hr';
+                            if ($diffUsia->h > 0) $usiaArr[] = $diffUsia->h . ' jam';
+                            if ($diffUsia->i > 0) $usiaArr[] = $diffUsia->i . ' mnt';
+                            $strUsiaOrder = empty($usiaArr) ? 'Baru saja' : implode(' ', $usiaArr);
+                        @endphp
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-medium bg-blue-50 text-blue-600 border border-blue-100">
+                            {{ $strUsiaOrder }}
+                        </span>
+                    @else
+                        <span class="text-xs text-slate-400 italic">—</span>
+                    @endif
+                </td>
+
                 <!-- ACTION (Sticky Right) -->
                 <td class="px-4 py-3 text-center whitespace-nowrap sticky right-0 bg-white group-hover:bg-red-50 z-10 border-l border-slate-100">
                     <a href="{{ route('deployment.lihat-data.detail', $row->id) }}"
@@ -75,7 +97,7 @@
             </tr>
             @empty
             <tr>
-                <td colspan="19" class="px-6 py-12 text-center">
+                <td colspan="20" class="px-6 py-12 text-center">
                     <div class="flex flex-col items-center justify-center">
                         <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
                             <svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">

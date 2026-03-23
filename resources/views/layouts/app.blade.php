@@ -7,7 +7,7 @@
     <title>@yield('title', 'Dashboard') — Monitoring Proyek</title>
 
     <meta name="turbo-cache-control" content="no-cache">
-    
+
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
@@ -18,7 +18,7 @@
 </head>
 
 <body class="bg-slate-100 text-slate-800 antialiased">
-    
+
     <div x-data="{
         sidebarOpen: true, // Desktop sidebar state
         userMenu: false,
@@ -55,29 +55,30 @@
             </div>
 
             <!-- MENU LABEL (Admin Only) -->
-            @if(auth()->user()->role === 'admin')
-            <div class="px-5 pt-5 pb-2" x-show="sidebarOpen" x-transition.opacity>
-                <span class="text-[10px] font-semibold uppercase tracking-widest text-slate-500"></span>
-            </div>
+            @if (auth()->user()->role === 'admin')
+                <div class="px-5 pt-5 pb-2" x-show="sidebarOpen" x-transition.opacity>
+                    <span class="text-[10px] font-semibold uppercase tracking-widest text-slate-500"></span>
+                </div>
             @endif
 
             <!-- MENU ITEMS -->
             <nav class="flex-1 px-3 space-y-1 text-sm overflow-y-auto overflow-x-hidden pt-4 lg:pt-0">
 
-                @if(auth()->user()->role === 'admin')
-                {{-- ADMIN DASHBOARD --}}
-                <a href="{{ route('admin.dashboard') }}"
-                    class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+                @if (auth()->user()->role === 'admin')
+                    {{-- ADMIN DASHBOARD --}}
+                    <a href="{{ route('admin.dashboard') }}"
+                        class="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
                     {{ request()->routeIs('admin.dashboard')
                         ? 'bg-red-600/20 text-red-400 border-l-[3px] border-red-500'
                         : 'text-slate-300 hover:bg-slate-700/50 hover:text-white border-l-[3px] border-transparent' }}"
-                    :class="!sidebarOpen ? 'justify-center px-0 !border-l-0' : ''">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
-                    </svg>
-                    <span x-show="sidebarOpen" x-transition.opacity class="whitespace-nowrap">Dashboard</span>
-                </a>
+                        :class="!sidebarOpen ? 'justify-center px-0 !border-l-0' : ''">
+                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M3 12l9-9 9 9M4.5 10.5V21h15V10.5" />
+                        </svg>
+                        <span x-show="sidebarOpen" x-transition.opacity class="whitespace-nowrap">Dashboard</span>
+                    </a>
                 @endif
 
                 @if (auth()->user()->role === 'admin')
@@ -128,10 +129,10 @@
                             {{ request()->routeIs('deployment.*') && !request()->routeIs('deployment.olo')
                                 ? 'bg-red-600/20 text-red-400 border-l-[3px] border-red-500'
                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white border-l-[3px] border-transparent' }}"
-                                                :class="sidebarOpen
-                                                    ?
-                                                    'justify-between px-3' :
-                                                    'justify-center px-0 border-l-0'">
+                        :class="sidebarOpen
+                            ?
+                            'justify-between px-3' :
+                            'justify-center px-0 border-l-0'">
 
                         <!-- ICON -->
                         <div class="flex items-center" :class="sidebarOpen ? 'gap-3' : 'gap-0'">
@@ -181,8 +182,9 @@
                         <a href="{{ route('deployment.update') }}"
                             class="flex items-center justify-between px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('deployment.update') ? $a : $n }}">
                             <span>Update Data</span>
-                            @if(auth()->user()->role === 'optima' && isset($overdueCount) && $overdueCount > 0)
-                                <span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-red-500 rounded-full animate-pulse">
+                            @if (auth()->user()->role === 'optima' && isset($overdueCount) && $overdueCount > 0)
+                                <span
+                                    class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-bold text-white bg-red-500 rounded-full animate-pulse">
                                     {{ $overdueCount }}
                                 </span>
                             @endif
@@ -193,12 +195,10 @@
                             Lihat Data
                         </a>
 
-                        @if(auth()->user()->role !== 'admin')
                         <a href="{{ route('deployment.progress-overview') }}"
                             class="block px-3 py-2 rounded-lg text-sm transition {{ request()->routeIs('deployment.progress-overview') ? $a : $n }}">
                             Progress Overview
                         </a>
-                        @endif
                     </div>
                 </div>
 
@@ -218,10 +218,10 @@
                             {{ request()->routeIs('deployment.olo')
                                 ? 'bg-red-600/20 text-red-400 border-l-[3px] border-red-500'
                                 : 'text-slate-300 hover:bg-slate-700/50 hover:text-white border-l-[3px] border-transparent' }}"
-                                                :class="sidebarOpen
-                                                    ?
-                                                    'justify-between px-3' :
-                                                    'justify-center px-0 border-l-0'">
+                        :class="sidebarOpen
+                            ?
+                            'justify-between px-3' :
+                            'justify-center px-0 border-l-0'">
 
                         <!-- ICON -->
                         <div class="flex items-center" :class="sidebarOpen ? 'gap-3' : 'gap-0'">
@@ -251,7 +251,8 @@
                         x-transition:enter-start="opacity-0 -translate-y-1"
                         x-transition:enter-end="opacity-100 translate-y-0"
                         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100"
-                        x-transition:leave-end="opacity-0" class="ml-5 mt-1 pl-4 space-y-0.5 border-l border-slate-700">
+                        x-transition:leave-end="opacity-0"
+                        class="ml-5 mt-1 pl-4 space-y-0.5 border-l border-slate-700">
 
                         @php
                             $oloA = 'bg-red-600/10 text-red-400 font-medium';
@@ -276,12 +277,17 @@
                bg-white border-b border-slate-200
                flex items-center justify-between px-6 transition-all duration-300"
             :style="sidebarOpen ? 'left:260px' : 'left:72px'">
-            
+
             {{-- Mobile: Left 0 override handled by specific class if needed, but since sidebar is hidden on mobile, left:0 is fine --}}
             <style>
                 @media (max-width: 1024px) {
-                    #top-navbar { left: 0 !important; }
-                    #main-content { margin-left: 0 !important; }
+                    #top-navbar {
+                        left: 0 !important;
+                    }
+
+                    #main-content {
+                        margin-left: 0 !important;
+                    }
                 }
             </style>
 
@@ -294,16 +300,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
-                
+
                 {{-- Project Title: Visible Everywhere --}}
                 <div class="flex items-center gap-2">
                     {{-- Mobile Logo --}}
                     <div class="lg:hidden w-8 h-8 rounded-lg bg-red-600 flex items-center justify-center shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-white" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                     </div>
-                    <h2 class="text-sm font-semibold text-slate-700">@yield('title', 'Dashboard')</h2>
+
                 </div>
             </div>
 
@@ -311,17 +318,21 @@
             <div class="flex items-center gap-3">
 
                 {{-- Notification Bell --}}
-                @if(auth()->user()->role !== 'admin')
-                <a href="{{ route('notifications.index') }}" class="relative p-2 rounded-lg hover:bg-slate-100 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
-                    </svg>
-                    @if(isset($overdueCount) && $overdueCount > 0)
-                    <span class="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
-                        {{ $overdueCount }}
-                    </span>
-                    @endif
-                </a>
+                @if (auth()->user()->role !== 'admin')
+                    <a href="{{ route('notifications.index') }}"
+                        class="relative p-2 rounded-lg hover:bg-slate-100 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-500" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                        </svg>
+                        @if (isset($overdueCount) && $overdueCount > 0)
+                            <span
+                                class="absolute -top-0.5 -right-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold text-white bg-red-500 rounded-full">
+                                {{ $overdueCount }}
+                            </span>
+                        @endif
+                    </a>
                 @endif
 
                 {{-- Role Badge --}}
@@ -417,7 +428,7 @@
                 @include('components.flash-error')
             </div>
         </main>
-        
+
         {{-- MOBILE NAVIGATION --}}
         @include('layouts.mobile-nav')
 

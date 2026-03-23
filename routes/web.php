@@ -143,6 +143,7 @@ Route::post('/logout', function () {
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::post('/admin/telegram/daily-report', [AdminController::class, 'sendDailyTelegramReport'])->name('admin.telegram.daily-report');
 });
 
 Route::middleware(['auth', 'role:admin'])->group(function () {

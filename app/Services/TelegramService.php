@@ -25,8 +25,15 @@ class TelegramService
             return false;
         }
 
-        // Tembak secara asinkron agar tidak membebani request (menggunakan antrian)
+        // 1. Simpan pesan ke antrian Database agar UI web bisa langsung selesai (Loading 0ms)
         dispatch(new \App\Jobs\SendTelegramNotification($text, $chatId ?? $this->chatId));
+
+        // 2. Trik Sulap: Paksa sistem operasi Windows untuk diam-diam membuka "Pekerja Kirim"
+        // secara gaib di belakang layar yang tugasnya mengirim 1 antrian telegram lalu mati sendiri.
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
+            $artisan = base_path('artisan');
+            pclose(popen("start /B php \"$artisan\" queue:work --once > NUL 2>&1", "r"));
+        }
 
         return true;
     }

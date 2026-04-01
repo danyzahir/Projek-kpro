@@ -3,7 +3,7 @@
 @section('title', 'Detail Deployment')
 
 @section('content')
-<div class="flex flex-col gap-6 max-w-4xl mx-auto" x-data="{ showImageModal: false, imageUrl: '' }">
+<div class="flex flex-col gap-6" x-data="{ showImageModal: false, imageUrl: '' }">
 
     <!-- ========== IMAGE LIGHTBOX MODAL ========== -->
     <template x-teleport="body">

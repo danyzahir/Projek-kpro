@@ -67,12 +67,14 @@ class EbisManualInputController extends Controller
 
         $order = EbisManualInput::create($validated);
 
-        // Kirim notifikasi Telegram
-        try {
-            (new TelegramService())->notifyNewOrder($order);
-        } catch (\Exception $e) {
-            \Log::error('Telegram notif gagal (new order)', ['error' => $e->getMessage()]);
-        }
+        // Kirim notifikasi Telegram secara asinkron (dilatarbelakangi) agar input terasa instan
+        defer(function () use ($order) {
+            try {
+                (new TelegramService())->notifyNewOrder($order);
+            } catch (\Exception $e) {
+                \Log::error('Telegram notif gagal (new order)', ['error' => $e->getMessage()]);
+            }
+        });
 
         return redirect()->back()->with('success', 'Data berhasil disimpan');
     }
@@ -428,13 +430,15 @@ class EbisManualInputController extends Controller
             'data' => $data,
         ]);
 
-        // Kirim notifikasi Telegram
-        try {
-            $manual->refresh();
-            (new TelegramService())->notifyProgressUpdate($manual, $request->progres, $request->keterangan);
-        } catch (\Exception $e) {
-            \Log::error('Telegram notif gagal (update progress)', ['error' => $e->getMessage()]);
-        }
+        // Kirim notifikasi Telegram secara asinkron (dilatarbelakangi) agar update terasa instan
+        defer(function () use ($manual, $request) {
+            try {
+                $manual->refresh();
+                (new TelegramService())->notifyProgressUpdate($manual, $request->progres, $request->keterangan);
+            } catch (\Exception $e) {
+                \Log::error('Telegram notif gagal (update progress)', ['error' => $e->getMessage()]);
+            }
+        });
 
         return redirect()->route('deployment.update')->with('success', 'Progress deployment berhasil diperbarui');
     }

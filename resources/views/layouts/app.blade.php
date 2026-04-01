@@ -6,7 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard') — Monitoring Proyek</title>
 
-    <meta name="turbo-cache-control" content="no-cache">
+    <!-- Aktifkan prefetch otomatis saat kursor ditaruh di atas link (halaman didownload duluan sebelum diklik) agar 0 detik -->
+    <meta name="turbo-prefetch" content="true">
+
 
     <!-- Scripts & Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])

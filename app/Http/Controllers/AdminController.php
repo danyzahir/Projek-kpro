@@ -18,7 +18,7 @@ class AdminController extends Controller
     {
         try {
             (new TelegramService())->sendDailyReport();
-            return back()->with('success', 'Laporan harian berhasil dikirim ke Telegram! 🚀');
+            return back()->with('success', 'Laporan harian berhasil dikirim ke Telegram!');
         } catch (\Exception $e) {
             \Log::error('Gagal kirim laporan harian Telegram via UI: ' . $e->getMessage());
             return back()->with('error', 'Gagal mengirim laporan Telegram. Cek logs.');
@@ -191,6 +191,7 @@ class AdminController extends Controller
             ->whereHas('planning', function ($q) {
                 $q->whereNotIn('status_order', ['Success', 'Gagal', 'Cancel']);
             })
+            ->whereNotIn('progres', ['GOLIVE', 'PS', 'UJI TERIMA', 'REKON'])
             ->get()
             ->filter(function ($item) use ($today) {
                 if (!empty($item->data['commitment_date'])) {
@@ -518,7 +519,21 @@ class AdminController extends Controller
                 ];
             });
 
-        return response()->json($logs);
+        $waitingUsers = User::where('role', 'waiting')->get()->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'initial' => strtoupper(substr($user->name, 0, 1)),
+                'requested_role' => $user->requested_role ? ucfirst($user->requested_role) : null,
+                'time_ago' => $user->created_at->diffForHumans(),
+                'route' => route('admin.users')
+            ];
+        });
+
+        return response()->json([
+            'activities' => $logs,
+            'waiting' => $waitingUsers
+        ]);
     }
 
     public function getTrendData(Request $request)

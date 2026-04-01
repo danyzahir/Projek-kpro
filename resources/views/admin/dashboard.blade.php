@@ -3,7 +3,7 @@
 @section('title', 'Admin Dashboard')
 
 @section('content')
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10 min-h-screen">
+    <div class="flex flex-col gap-6">
         {{-- BREADCRUMB & ACTIONS --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4" x-data="{ showTeleModal: false }">
             <div class="flex items-center gap-3 text-sm text-slate-500">
@@ -15,14 +15,16 @@
 
             <div class="flex items-center gap-3">
                 <button @click="showTeleModal = true"
-                    class="group flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all duration-300 border border-indigo-100 hover:border-indigo-200 hover:shadow-md active:scale-95"
-                    style="background: rgba(79, 70, 229, 0.05); color: #4f46e5;">
-                    <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                    class="group relative overflow-hidden flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-white transition-all duration-300 shadow-xl shadow-red-200 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-red-300 active:scale-95"
+                    style="background: linear-gradient(135deg, #e32b2b 0%, #ba1c1c 100%);">
+                    <!-- Efek kilau saat disentuh -->
+                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    <svg class="w-4 h-4 relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                             d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                     </svg>
-                    Laporan Telegram
+                    <span class="relative z-10">Kirim Laporan</span>
                 </button>
             </div>
 
@@ -45,7 +47,7 @@
 
                         <div class="p-8 text-center">
                             <div
-                                class="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-indigo-600 shadow-inner">
+                                class="w-20 h-20 bg-red-50 rounded-3xl flex items-center justify-center mx-auto mb-6 text-red-600 shadow-inner">
                                 <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
@@ -60,8 +62,8 @@
                                 <form action="{{ route('admin.telegram.daily-report') }}" method="POST">
                                     @csrf
                                     <button type="submit"
-                                        class="w-full py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-indigo-200 transition active:scale-95"
-                                        style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);">
+                                        class="w-full py-3.5 rounded-2xl text-sm font-bold text-white shadow-xl shadow-red-200 transition active:scale-95"
+                                        style="background: linear-gradient(135deg, #e32b2b 0%, #991b1b 100%);">
                                         Ya, Kirim Sekarang
                                     </button>
                                 </form>
@@ -399,13 +401,13 @@
 
                     <div class="relative z-10 flex items-center justify-between mb-6">
                         <h3 class="text-lg font-extrabold tracking-tight">Pending Approval</h3>
-                        <span class="text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest"
+                        <span id="waitingApprovalBadge" class="text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest"
                             style="background:rgba(255,255,255,0.2);">
                             Action Required
                         </span>
                     </div>
 
-                    <div class="relative z-10 space-y-4 max-h-[220px] overflow-y-auto no-scrollbar">
+                    <div id="waitingUsersContainer" class="relative z-10 space-y-4 max-h-[220px] overflow-y-auto no-scrollbar">
                         @forelse($waitingUsers as $user)
                             <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-white/20 transition-colors border"
                                 style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.1);">
@@ -513,6 +515,59 @@
         `).join('');
         }
 
+        function renderWaitingUsers(users) {
+            const container = document.getElementById('waitingUsersContainer');
+            const badge = document.getElementById('waitingApprovalBadge');
+            if (!container) return;
+
+            if (badge) {
+                badge.textContent = users.length > 0 ? 'Action Required' : 'Clear';
+                badge.style.background = users.length > 0 ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.05)';
+            }
+
+            if (!users || users.length === 0) {
+                container.innerHTML = `
+                <div class="text-center py-10 opacity-60">
+                    <svg class="w-10 h-10 mx-auto mb-2" style="color:rgba(255,255,255,0.3);" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round"></path>
+                    </svg>
+                    <p class="text-xs font-bold text-white">No users waiting</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = users.map(user => `
+                <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-white/20 transition-colors border"
+                    style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.1);">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs uppercase shadow-sm"
+                            style="background:white; color:#e32b2b;">
+                            ${user.initial}
+                        </div>
+                        <div>
+                            <p class="text-xs font-bold leading-none text-white">${user.name}</p>
+                            ${user.requested_role ? `
+                                <span class="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"
+                                    style="background:rgba(255,255,255,0.2); color:rgba(255,255,255,0.9);">
+                                    Request: ${user.requested_role}
+                                </span>` : ''}
+                            <p class="text-[10px] mt-0.5" style="color:rgba(255,255,255,0.5);">
+                                ${user.time_ago}</p>
+                        </div>
+                    </div>
+                    <a href="${user.route}"
+                        class="p-2 rounded-xl hover:scale-110 transition-transform shadow-lg"
+                        style="background:white; color:#e32b2b;">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M5 13l4 4L19 7"></path>
+                        </svg>
+                    </a>
+                </div>
+            `).join('');
+        }
+
         async function pollLiveTracking() {
             try {
                 const res = await fetch('{{ route('admin.api.live-tracking') }}', {
@@ -520,20 +575,21 @@
                         'X-Requested-With': 'XMLHttpRequest'
                     }
                 });
-                // Stop polling jika session habis / tidak punya akses
                 if (res.status === 401 || res.status === 403) {
-                    if (window._liveTrackingInterval) {
-                        clearInterval(window._liveTrackingInterval);
-                        window._liveTrackingInterval = null;
-                    }
+                    if (window._liveTrackingInterval) clearInterval(window._liveTrackingInterval);
                     return;
                 }
                 if (!res.ok) return;
-                const logs = await res.json();
-                renderLiveTracking(logs);
-            } catch (e) {
-                // Diam saja jika fetch gagal (offline/navigasi)
-            }
+                const data = await res.json();
+                
+                // Mendukung versi endpoint baru
+                if (data && data.activities !== undefined) {
+                    renderLiveTracking(data.activities);
+                    renderWaitingUsers(data.waiting || []);
+                } else {
+                    renderLiveTracking(data);
+                }
+            } catch (e) { }
         }
 
         // =============================================

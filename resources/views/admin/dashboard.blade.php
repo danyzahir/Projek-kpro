@@ -18,7 +18,8 @@
                     class="group relative overflow-hidden flex items-center gap-2.5 px-5 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest text-white transition-all duration-300 shadow-xl shadow-red-200 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-red-300 active:scale-95"
                     style="background: linear-gradient(135deg, #e32b2b 0%, #ba1c1c 100%);">
                     <!-- Efek kilau saat disentuh -->
-                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                    <div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-300">
+                    </div>
                     <svg class="w-4 h-4 relative z-10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
                         fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -87,16 +88,19 @@
 
             <div class="relative z-10">
                 <div class="flex items-center gap-2 mb-1">
-                    {{-- Pulsing dot --}}
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75"
-                            style="background:#ef4444;"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5" style="background:#ef4444;"></span>
-                    </span>
-                    <span class="text-[10px] font-black uppercase tracking-[0.25em]" style="color:#fca5a5;">Live
-                        Monitoring</span>
+                    <div class="p-2 rounded-xl" style="background:rgba(227,43,43,0.25);">
+                        <svg class="w-5 h-5" style="color:#fca5a5;" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                            </path>
+                        </svg>
+                    </div>
+                    <span class="text-[10px] font-black uppercase tracking-[0.25em]" style="color:#fca5a5;">Progress
+                        Overview</span>
                 </div>
-                <p class="text-xs mt-1" style="color:#94a3b8;">Monitoring real-time seluruh aktivitas deployment</p>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-white tracking-tight">Monitoring Progress Deployment</h1>
+                <p class="text-xs mt-1" style="color:#94a3b8;">Grafik distribusi tahapan progress seluruh deployment</p>
             </div>
 
             {{-- Live Clock & Actions --}}
@@ -401,13 +405,15 @@
 
                     <div class="relative z-10 flex items-center justify-between mb-6">
                         <h3 class="text-lg font-extrabold tracking-tight">Pending Approval</h3>
-                        <span id="waitingApprovalBadge" class="text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest"
+                        <span id="waitingApprovalBadge"
+                            class="text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest"
                             style="background:rgba(255,255,255,0.2);">
                             Action Required
                         </span>
                     </div>
 
-                    <div id="waitingUsersContainer" class="relative z-10 space-y-4 max-h-[220px] overflow-y-auto no-scrollbar">
+                    <div id="waitingUsersContainer"
+                        class="relative z-10 space-y-4 max-h-[220px] overflow-y-auto no-scrollbar">
                         @forelse($waitingUsers as $user)
                             <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-white/20 transition-colors border"
                                 style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.1);">
@@ -505,10 +511,10 @@
                             ${log.progres ?? '-'}
                         </span>
                         ${log.commitment_date ? `
-                                <span class="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded-md flex items-center gap-1" style="background:#fffbeb; color:#d97706;">
-                                    <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                    ${log.commitment_date}
-                                </span>` : ''}
+                                    <span class="text-[8px] font-black uppercase tracking-tighter px-1.5 py-0.5 rounded-md flex items-center gap-1" style="background:#fffbeb; color:#d97706;">
+                                        <svg class="w-2 h-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        ${log.commitment_date}
+                                    </span>` : ''}
                     </div>
                 </div>
             </div>
@@ -548,10 +554,10 @@
                         <div>
                             <p class="text-xs font-bold leading-none text-white">${user.name}</p>
                             ${user.requested_role ? `
-                                <span class="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"
-                                    style="background:rgba(255,255,255,0.2); color:rgba(255,255,255,0.9);">
-                                    Request: ${user.requested_role}
-                                </span>` : ''}
+                                    <span class="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"
+                                        style="background:rgba(255,255,255,0.2); color:rgba(255,255,255,0.9);">
+                                        Request: ${user.requested_role}
+                                    </span>` : ''}
                             <p class="text-[10px] mt-0.5" style="color:rgba(255,255,255,0.5);">
                                 ${user.time_ago}</p>
                         </div>
@@ -581,7 +587,7 @@
                 }
                 if (!res.ok) return;
                 const data = await res.json();
-                
+
                 // Mendukung versi endpoint baru
                 if (data && data.activities !== undefined) {
                     renderLiveTracking(data.activities);
@@ -589,7 +595,7 @@
                 } else {
                     renderLiveTracking(data);
                 }
-            } catch (e) { }
+            } catch (e) {}
         }
 
         // =============================================

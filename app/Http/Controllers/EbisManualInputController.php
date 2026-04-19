@@ -10,6 +10,7 @@ use App\Models\EbisPlanningProgressLog;
 use App\Models\MasterDatel;
 use App\Models\MasterSto;
 use App\Models\MasterMitra;
+use Illuminate\Support\Facades\DB;
 use App\Services\TelegramService;
 
 class EbisManualInputController extends Controller
@@ -107,42 +108,48 @@ class EbisManualInputController extends Controller
         }
 
         if ($request->filled('sto')) {
-            $rows->where('ebis_manual_inputs.sto', $request->sto);
+            $stos = array_filter((array) $request->sto);
+            if (!empty($stos)) $rows->whereIn('ebis_manual_inputs.sto', $stos);
         }
 
         if ($request->filled('datel')) {
-            $rows->where('ebis_manual_inputs.datel', $request->datel);
+            $datels = array_filter((array) $request->datel);
+            if (!empty($datels)) $rows->whereIn('ebis_manual_inputs.datel', $datels);
         }
 
         if ($request->filled('progres')) {
-            $rows->where('ebis_manual_inputs.progres', $request->progres);
+            $progresses = array_filter((array) $request->progres);
+            if (!empty($progresses)) $rows->whereIn('ebis_manual_inputs.progres', $progresses);
         }
 
         if ($request->filled('nomor_batch')) {
-            $rows->where('ebis_manual_inputs.nomor_batch', $request->nomor_batch);
+            $batches = array_filter((array) $request->nomor_batch);
+            if (!empty($batches)) $rows->whereIn('ebis_manual_inputs.nomor_batch', $batches);
         }
 
         // FILTER DARI RELASI PLANNING
-        if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek')) {
+        $hasRelFilter = $request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek');
+        if ($hasRelFilter) {
             $rows->whereHas('planning', function ($q) use ($request) {
                 if ($request->filled('status_order')) {
-                    $q->where('status_order', $request->status_order);
+                    $vals = array_filter((array) $request->status_order);
+                    if (!empty($vals)) $q->whereIn('status_order', $vals);
                 }
-
                 if ($request->filled('tipe_desain')) {
-                    $q->where('tipe_desain', $request->tipe_desain);
+                    $vals = array_filter((array) $request->tipe_desain);
+                    if (!empty($vals)) $q->whereIn('tipe_desain', $vals);
                 }
-
                 if ($request->filled('jenis_program')) {
-                    $q->where('jenis_program', $request->jenis_program);
+                    $vals = array_filter((array) $request->jenis_program);
+                    if (!empty($vals)) $q->whereIn('jenis_program', $vals);
                 }
-
                 if ($request->filled('cfu')) {
-                    $q->where('cfu', $request->cfu);
+                    $vals = array_filter((array) $request->cfu);
+                    if (!empty($vals)) $q->whereIn('cfu', $vals);
                 }
-
                 if ($request->filled('status_proyek')) {
-                    $q->where('status_proyek', $request->status_proyek);
+                    $vals = array_filter((array) $request->status_proyek);
+                    if (!empty($vals)) $q->whereIn('status_proyek', $vals);
                 }
             });
         }
@@ -441,5 +448,39 @@ class EbisManualInputController extends Controller
         });
 
         return redirect()->route('deployment.update')->with('success', 'Progress deployment berhasil diperbarui');
+    }
+
+    public function searchStarclick(Request $request)
+    {
+        $query = $request->get('q', '');
+
+        if (strlen($query) < 3) {
+            return response()->json([]);
+        }
+
+        $results = DB::table('ebis_planning_orders')
+            ->where('star_click_id', '!=', '-')
+            ->where('star_click_id', '!=', '')
+            ->whereNotNull('star_click_id')
+            ->where(function ($q) use ($query) {
+                $q->where('star_click_id', 'LIKE', "%{$query}%")
+                  ->orWhere('nama_customer', 'LIKE', "%{$query}%");
+            })
+            ->select('star_click_id', 'nama_customer', 'datel', 'sto')
+            ->limit(15)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id'            => $item->star_click_id,
+                    'text'          => $item->star_click_id . ' — ' . $item->nama_customer,
+                    'nama_customer' => $item->nama_customer,
+                    'datel'         => $item->datel,
+                    'sto'           => $item->sto,
+                ];
+            })
+            ->unique('id')
+            ->values();
+
+        return response()->json($results);
     }
 }

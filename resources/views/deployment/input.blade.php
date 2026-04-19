@@ -34,10 +34,10 @@
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                                 Nomor NDE JT
                             </label>
-                            <input name="nde_jt" type="text"
-                                class="w-full rounded-xl border-slate-400 bg-slate-100 px-4 py-3 text-sm focus:bg-white
+                            <input name="nde_jt" type="text" value="{{ 'NDE-' . date('ymd-His') }}"
+                                class="w-full rounded-xl border-slate-400 bg-slate-100 px-4 py-3 text-sm focus:bg-white text-slate-600
                                        focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition"
-                                placeholder="Contoh: NDE-123/456">
+                                placeholder="Contoh: NDE-123/456" readonly>
                         </div>
 
                         <!-- STARCLICK -->
@@ -45,10 +45,9 @@
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                                 Starclick ID / NCX <span class="text-red-500">*</span>
                             </label>
-                            <input name="star_click_id" type="text" data-required="true"
-                                class="w-full rounded-xl border-slate-400 bg-slate-100 px-4 py-3 text-sm focus:bg-white font-medium
-                                       focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition"
-                                placeholder="Masukkan ID">
+                            <select id="star_click_id" name="star_click_id" data-required="true"
+                                class="w-full"
+                                placeholder="Ketik untuk mencari ID dari Order..."></select>
                             <p x-show="showError && errorField === 'star_click_id'" x-transition class="text-xs text-red-500 mt-1 font-medium">Wajib diisi</p>
                             @error('star_click_id') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
@@ -58,10 +57,10 @@
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                                 Nomor Batch
                             </label>
-                            <input name="nomor_batch" type="number"
-                                class="w-full rounded-xl border-slate-400 bg-slate-100 px-4 py-3 text-sm focus:bg-white
+                            <input name="nomor_batch" type="text" value="{{ date('Ym') }}"
+                                class="w-full rounded-xl border-slate-400 bg-slate-100 px-4 py-3 text-sm focus:bg-white text-slate-600
                                        focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition"
-                                placeholder="Contoh: 1234" min="0">
+                                placeholder="Contoh: 1234">
                             @error('nomor_batch') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
@@ -106,33 +105,120 @@
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                          <!-- ALAMAT -->
-                         <div data-field-wrapper class="md:col-span-2">
+                         <div data-field-wrapper class="md:col-span-2" x-data="{
+                             gettingAddress: false,
+                             getAddress() {
+                                 if (!navigator.geolocation) {
+                                     alert('Browser Anda tidak mendukung fitur lokasi');
+                                     return;
+                                 }
+                                 
+                                 this.gettingAddress = true;
+                                 navigator.geolocation.getCurrentPosition(
+                                     (position) => {
+                                         const lat = position.coords.latitude;
+                                         const lng = position.coords.longitude;
+                                         
+                                         // Menggunakan OpenStreetMap Nominatim API untuk mendeteksi nama jalan & kota
+                                         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+                                            .then(res => res.json())
+                                            .then(data => {
+                                                if (data && data.display_name) {
+                                                    document.querySelector('input[name=\'alamat_pelanggan\']').value = data.display_name;
+                                                } else {
+                                                    alert('Alamat tidak ditemukan dari koordinat ini.');
+                                                }
+                                                this.gettingAddress = false;
+                                            })
+                                            .catch(err => {
+                                                alert('Gagal mengambil detail alamat dari server.');
+                                                this.gettingAddress = false;
+                                            });
+                                     },
+                                     (error) => {
+                                         alert('Gagal mengambil lokasi. Pastikan Anda mengizinkan akses lokasi pada browser.');
+                                         this.gettingAddress = false;
+                                     },
+                                     { enableHighAccuracy: true }
+                                 );
+                             }
+                         }">
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                                 Alamat Lengkap <span class="text-red-500">*</span>
                             </label>
                             <div class="relative">
                                 <input name="alamat_pelanggan" type="text" data-required="true"
-                                    class="w-full rounded-xl border-slate-400 bg-slate-100 pl-10 pr-4 py-3 text-sm focus:bg-white
+                                    class="w-full rounded-xl border-slate-400 bg-slate-100 pl-10 pr-36 py-3 text-sm focus:bg-white
                                            focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition"
                                     placeholder="Jl. Contoh No. 123">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400 absolute left-3 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-slate-400 absolute left-3 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                                 </svg>
+
+                                <button type="button" @click="getAddress()" 
+                                    class="absolute right-1.5 top-1.5 bottom-1.5 px-3 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs hover:bg-blue-100 hover:text-blue-700 transition flex items-center gap-1 focus:ring-2 focus:ring-blue-200 outline-none">
+                                    <svg x-show="!gettingAddress" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                    </svg>
+                                    <svg x-show="gettingAddress" x-cloak class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="gettingAddress ? 'Mencari...' : 'Klik Lokasi anda'"></span>
+                                </button>
                             </div>
                             <p x-show="showError && errorField === 'alamat_pelanggan'" x-transition class="text-xs text-red-500 mt-1 font-medium">Wajib diisi</p>
                             @error('alamat_pelanggan') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
 
                          <!-- TIKOR -->
-                         <div data-field-wrapper>
+                         <div data-field-wrapper x-data="{
+                             gettingLocation: false,
+                             getLocation() {
+                                 if (!navigator.geolocation) {
+                                     alert('Browser Anda tidak mendukung fitur lokasi');
+                                     return;
+                                 }
+                                 
+                                 this.gettingLocation = true;
+                                 navigator.geolocation.getCurrentPosition(
+                                     (position) => {
+                                         const lat = position.coords.latitude;
+                                         const lng = position.coords.longitude;
+                                         document.querySelector('input[name=\'tikor_pelanggan\']').value = lat + ', ' + lng;
+                                         this.gettingLocation = false;
+                                     },
+                                     (error) => {
+                                         alert('Gagal mengambil lokasi. Pastikan Anda mengizinkan akses lokasi pada browser.');
+                                         this.gettingLocation = false;
+                                     },
+                                     { enableHighAccuracy: true }
+                                 );
+                             }
+                         }">
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                                 Titik Koordinat <span class="text-red-500">*</span>
                             </label>
-                            <input name="tikor_pelanggan" type="text" data-required="true"
-                                class="w-full rounded-xl border-slate-400 bg-slate-100 px-4 py-3 text-sm focus:bg-white font-mono text-slate-600
-                                       focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition"
-                                placeholder="-6.xxxxx, 108.xxxxx">
+                            <div class="relative">
+                                <input name="tikor_pelanggan" type="text" data-required="true"
+                                    class="w-full rounded-xl border-slate-400 bg-slate-100 pl-4 py-3 pr-32 text-sm focus:bg-white font-mono text-slate-600
+                                           focus:border-red-500 focus:ring-2 focus:ring-red-100 outline-none transition"
+                                    placeholder="-6.xxxxx, 108.xxxxx">
+                                
+                                <button type="button" @click="getLocation()" 
+                                    class="absolute right-1.5 top-1.5 bottom-1.5 px-3 rounded-lg bg-blue-50 text-blue-600 font-bold text-xs hover:bg-blue-100 hover:text-blue-700 transition flex items-center gap-1 focus:ring-2 focus:ring-blue-200 outline-none">
+                                    <svg x-show="!gettingLocation" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                    <svg x-show="gettingLocation" x-cloak class="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    <span x-text="gettingLocation ? 'Mencari...' : 'Klik Lokasi anda'"></span>
+                                </button>
+                            </div>
                             <p x-show="showError && errorField === 'tikor_pelanggan'" x-transition class="text-xs text-red-500 mt-1 font-medium">Wajib diisi</p>
                             @error('tikor_pelanggan') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
@@ -148,9 +234,9 @@
                        Lokasi & Teknis
                    </h3>
 
-                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- DATEL -->
-                        <div data-field-wrapper x-data="searchableSelect(@js($datels))" class="relative">
+                        <div id="datel_wrapper" data-field-wrapper x-data="searchableSelect(@js($datels))" class="relative">
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                                 Datel <span class="text-red-500">*</span>
                             </label>
@@ -183,7 +269,7 @@
                         </div>
 
                         <!-- STO -->
-                        <div data-field-wrapper x-data="searchableSelect(@js($stos))" class="relative">
+                        <div id="sto_wrapper" data-field-wrapper x-data="searchableSelect(@js($stos))" class="relative">
                             <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
                                 STO <span class="text-red-500">*</span>
                             </label>
@@ -252,6 +338,30 @@
                    </div>
                 </div>
 
+                <!-- TOM SELECT STYLING FIX UNTUK HALAMAN INI -->
+                <style>
+                    .ts-wrapper.starclick-select .ts-control {
+                        border-radius: 0.75rem !important;
+                        border: 1px solid #94a3b8 !important; /* border-slate-400 */
+                        background-color: #f1f5f9 !important; /* bg-slate-100 */
+                        padding: 0.75rem 1rem !important; /* py-3 px-4 */
+                        font-size: 0.875rem !important; /* text-sm */
+                        font-weight: 500 !important; /* font-medium */
+                        min-height: auto !important;
+                        box-shadow: none !important;
+                        transition: all 0.2s ease-in-out;
+                    }
+                    .ts-wrapper.starclick-select .ts-control.focus {
+                        background-color: #ffffff !important; /* focus:bg-white */
+                        border-color: #ef4444 !important; /* focus:border-red-500 */
+                        box-shadow: 0 0 0 2px rgba(254, 226, 226, 1) !important; /* focus:ring-red-100 */
+                    }
+                    .ts-wrapper.starclick-select .ts-control > input {
+                        font-weight: 500 !important;
+                        font-size: 0.875rem !important;
+                    }
+                </style>
+
                 <!-- ================= BUTTONS ================= -->
                 <div class="pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
                     <button type="button" onclick="history.back()" 
@@ -289,6 +399,52 @@
     </div>
 </div>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.bootstrap5.min.css">
+<script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+<style>
+    /* StarClick TomSelect */
+    .starclick-select .ts-control {
+        border-radius: 0.75rem !important;
+        border: 1px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+        padding: 0.5rem 0.75rem !important;
+        font-size: 0.875rem !important;
+        min-height: 44px;
+    }
+    .starclick-select .ts-control.focus {
+        border-color: #ef4444 !important;
+        box-shadow: 0 0 0 3px rgba(239,68,68,0.1) !important;
+    }
+    /* Dropdown yang di-attach ke body */
+    .ts-dropdown {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 0.75rem !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.12) !important;
+        z-index: 9999 !important;
+        overflow: hidden;
+    }
+    .ts-dropdown .option {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        color: #334155;
+    }
+    .ts-dropdown .option:hover,
+    .ts-dropdown .option.active {
+        background: #fef2f2 !important;
+        color: #dc2626 !important;
+    }
+    .ts-dropdown .no-results {
+        padding: 10px 14px;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+    .ts-dropdown .loading {
+        padding: 10px 14px;
+        color: #94a3b8;
+        font-size: 0.85rem;
+    }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
 <script>
     function ebisForm() {
@@ -385,5 +541,41 @@
             }
         }
     }
+
+    // TomSelect initialization for StarClick AJAX Auto-Complete
+    function initTomSelect() {
+        const starClickEl = document.getElementById('star_click_id');
+        if (starClickEl && !starClickEl.tomselect) {
+            new TomSelect('#star_click_id', {
+                wrapperClass: 'ts-wrapper starclick-select',
+                valueField: 'id',
+                labelField: 'text',
+                searchField: ['id', 'text'],
+                placeholder: 'Ketik ID Starclick...',
+                dropdownParent: 'body',
+                create: function(input) {
+                    return { id: input, text: input };
+                },
+                load: function(query, callback) {
+                    if (query.length < 3) return callback();
+                    fetch('/deployment/api/search-starclick?q=' + encodeURIComponent(query))
+                        .then(r => r.json())
+                        .then(json => callback(json))
+                        .catch(() => callback());
+                },
+                onChange: function(value) {
+                    const item = this.options[value];
+                    if (item && item.id !== item.text) {
+                        const nameInput = document.querySelector('input[name="nama_customer"]');
+                        if (nameInput && item.nama_customer) nameInput.value = item.nama_customer;
+                    }
+                }
+            });
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', initTomSelect);
+    document.addEventListener('turbo:load', initTomSelect);
+
 </script>
 @endsection

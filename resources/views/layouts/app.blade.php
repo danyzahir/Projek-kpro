@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard') — Monitoring Proyek</title>
 
-    <!-- Aktifkan prefetch otomatis saat kursor ditaruh di atas link (halaman didownload duluan sebelum diklik) agar 0 detik -->
-    <meta name="turbo-prefetch" content="true">
+    <!-- Nonaktifkan prefetch otomatis Turbo (penyebab bounce-back bug) -->
+    <meta name="turbo-prefetch" content="false">
+    <!-- Turbo: jangan cache halaman agar redirect tidak menyebabkan bounce-back -->
+    <meta name="turbo-cache-control" content="no-cache">
 
 
     <!-- Scripts & Styles -->
@@ -16,10 +18,18 @@
         [x-cloak] {
             display: none !important
         }
+
+        /* YouTube-style Turbo Progress Bar */
+        .turbo-progress-bar {
+            height: 3px;
+            background-color: #ef4444; /* red-500 */
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+            z-index: 9999;
+        }
     </style>
 </head>
 
-<body class="bg-slate-100 text-slate-800 antialiased">
+<body class="bg-slate-100 text-slate-800 antialiased overflow-y-scroll">
 
     <div x-data="{
         sidebarOpen: true, // Desktop sidebar state
@@ -440,10 +450,27 @@
 
     {{-- Turbo Drive: re-init Alpine.js on each Turbo navigation --}}
     <script>
+        // Fix bounce-back: matikan Turbo cache sepenuhnya
+        document.addEventListener('turbo:before-cache', function() {
+            // Hapus semua Alpine state sebelum Turbo cache page
+            document.querySelectorAll('[x-data]').forEach(function(el) {
+                if (el._x_dataStack) {
+                    try { window.Alpine.destroyTree(el); } catch (e) {}
+                }
+            });
+            // Tandai semua halaman sebagai no-cache
+            const meta = document.querySelector('meta[name="turbo-cache-control"]');
+            if (!meta) {
+                const m = document.createElement('meta');
+                m.name = 'turbo-cache-control';
+                m.content = 'no-cache';
+                document.head.appendChild(m);
+            }
+        });
+
+        // Re-init Alpine.js setelah Turbo navigasi
         document.addEventListener('turbo:load', function() {
-            // Re-initialize Alpine components after Turbo replaces the body
             if (window.Alpine) {
-                // Alpine 3 uses MutationObserver, but we forcefully re-init
                 document.querySelectorAll('[x-data]').forEach(function(el) {
                     if (!el._x_dataStack) {
                         window.Alpine.initTree(el);
@@ -452,16 +479,14 @@
             }
         });
 
-        // Prevent Turbo from caching pages (avoids stale Alpine state)
-        document.addEventListener('turbo:before-cache', function() {
-            // Clean up Alpine state before caching
-            document.querySelectorAll('[x-data]').forEach(function(el) {
-                if (el._x_dataStack) {
-                    try {
-                        window.Alpine.destroyTree(el);
-                    } catch (e) {}
-                }
-            });
+        // Fix: setelah form submit dengan Turbo, force full reload jika ada redirect
+        document.addEventListener('turbo:visit', function(event) {
+            const url = event.detail.url;
+            // Jika navigasi ke halaman yang sama (tanda bounce-back), force reload
+            if (url === window.location.href) {
+                event.preventDefault();
+                window.location.reload();
+            }
         });
     </script>
 

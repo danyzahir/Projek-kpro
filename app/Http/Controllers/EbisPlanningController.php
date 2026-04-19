@@ -188,41 +188,47 @@ class EbisPlanningController extends Controller
         }
 
         if ($request->filled('sto')) {
-            $query->where('ebis_manual_inputs.sto', $request->sto);
+            $stos = array_filter((array) $request->sto);
+            if (!empty($stos)) $query->whereIn('ebis_manual_inputs.sto', $stos);
         }
 
         if ($request->filled('datel')) {
-            $query->where('ebis_manual_inputs.datel', $request->datel);
+            $datels = array_filter((array) $request->datel);
+            if (!empty($datels)) $query->whereIn('ebis_manual_inputs.datel', $datels);
         }
 
         if ($request->filled('progres')) {
-            $query->where('ebis_manual_inputs.progres', $request->progres);
+            $progresses = array_filter((array) $request->progres);
+            if (!empty($progresses)) $query->whereIn('ebis_manual_inputs.progres', $progresses);
         }
 
         if ($request->filled('nomor_batch')) {
-            $query->where('ebis_manual_inputs.nomor_batch', $request->nomor_batch);
+            $batches = array_filter((array) $request->nomor_batch);
+            if (!empty($batches)) $query->whereIn('ebis_manual_inputs.nomor_batch', $batches);
         }
 
-        if ($request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek')) {
+        $hasRelFilter = $request->filled('status_order') || $request->filled('tipe_desain') || $request->filled('jenis_program') || $request->filled('cfu') || $request->filled('status_proyek');
+        if ($hasRelFilter) {
             $query->whereHas('planning', function ($q) use ($request) {
                 if ($request->filled('status_order')) {
-                    $q->where('status_order', $request->status_order);
+                    $vals = array_filter((array) $request->status_order);
+                    if (!empty($vals)) $q->whereIn('status_order', $vals);
                 }
-
                 if ($request->filled('tipe_desain')) {
-                    $q->where('tipe_desain', $request->tipe_desain);
+                    $vals = array_filter((array) $request->tipe_desain);
+                    if (!empty($vals)) $q->whereIn('tipe_desain', $vals);
                 }
-
                 if ($request->filled('jenis_program')) {
-                    $q->where('jenis_program', $request->jenis_program);
+                    $vals = array_filter((array) $request->jenis_program);
+                    if (!empty($vals)) $q->whereIn('jenis_program', $vals);
                 }
-
                 if ($request->filled('cfu')) {
-                    $q->where('cfu', $request->cfu);
+                    $vals = array_filter((array) $request->cfu);
+                    if (!empty($vals)) $q->whereIn('cfu', $vals);
                 }
-
                 if ($request->filled('status_proyek')) {
-                    $q->where('status_proyek', $request->status_proyek);
+                    $vals = array_filter((array) $request->status_proyek);
+                    if (!empty($vals)) $q->whereIn('status_proyek', $vals);
                 }
             });
         }

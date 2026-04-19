@@ -116,7 +116,72 @@
         </div>
 
         <!-- ================= HERO STATS ================= -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- CARD 1: WAITING APPROVAL -->
+            <div class="rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl flex flex-col min-h-[300px] transition-all duration-300 hover:-translate-y-1"
+                style="background: linear-gradient(135deg, #1e3a8a 0%, #172554 100%); box-shadow: 0 20px 40px rgba(30,58,138,0.25);">
+                <!-- Decorative -->
+                <div class="absolute -right-16 -top-16 w-64 h-64 rounded-full group-hover:scale-110 transition-transform duration-700"
+                    style="background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);"></div>
+                <div class="absolute top-0 right-0 w-32 h-32 rounded-bl-full group-hover:scale-110 transition-transform duration-500"
+                    style="background:rgba(255,255,255,0.05);"></div>
+                <div class="absolute -bottom-8 -left-8 w-24 h-24 rounded-full"
+                    style="background:rgba(255,255,255,0.05);"></div>
+
+                <div class="relative z-10 flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 rounded-xl bg-white/10 text-white backdrop-blur-sm border border-white/20 shadow-sm">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="text-sm font-extrabold tracking-tight">Confirm Users</h3>
+                    </div>
+                    <span id="waitingApprovalBadge"
+                        class="text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest backdrop-blur-sm border border-white/20"
+                        style="background:rgba(255,255,255,0.1);">
+                        Action Required
+                    </span>
+                </div>
+
+                <div id="waitingUsersContainer"
+                    class="relative z-10 space-y-4 flex-1 overflow-y-auto no-scrollbar">
+                    @forelse($waitingUsers as $user)
+                        <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-white/10 transition-colors border backdrop-blur-sm"
+                            style="background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1);">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs uppercase shadow-sm text-blue-900 bg-white">
+                                    {{ substr($user->name, 0, 1) }}
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold leading-none">{{ $user->name }}</p>
+                                    @if ($user->requested_role)
+                                        <span class="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md text-blue-100 bg-white/20">
+                                            Req: {{ ucfirst($user->requested_role) }}
+                                        </span>
+                                    @endif
+                                    <p class="text-[10px] mt-0.5 text-blue-200">
+                                        {{ $user->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            <a href="{{ route('admin.users') }}"
+                                class="p-2 rounded-xl border border-white/20 hover:bg-white hover:text-blue-900 hover:scale-105 transition-all text-white backdrop-blur-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
+                        </div>
+                    @empty
+                        <div class="flex flex-col items-center justify-center h-full py-10 opacity-70">
+                            <svg class="w-10 h-10 mx-auto mb-2 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <p class="text-[10px] font-extrabold uppercase tracking-widest text-white/70">Belum ada user</p>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
 
             <!-- CARD 1: OVERDUE COMMITMENTS -->
             <div class="rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl flex flex-col min-h-[300px]"
@@ -271,12 +336,9 @@
 
         </div>
 
-        <!-- ================= MAIN GRID: CHART & SIDEBAR ================= -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
-
-            <!-- MAIN CHART (8/12) -->
-            <div class="lg:col-span-8 bg-white rounded-[2.5rem] p-8 shadow-xl border flex flex-col min-h-[500px]"
-                style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.06);">
+        <!-- ================= DEPLOYMENT TREND (FULL WIDTH) ================= -->
+        <div class="w-full bg-white rounded-[2.5rem] p-8 shadow-xl border flex flex-col h-fit mb-10"
+            style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.06);">
                 <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                     <div class="flex items-center gap-4">
                         <div class="p-3 rounded-2xl" style="background:#fef2f2; color:#e32b2b;">
@@ -287,7 +349,7 @@
                             </svg>
                         </div>
                         <div>
-                            <h3 class="text-xl font-extrabold tracking-tight" style="color:#1a1a2e;">Deployment Trend</h3>
+                            <h3 class="text-xl font-extrabold tracking-tight" style="color:#1a1a2e;">Deployment Trend Inputs</h3>
                             <p class="text-[10px] font-bold uppercase tracking-widest mt-0.5" style="color:#9ca3af;">Live
                                 Market Data</p>
                         </div>
@@ -348,113 +410,309 @@
                     </button>
                 </div>
 
-                <div class="relative flex-1">
+                <div class="relative flex-1 w-full min-h-[250px] max-h-[300px]">
                     <canvas id="deploymentTrendChart"></canvas>
                 </div>
             </div>
 
-            <!-- SIDEBAR (4/12) -->
-            <div class="lg:col-span-4 space-y-10">
+        <!-- ================= PARTNER PERFORMANCE SECTION ================= -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
 
-                <!-- TOP PARTNERS WIDGET -->
-                <div class="bg-white rounded-[2.5rem] p-8 shadow-xl border"
-                    style="border-color:#fde8e8; box-shadow: 0 20px 40px rgba(227,43,43,0.06);">
-                    <div class="flex items-center justify-between mb-8">
-                        <h3 class="text-lg font-extrabold tracking-tight" style="color:#1a1a2e;">Top Mitra</h3>
-                        <div class="p-2 rounded-xl" style="background:#f5f5f5;">
-                            <svg class="w-5 h-5" style="color:#9ca3af;" fill="none" stroke="currentColor"
-                                viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z">
-                                </path>
-                            </svg>
+            <!-- WORKLOAD DAY WIDGET (8/12) -->
+            <div class="lg:col-span-8 bg-white rounded-[2.5rem] p-8 shadow-xl border overflow-x-auto"
+                style="border-color:#e0e7ff; box-shadow: 0 20px 40px rgba(59,130,246,0.06);" 
+                    x-data="{ 
+                        loading: true,
+                        dates: [],
+                        global_cap: 10,
+                        selectedDay: null,
+                        showModal: false,
+                        currentYear: new Date().getFullYear(),
+                        currentMonth: new Date().getMonth() + 1,
+                        months: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+                        openDetails(day) {
+                            if (day.count > 0) {
+                                this.selectedDay = day;
+                                this.showModal = true;
+                            }
+                        },
+                        prevMonth() {
+                            if (this.currentMonth === 1) {
+                                this.currentMonth = 12;
+                                this.currentYear--;
+                            } else {
+                                this.currentMonth--;
+                            }
+                            this.fetchWorkload();
+                        },
+                        nextMonth() {
+                            if (this.currentMonth === 12) {
+                                this.currentMonth = 1;
+                                this.currentYear++;
+                            } else {
+                                this.currentMonth++;
+                            }
+                            this.fetchWorkload();
+                        },
+                        resetToCurrent() {
+                            this.currentMonth = new Date().getMonth() + 1;
+                            this.currentYear = new Date().getFullYear();
+                            this.fetchWorkload();
+                        },
+                        async fetchWorkload() {
+                            this.loading = true;
+                            try {
+                                const res = await fetch(`/admin/api/workload-day?year=${this.currentYear}&month=${this.currentMonth}`);
+                                const data = await res.json();
+                                this.dates = data.week_headers || [];
+                                this.global_cap = data.global_cap || 10;
+                            } catch(e) {
+                                console.error('Error fetching Workload Day:', e);
+                            }
+                            this.loading = false;
+                        }
+                    }" x-init="fetchWorkload()">
+                    
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                        <div>
+                            <h3 class="text-lg font-extrabold tracking-tight" style="color:#1a1a2e;">Workload Day</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest mt-0.5" style="color:#9ca3af;">Kapasitas Global Bulanan</p>
+                        </div>
+                        <div class="flex items-center gap-1.5 flex-wrap justify-end">
+                            <!-- Reset Button -->
+                            <button @click="resetToCurrent()" 
+                                x-show="currentMonth !== new Date().getMonth() + 1 || currentYear !== new Date().getFullYear()" x-cloak
+                                class="px-3 py-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 font-extrabold text-[10px] uppercase tracking-wider rounded-lg transition-colors border border-blue-200 shadow-sm mr-1">
+                                Bulan Ini
+                            </button>
+                            
+                            <!-- Controls -->
+                            <div class="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 shadow-sm">
+                                <button @click="prevMonth()" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-sm rounded-lg transition-all focus:outline-none">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"></path></svg>
+                                </button>
+                                <div class="flex items-center font-extrabold text-xs text-slate-700 px-1 justify-center tracking-tight">
+                                    <select x-model.number="currentMonth" @change="fetchWorkload()" class="bg-transparent border-none py-0 pl-2 pr-6 text-xs font-extrabold text-slate-700 focus:ring-0 cursor-pointer hover:text-blue-600 transition-colors" style="background-position: right 0.2rem center;">
+                                        <template x-for="(m, i) in months" :key="i">
+                                            <option :value="i + 1" x-text="m"></option>
+                                        </template>
+                                    </select>
+                                    <select x-model.number="currentYear" @change="fetchWorkload()" class="bg-transparent border-none py-0 pl-1 pr-6 text-xs font-extrabold text-slate-700 focus:ring-0 cursor-pointer hover:text-blue-600 transition-colors -ml-2" style="background-position: right 0.2rem center;">
+                                        <template x-for="y in Array.from({length: 11}, (_, i) => new Date().getFullYear() - 5 + i)" :key="y">
+                                            <option :value="y" x-text="y"></option>
+                                        </template>
+                                    </select>
+                                </div>
+                                <button @click="nextMonth()" class="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-white hover:shadow-sm rounded-lg transition-all focus:outline-none">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    <div class="space-y-6">
-                        @forelse($topMitras as $index => $mitra)
-                            <div class="flex items-center gap-4 group cursor-default">
-                                <div class="w-12 h-12 rounded-2xl flex flex-col items-center justify-center font-black group-hover:scale-105 transition-transform"
-                                    style="{{ $index == 0 ? 'background:#fef2f2; color:#e32b2b;' : 'background:#f5f5f5; color:#6b7280;' }}">
-                                    <span class="text-sm">#{{ $index + 1 }}</span>
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="text-sm font-bold truncate w-32 md:w-full" style="color:#374151;">
-                                        {{ $mitra['name'] }}</h4>
 
+                    <!-- Calendar Header (Mon - Sun) -->
+                    <div class="grid grid-cols-7 gap-1 md:gap-2 mb-2">
+                        <template x-for="d in ['SEN','SEL','RAB','KAM','JUM','SAB','MIN']">
+                            <div class="text-center text-[9px] font-black uppercase tracking-widest text-slate-400" x-text="d"></div>
+                        </template>
+                    </div>
+
+                    <div class="grid grid-cols-7 gap-1 md:gap-2 relative">
+                        <template x-for="(day, index) in dates" :key="index">
+                            <div @click="openDetails(day)"
+                                 class="flex flex-col h-[70px] md:h-[85px] rounded-xl relative overflow-hidden transition-all group"
+                                 :class="{
+                                     'ring-2 ring-blue-400 border-transparent shadow-md z-10': day.is_today,
+                                     'cursor-pointer hover:-translate-y-0.5 hover:shadow-xl hover:ring-2 hover:ring-blue-300': day.count > 0,
+                                     'cursor-default': day.count === 0,
+                                     'bg-slate-50 border border-slate-200': day.in_month,
+                                     'bg-slate-100/40 border border-slate-100 opacity-50 grayscale': !day.in_month
+                                 }">
+                                <!-- Water fill -->
+                                <div class="absolute bottom-0 w-full transition-all duration-1000 ease-in-out flex-shrink-0"
+                                     :style="'height: ' + Math.min((day.count / global_cap) * 100, 100) + '%;' +
+                                     'background: ' + ((day.details && day.details.some(d => d.count > 3)) ? 'linear-gradient(0deg, #f87171, #ef4444)' : 'linear-gradient(0deg, #60a5fa, #3b82f6)')">
+                                    <div class="absolute inset-0 opacity-30" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 10 Q 5 15, 10 10 T 20 10\' stroke=\'white\' fill=\'none\' stroke-width=\'2\'/%3E%3C/svg%3E'); background-size: 20px 20px; animation: moveWaves 2s linear infinite;"></div>
                                 </div>
-                                <div class="text-right">
-                                    <span class="text-[10px] font-bold block uppercase tracking-tighter"
-                                        style="color:#9ca3af;">Volume</span>
-                                    <span class="text-sm font-black" style="color:#374151;">{{ $mitra['total'] }}</span>
+                                
+                                <!-- Content: Top-left mini date -->
+                                <div class="absolute top-2 left-2.5 z-10 text-left pointer-events-none">
+                                    <span class="block text-[8px] font-black uppercase tracking-widest leading-tight opacity-80" :class="(day.count / global_cap) > 0.7 ? 'text-white' : 'text-slate-500'" x-text="day.day_label"></span>
+                                    <span class="block text-[11px] font-extrabold leading-none mt-0.5" :class="(day.count / global_cap) > 0.7 ? 'text-white' : 'text-slate-700'" x-text="day.num_label.split(' ')[0]"></span>
+                                </div>
+                                
+                                <!-- Content: Bottom-right Workload -->
+                                <div class="relative z-10 flex flex-col items-end justify-end h-full w-full p-2 text-right pointer-events-none">
+                                    <span class="text-[16px] font-black leading-none drop-shadow-sm" :class="(day.count / global_cap) > 0.3 ? 'text-white' : 'text-slate-700'" x-text="day.count"></span>
+                                    <span class="text-[7px] font-bold uppercase tracking-widest opacity-90 mt-0.5" :class="(day.count / global_cap) > 0.3 ? 'text-white' : 'text-slate-400'">Orders</span>
                                 </div>
                             </div>
-                        @empty
-                            <p class="text-sm italic text-center py-6" style="color:#9ca3af;">No partner rankings yet.</p>
-                        @endforelse
+                        </template>
+                        <div x-show="loading" class="absolute inset-0 flex items-center justify-center bg-white/50 backdrop-blur-sm z-20">
+                            <svg class="animate-spin h-6 w-6 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                        </div>
                     </div>
+
+                    <!-- Modal Details Overlay -->
+                    <div x-show="showModal" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm" x-transition style="display: none;">
+                        <div @click.away="showModal = false" class="bg-white rounded-[2rem] shadow-2xl p-6 md:p-8 w-full max-w-sm max-h-[85vh] flex flex-col relative"
+                             x-transition:enter="transition ease-out duration-300"
+                             x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave="transition ease-in duration-200"
+                             x-transition:leave-start="opacity-100 translate-y-0 scale-100"
+                             x-transition:leave-end="opacity-0 translate-y-8 scale-95">
+                            
+                            <!-- Close button -->
+                            <button @click="showModal = false" class="absolute top-5 right-5 p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-slate-100">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            
+                            <div class="mb-6 pr-6">
+                                <h3 class="text-xl font-extrabold tracking-tight text-slate-800">Rincian Workload</h3>
+                                <div class="flex items-center gap-2 mt-1.5">
+                                    <span class="text-sm font-black text-blue-600" x-text="selectedDay ? selectedDay.num_label : ''"></span>
+                                    <span class="text-[9px] font-black uppercase tracking-widest text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full" x-text="selectedDay ? selectedDay.day_label : ''"></span>
+                                </div>
+                            </div>
+
+                            <div class="flex-1 overflow-y-auto no-scrollbar space-y-3">
+                                <template x-if="selectedDay && selectedDay.details && selectedDay.details.length > 0">
+                                    <template x-for="(detail, i) in selectedDay.details" :key="i">
+                                        <div class="flex items-center justify-between p-3.5 rounded-2xl border transition-colors"
+                                             :class="detail.count > 3 ? 'bg-red-50 border-red-200 hover:border-red-300' : 'bg-slate-50 border-slate-100 hover:border-slate-200'">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs shadow-sm"
+                                                     :class="detail.count > 3 ? 'bg-red-200 text-red-800' : (i === 0 ? 'bg-blue-100 text-blue-700' : 'bg-white text-slate-500')">
+                                                    <span x-text="'#' + (i + 1)"></span>
+                                                </div>
+                                                <span class="text-sm font-bold truncate max-w-[140px]" :class="detail.count > 3 ? 'text-red-800' : 'text-slate-700'" x-text="detail.mitra"></span>
+                                            </div>
+                                            <div class="text-right flex flex-col items-end">
+                                                <div class="flex items-center gap-1.5">
+                                                    <svg x-show="detail.count > 3" class="w-4 h-4 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                                    <span class="text-lg font-black" :class="detail.count > 3 ? 'text-red-600' : 'text-slate-800'" x-text="detail.count"></span>
+                                                </div>
+                                                <span class="text-[7px] font-bold uppercase tracking-widest block -mt-1" :class="detail.count > 3 ? 'text-red-400' : 'text-slate-400'">Orders</span>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                                
+                                <template x-if="!selectedDay || !selectedDay.details || selectedDay.details.length === 0">
+                                    <div class="flex flex-col items-center justify-center py-10 opacity-50">
+                                        <svg class="w-10 h-10 mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Tidak ada record spesifik</p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+
+            <!-- TOP PARTNERS WIDGET (4/12) -->
+            <div class="lg:col-span-4 bg-white rounded-[2.5rem] p-8 shadow-xl border"
+                style="border-color:#e0e7ff; box-shadow: 0 20px 40px rgba(59,130,246,0.06);" 
+                    x-data="{ 
+                        period: 'daily', 
+                        dateFilter: '{{ \Carbon\Carbon::now()->format('Y-m-d') }}',
+                        loading: false,
+                        mitras: @js(array_values($topMitras->toArray())),
+                        async fetchMitras() {
+                            this.loading = true;
+                            try {
+                                const res = await fetch('/admin/api/top-mitras?date=' + this.dateFilter);
+                                this.mitras = await res.json();
+                            } catch(e) {
+                                console.error('Error fetching Top Mitras:', e);
+                            }
+                            this.loading = false;
+                        }
+                    }">
+                    <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
+                        <div>
+                            <h3 class="text-lg font-extrabold tracking-tight" style="color:#1a1a2e;">Top Mitra</h3>
+                            <p class="text-[10px] font-bold uppercase tracking-widest mt-0.5" style="color:#9ca3af;">Workload Analysis</p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-3 items-end sm:items-center">
+                            <!-- Period Filter -->
+                            <div class="relative">
+                                <div x-show="loading" class="absolute -left-6 top-1/2 -translate-y-1/2">
+                                    <svg class="animate-spin h-3.5 w-3.5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                                </div>
+                            </div>
+                            <!-- Period Filter -->
+                            <div class="flex p-1 rounded-xl" style="background:#f1f5f9;">
+                                <button @click="period = 'daily'" :class="{'bg-white text-blue-600 shadow-sm': period === 'daily', 'text-slate-400 hover:text-slate-600': period !== 'daily'}" class="px-3 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all">Daily</button>
+                                <button @click="period = 'weekly'" :class="{'bg-white text-blue-600 shadow-sm': period === 'weekly', 'text-slate-400 hover:text-slate-600': period !== 'weekly'}" class="px-3 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all">Weekly</button>
+                                <button @click="period = 'monthly'" :class="{'bg-white text-blue-600 shadow-sm': period === 'monthly', 'text-slate-400 hover:text-slate-600': period !== 'monthly'}" class="px-3 py-1.5 text-[9px] font-black uppercase tracking-wider rounded-lg transition-all">Monthly</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-7 relative">
+                        <template x-for="(mitra, index) in mitras" :key="index">
+                            <div class="group relative bg-[#f8fafc] p-4 rounded-3xl border border-slate-100 hover:border-blue-100 hover:shadow-xl transition-all duration-300">
+                                <div class="flex items-center justify-between mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-2xl flex flex-col items-center justify-center font-black shadow-sm group-hover:scale-105 transition-transform"
+                                            :style="index === 0 ? 'background:#eff6ff; color:#3b82f6;' : 'background:#ffffff; color:#64748b;'">
+                                            <span class="text-xs" x-text="'#' + (index + 1)"></span>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-bold truncate w-24 sm:w-32 lg:w-40" style="color:#334155;" x-text="mitra.name"></h4>
+                                            <div class="flex items-center gap-1 mt-0.5 text-[9px] font-bold text-slate-400">
+                                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                <span x-text="mitra.avg_time + ' to Rekon'"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-[9px] font-black block uppercase tracking-tighter" style="color:#94a3b8;">Total Vol</span>
+                                        <span class="text-sm font-black" style="color:#334155;" x-text="mitra.total"></span>
+                                    </div>
+                                </div>
+
+                                {{-- BUCKET VISUALIZATION --}}
+                                <div class="relative w-full h-8 bg-slate-200/60 rounded-xl overflow-hidden shadow-inner flex items-center" style="transform: translateZ(0);">
+                                    {{-- Capacity indicator text --}}
+                                    <div class="absolute inset-x-0 w-full flex justify-between px-3 z-20 text-[9px] font-black text-white mix-blend-difference uppercase tracking-widest pointer-events-none drop-shadow-md">
+                                        <span x-text="(period === 'daily' ? mitra.daily : (period === 'weekly' ? mitra.weekly : mitra.monthly)) + ' ORDs'"></span>
+                                        <span x-text="'Cap: ' + (period === 'daily' ? mitra.daily_cap : (period === 'weekly' ? mitra.weekly_cap : mitra.monthly_cap))"></span>
+                                    </div>
+                                    
+                                    {{-- Water Fill Bar --}}
+                                    <div class="h-full relative transition-all duration-1000 ease-in-out flex-shrink-0"
+                                         :style="'width: ' + Math.min(((period === 'daily' ? mitra.daily : (period === 'weekly' ? mitra.weekly : mitra.monthly)) / (period === 'daily' ? mitra.daily_cap : (period === 'weekly' ? mitra.weekly_cap : mitra.monthly_cap))) * 100, 100) + '%;' +
+                                         'background: ' + (((period === 'daily' ? mitra.daily : (period === 'weekly' ? mitra.weekly : mitra.monthly)) / (period === 'daily' ? mitra.daily_cap : (period === 'weekly' ? mitra.weekly_cap : mitra.monthly_cap))) >= 1 ? 'linear-gradient(90deg, #f87171, #ef4444)' : 'linear-gradient(90deg, #60a5fa, #3b82f6)')">
+                                        
+                                        {{-- Water Waves Animation --}}
+                                        <div class="absolute inset-0 opacity-30" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 10 Q 5 15, 10 10 T 20 10\' stroke=\'white\' fill=\'none\' stroke-width=\'2\'/%3E%3C/svg%3E'); background-size: 20px 20px; animation: moveWaves 2s linear infinite;"></div>
+                                        <div class="absolute inset-0 opacity-20" style="background-image: url('data:image/svg+xml,%3Csvg width=\'20\' height=\'20\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M0 10 Q 5 5, 10 10 T 20 10\' stroke=\'white\' fill=\'none\' stroke-width=\'1.5\'/%3E%3C/svg%3E'); background-size: 15px 15px; animation: moveWaves 1.5s linear infinite reverse;"></div>
+                                    </div>
+                                </div>
+                                
+                                {{-- Overcapacity Warning --}}
+                                <div x-show="((period === 'daily' ? mitra.daily : (period === 'weekly' ? mitra.weekly : mitra.monthly)) / (period === 'daily' ? mitra.daily_cap : (period === 'weekly' ? mitra.weekly_cap : mitra.monthly_cap))) > 1" class="absolute -top-2 right-4 z-30 flex items-center justify-center" x-transition>
+                                    <span class="animate-bounce bg-red-100 text-red-600 border border-red-200 text-[8px] font-black px-2 py-0.5 rounded-md uppercase shadow-lg tracking-widest">⚠️ Overload</span>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div x-show="mitras.length === 0" class="flex flex-col items-center justify-center py-10 opacity-50">
+                            <svg class="w-10 h-10 mb-2" style="color:#94a3b8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Belum Ada Data</p>
+                        </div>
+                    </div>
+
+                    <style>
+                        @keyframes moveWaves {
+                            0% { background-position: 0 0; }
+                            100% { background-position: 40px 0; }
+                        }
+                    </style>
                 </div>
 
-                <!-- WAITING APPROVAL (Telkom Red) -->
-                <div class="rounded-[2.5rem] p-8 text-white relative overflow-hidden group shadow-2xl"
-                    style="background: linear-gradient(135deg, #e32b2b 0%, #c0392b 100%); box-shadow: 0 20px 40px rgba(227,43,43,0.35);">
-                    <!-- Decorative -->
-                    <div class="absolute top-0 right-0 w-32 h-32 rounded-bl-full group-hover:scale-110 transition-transform duration-500"
-                        style="background:rgba(255,255,255,0.1);"></div>
-                    <div class="absolute -bottom-8 -left-8 w-24 h-24 rounded-full"
-                        style="background:rgba(255,255,255,0.05);"></div>
-
-                    <div class="relative z-10 flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-extrabold tracking-tight">Pending Approval</h3>
-                        <span id="waitingApprovalBadge"
-                            class="text-white text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-widest"
-                            style="background:rgba(255,255,255,0.2);">
-                            Action Required
-                        </span>
-                    </div>
-
-                    <div id="waitingUsersContainer"
-                        class="relative z-10 space-y-4 max-h-[220px] overflow-y-auto no-scrollbar">
-                        @forelse($waitingUsers as $user)
-                            <div class="flex items-center justify-between p-3 rounded-2xl hover:bg-white/20 transition-colors border"
-                                style="background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.1);">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full flex items-center justify-center font-black text-xs uppercase shadow-sm"
-                                        style="background:white; color:#e32b2b;">
-                                        {{ substr($user->name, 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-bold leading-none">{{ $user->name }}</p>
-                                        @if ($user->requested_role)
-                                            <span
-                                                class="inline-block mt-1 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"
-                                                style="background:rgba(255,255,255,0.2); color:rgba(255,255,255,0.9);">
-                                                Request: {{ ucfirst($user->requested_role) }}
-                                            </span>
-                                        @endif
-                                        <p class="text-[10px] mt-0.5" style="color:rgba(255,255,255,0.5);">
-                                            {{ $user->created_at->diffForHumans() }}</p>
-                                    </div>
-                                </div>
-                                <a href="{{ route('admin.users') }}"
-                                    class="p-2 rounded-xl hover:scale-110 transition-transform shadow-lg"
-                                    style="background:white; color:#e32b2b;">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                                            d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                </a>
-                            </div>
-                        @empty
-                            <div class="text-center py-10 opacity-60">
-                                <svg class="w-10 h-10 mx-auto mb-2" style="color:rgba(255,255,255,0.3);" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path d="M5 13l4 4L19 7" stroke-width="3" stroke-linecap="round"></path>
-                                </svg>
-                                <p class="text-xs font-bold">No users waiting</p>
-                            </div>
-                        @endforelse
-                    </div>
-                </div>
             </div>
         </div>
 

@@ -15,8 +15,8 @@ use App\Http\Controllers\AdminController;
 
 
 Route::get('/', function () {
-    return redirect()->route('login');
-});
+    return view('beranda');
+})->name('beranda');
 
 Route::middleware('guest')->group(function () {
     Route::get('/register', [RegisteredUserController::class, 'create'])
@@ -76,6 +76,9 @@ Route::middleware(['auth', 'role:optima,admin,tif,telkom_akses'])->group(functio
 
     Route::post('/deployment/input', [EbisManualInputController::class, 'store'])
         ->name('deployment.input.store');
+
+    Route::get('/deployment/api/search-starclick', [EbisManualInputController::class, 'searchStarclick'])
+        ->name('deployment.api.search-starclick');
 
     /* ================= LIHAT DATA ================= */
     Route::get('/deployment/lihat-data', [EbisPlanningController::class, 'lihatData'])
@@ -188,6 +191,12 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
     Route::get('/admin/api/live-tracking', [AdminController::class, 'getLiveTracking'])
         ->name('admin.api.live-tracking');
+
+    Route::get('/admin/api/workload-day', [AdminController::class, 'getWorkloadDay'])
+        ->name('admin.api.workload-day');
+
+    Route::get('/admin/api/top-mitras', [AdminController::class, 'getTopMitras'])
+        ->name('admin.api.top-mitras');
 });
 
 

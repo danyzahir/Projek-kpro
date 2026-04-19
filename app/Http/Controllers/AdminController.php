@@ -152,32 +152,19 @@ class AdminController extends Controller
         $waitingUsers = User::where('role', 'waiting')->take(5)->get();
 
 
-        // --- 5. TOP PARTNER PERFORMANCE ---
-        // Calculate success rate per mitra
-        // We need a complex query or collection processing here. 
-        // Let's take top 3 active mitras
-        $topMitras = EbisManualInput::select('nama_mitra', DB::raw('count(*) as total_jobs'))
-            ->whereNotNull('nama_mitra')
-            ->where('nama_mitra', '!=', '')
-            ->groupBy('nama_mitra')
-            ->orderByDesc('total_jobs')
-            ->take(3)
-            ->get()
-            ->map(function($mitra) {
-                // Get success count for this mitra
-                $successCount = EbisManualInput::where('nama_mitra', $mitra->nama_mitra)
-                    ->whereHas('planning', function ($q) {
-                        $q->where('status_order', 'LIKE', '%Success%');
-                    })
-                    ->count();
-                
-                $rate = $mitra->total_jobs > 0 ? ($successCount / $mitra->total_jobs) * 100 : 0;
-                
-                return [
-                    'name' => $mitra->nama_mitra,
-                    'rate' => round($rate, 1),
-                    'total' => $mitra->total_jobs
-                ];
+        // --- 5. TOP PARTNER PERFORMANCE (format for widget) ---
+        $today = Carbon::today();
+        $daily_cap = 3; $weekly_cap = 15; $monthly_cap = 60;
+        $topMitras = EbisManualInput::select('nama_mitra', DB::raw('count(*) as total'))
+            ->whereNotNull('nama_mitra')->where('nama_mitra', '!=', '')
+            ->groupBy('nama_mitra')->orderByDesc('total')->limit(3)->get()
+            ->map(function ($m) use ($today, $daily_cap, $weekly_cap, $monthly_cap) {
+                $name = $m->nama_mitra;
+                $daily   = EbisManualInput::where('nama_mitra', $name)->whereDate('created_at', $today)->count();
+                $weekly  = EbisManualInput::where('nama_mitra', $name)->whereBetween('created_at', [$today->copy()->startOfWeek(), $today->copy()->endOfWeek()])->count();
+                $monthly = EbisManualInput::where('nama_mitra', $name)->whereMonth('created_at', $today->month)->whereYear('created_at', $today->year)->count();
+                $avgDays = EbisManualInput::where('nama_mitra', $name)->whereNotNull('tanggal_update_progres')->selectRaw('AVG(DATEDIFF(tanggal_update_progres, created_at)) as avg_days')->value('avg_days');
+                return ['name' => $name, 'total' => $m->total, 'daily' => $daily, 'weekly' => $weekly, 'monthly' => $monthly, 'daily_cap' => $daily_cap, 'weekly_cap' => $weekly_cap, 'monthly_cap' => $monthly_cap, 'avg_time' => $avgDays ? round($avgDays) . ' hari' : 'N/A'];
             });
         // --- 6. LIVE PROGRESS LOGS (Live Tracking) ---
         $liveTracking = EbisPlanningProgressLog::with(['user', 'planning.manualInput'])
@@ -839,5 +826,148 @@ class AdminController extends Controller
         if (stripos($status, 'Pending') !== false || stripos($status, 'Wait') !== false) return 'bg-yellow-100 text-yellow-800';
         if (stripos($status, 'Kendala') !== false || stripos($status, 'Gagal') !== false) return 'bg-red-100 text-red-800';
         return 'bg-blue-100 text-blue-800'; 
+    }
+
+    public function getWorkloadDay(Request $request)
+    {
+        $year  = (int) $request->get('year',  now()->year);
+        $month = (int) $request->get('month', now()->month);
+
+        $firstDay  = Carbon::createFromDate($year, $month, 1)->startOfMonth();
+        $lastDay   = $firstDay->copy()->endOfMonth();
+
+        // Get all orders for the month
+        $orders = EbisManualInput::whereMonth('created_at', $month)
+            ->whereYear('created_at', $year)
+            ->select('created_at', 'nama_mitra')
+            ->get();
+
+        // Build a lookup: date => [mitra => count]
+        $ordersByDate = [];
+        foreach ($orders as $order) {
+            $d = Carbon::parse($order->created_at)->format('Y-m-d');
+            $mitra = $order->nama_mitra ?? 'Tanpa Mitra';
+            if (!isset($ordersByDate[$d])) $ordersByDate[$d] = [];
+            if (!isset($ordersByDate[$d][$mitra])) $ordersByDate[$d][$mitra] = 0;
+            $ordersByDate[$d][$mitra]++;
+        }
+
+        // Build the calendar grid (Mon-Sun, with padding)
+        $startPad = ($firstDay->dayOfWeekIso - 1); // Mon=0 pad
+        $endPad   = (7 - $lastDay->dayOfWeekIso) % 7;
+
+        $days = [];
+
+        // Leading empty days
+        for ($i = $startPad; $i > 0; $i--) {
+            $d = $firstDay->copy()->subDays($i);
+            $days[] = [
+                'date'     => $d->format('Y-m-d'),
+                'day_label'=> strtoupper(substr($d->locale('id')->isoFormat('ddd'), 0, 3)),
+                'num_label'=> $d->format('j') . ' ' . $d->locale('id')->isoFormat('MMMM'),
+                'count'    => 0,
+                'details'  => [],
+                'is_today' => false,
+                'in_month' => false,
+            ];
+        }
+
+        // Days in month
+        for ($i = 0; $i < $firstDay->daysInMonth; $i++) {
+            $d = $firstDay->copy()->addDays($i);
+            $key = $d->format('Y-m-d');
+            $details = [];
+            $total = 0;
+            if (isset($ordersByDate[$key])) {
+                foreach ($ordersByDate[$key] as $mitra => $cnt) {
+                    $details[] = ['mitra' => $mitra, 'count' => $cnt];
+                    $total += $cnt;
+                }
+                usort($details, fn($a, $b) => $b['count'] <=> $a['count']);
+            }
+            $days[] = [
+                'date'     => $key,
+                'day_label'=> strtoupper(substr($d->locale('id')->isoFormat('ddd'), 0, 3)),
+                'num_label'=> $d->format('j') . ' ' . $d->locale('id')->isoFormat('MMM'),
+                'count'    => $total,
+                'details'  => $details,
+                'is_today' => $d->isToday(),
+                'in_month' => true,
+            ];
+        }
+
+        // Trailing empty days
+        for ($i = 1; $i <= $endPad; $i++) {
+            $d = $lastDay->copy()->addDays($i);
+            $days[] = [
+                'date'     => $d->format('Y-m-d'),
+                'day_label'=> strtoupper(substr($d->locale('id')->isoFormat('ddd'), 0, 3)),
+                'num_label'=> $d->format('j') . ' ' . $d->locale('id')->isoFormat('MMM'),
+                'count'    => 0,
+                'details'  => [],
+                'is_today' => false,
+                'in_month' => false,
+            ];
+        }
+
+        $maxOrders = count($orders) > 0 ? max(array_map(fn($d) => $d['count'], $days)) : 10;
+        $globalCap = max($maxOrders, 10);
+
+        return response()->json([
+            'week_headers' => $days,
+            'global_cap'   => $globalCap,
+        ]);
+    }
+
+    public function getTopMitras(Request $request)
+    {
+        $date = $request->get('date', now()->toDateString());
+        $d    = Carbon::parse($date);
+
+        $daily_cap   = 3;
+        $weekly_cap  = 15;
+        $monthly_cap = 60;
+
+        $mitras = EbisManualInput::select('nama_mitra', DB::raw('count(*) as total'))
+            ->whereNotNull('nama_mitra')
+            ->groupBy('nama_mitra')
+            ->orderByDesc('total')
+            ->limit(3)
+            ->get()
+            ->map(function ($m) use ($d, $daily_cap, $weekly_cap, $monthly_cap) {
+                $name = $m->nama_mitra;
+
+                $daily = EbisManualInput::where('nama_mitra', $name)
+                    ->whereDate('created_at', $d)->count();
+
+                $weekly = EbisManualInput::where('nama_mitra', $name)
+                    ->whereBetween('created_at', [$d->copy()->startOfWeek(), $d->copy()->endOfWeek()])
+                    ->count();
+
+                $monthly = EbisManualInput::where('nama_mitra', $name)
+                    ->whereMonth('created_at', $d->month)
+                    ->whereYear('created_at', $d->year)
+                    ->count();
+
+                // Average cycle time: created_at to tanggal_update_progres
+                $avgDays = EbisManualInput::where('nama_mitra', $name)
+                    ->whereNotNull('tanggal_update_progres')
+                    ->selectRaw('AVG(DATEDIFF(tanggal_update_progres, created_at)) as avg_days')
+                    ->value('avg_days');
+
+                return [
+                    'name'        => $name,
+                    'total'       => $m->total,
+                    'daily'       => $daily,
+                    'weekly'      => $weekly,
+                    'monthly'     => $monthly,
+                    'daily_cap'   => $daily_cap,
+                    'weekly_cap'  => $weekly_cap,
+                    'monthly_cap' => $monthly_cap,
+                    'avg_time'    => $avgDays ? round($avgDays) . ' hari' : 'N/A',
+                ];
+            });
+
+        return response()->json($mitras->values());
     }
 }

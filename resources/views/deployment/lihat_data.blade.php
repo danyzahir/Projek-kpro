@@ -102,12 +102,9 @@
             <div x-show="showAdvanced" x-collapse x-cloak class="pt-4 border-t border-slate-100 space-y-4">
                 <!-- MAIN FILTER FORM -->
                 <form id="filterForm" method="GET" action="{{ route('deployment.lihat-data') }}">
-
-                    <!-- SYNC HIDDEN SEARCH INPUT FROM TAGS -->
                     <input type="hidden" name="search" id="hiddenSearchInput" value="{{ request('search') }}">
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                        <!-- DATE FILTERS -->
                         <div>
                             <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Dari Tanggal</label>
                             <input type="date" name="start_date" value="{{ request('start_date') }}"
@@ -120,98 +117,86 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                        <select name="status_order"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua Status Order</option>
-                            @foreach ($filters['status_orders'] as $item)
-                                <option value="{{ $item }}"
-                                    {{ request('status_order') == $item ? 'selected' : '' }}>{{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="sto"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua STO</option>
-                            @foreach ($filters['stos'] as $item)
-                                <option value="{{ $item }}" {{ request('sto') == $item ? 'selected' : '' }}>
-                                    {{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="jenis_program"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua Jenis Program</option>
-                            @foreach ($filters['jenis_programs'] as $item)
-                                <option value="{{ $item }}"
-                                    {{ request('jenis_program') == $item ? 'selected' : '' }}>{{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="datel"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua Datel</option>
-                            @foreach ($filters['datels'] as $item)
-                                <option value="{{ $item }}" {{ request('datel') == $item ? 'selected' : '' }}>
-                                    {{ $item }}</option>
-                            @endforeach
-                        </select>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Status Order</label>
+                        <select id="f_status_order" name="status_order[]" multiple>
+                            @foreach ($filters['status_orders'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('status_order',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">STO</label>
+                        <select id="f_sto" name="sto[]" multiple>
+                            @foreach ($filters['stos'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('sto',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Jenis Program</label>
+                        <select id="f_jenis_program" name="jenis_program[]" multiple>
+                            @foreach ($filters['jenis_programs'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('jenis_program',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Datel</label>
+                        <select id="f_datel" name="datel[]" multiple>
+                            @foreach ($filters['datels'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('datel',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <select name="tipe_desain"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua Tipe Desain</option>
-                            @foreach ($filters['tipe_desains'] as $item)
-                                <option value="{{ $item }}"
-                                    {{ request('tipe_desain') == $item ? 'selected' : '' }}>{{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="cfu"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua CFU</option>
-                            @foreach ($filters['cfus'] as $item)
-                                <option value="{{ $item }}" {{ request('cfu') == $item ? 'selected' : '' }}>
-                                    {{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="progres"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua Progress</option>
-                            @foreach ($filters['progresses'] as $item)
-                                <option value="{{ $item }}" {{ request('progres') == $item ? 'selected' : '' }}>
-                                    {{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="status_proyek"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua Status Proyek</option>
-                            @foreach ($filters['status_proyeks'] as $item)
-                                <option value="{{ $item }}"
-                                    {{ request('status_proyek') == $item ? 'selected' : '' }}>{{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <select name="nomor_batch"
-                            class="rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-red-500 focus:border-red-500 p-2.5">
-                            <option value="">Semua Batch</option>
-                            @foreach ($filters['nomor_batches'] as $item)
-                                <option value="{{ $item }}"
-                                    {{ request('nomor_batch') == $item ? 'selected' : '' }}>{{ $item }}</option>
-                            @endforeach
-                        </select>
-
-                        <button type="submit"
-                            class="bg-red-600 text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-red-700 transition shadow-sm">
-                            Terapkan Filter
-                        </button>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Tipe Desain</label>
+                        <select id="f_tipe_desain" name="tipe_desain[]" multiple>
+                            @foreach ($filters['tipe_desains'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('tipe_desain',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">CFU</label>
+                        <select id="f_cfu" name="cfu[]" multiple>
+                            @foreach ($filters['cfus'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('cfu',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Progress</label>
+                        <select id="f_progres" name="progres[]" multiple>
+                            @foreach ($filters['progresses'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('progres',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Status Proyek</label>
+                        <select id="f_status_proyek" name="status_proyek[]" multiple>
+                            @foreach ($filters['status_proyeks'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('status_proyek',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
                     </div>
 
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                        <div><label class="block text-xs font-semibold text-slate-500 uppercase mb-1">Nomor Batch</label>
+                        <select id="f_nomor_batch" name="nomor_batch[]" multiple>
+                            @foreach ($filters['nomor_batches'] as $item)<option value="{{ $item }}" {{ in_array($item,(array)request('nomor_batch',[])) ? 'selected':'' }}>{{ $item }}</option>@endforeach
+                        </select></div>
+                        <div class="flex items-end col-span-1">
+                            <button type="submit" class="w-full bg-red-600 text-white rounded-xl px-4 py-2.5 text-sm font-semibold hover:bg-red-700 transition shadow-sm">Terapkan Filter</button>
+                        </div>
+                    </div>
 
                 </form>
+
+                <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.min.css">
+                <script src="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
+                <style>
+                    .filter-ts .ts-control { border-radius: 0.75rem !important; border-color: #e2e8f0 !important; background: #f8fafc !important; font-size: 0.8rem !important; min-height: 40px; }
+                    .filter-ts .ts-control.focus { border-color: #ef4444 !important; box-shadow: 0 0 0 2px #fee2e2 !important; }
+                    .filter-ts .ts-dropdown { border-radius: 0.75rem !important; border-color: #e2e8f0 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1) !important; }
+                    .filter-ts .ts-dropdown .option { font-size: 0.8rem; padding: 6px 12px; }
+                    .filter-ts .ts-dropdown .option:hover, .filter-ts .ts-dropdown .option.active { background: #fef2f2 !important; color: #dc2626 !important; }
+                    .filter-ts .ts-control .item { background: #fee2e2 !important; color: #dc2626 !important; border-radius: 6px !important; font-weight: 600; font-size: 0.75rem !important; padding: 2px 6px !important; }
+                    .filter-ts .ts-control .item .remove { color: #dc2626 !important; border-left-color: #fca5a5 !important; }
+                </style>
+                <script>
+                    function initFilterTS() {
+                        ['f_status_order','f_sto','f_jenis_program','f_datel','f_tipe_desain','f_cfu','f_progres','f_status_proyek','f_nomor_batch'].forEach(function(id) {
+                            const el = document.getElementById(id);
+                            if (el && !el.tomselect) {
+                                new TomSelect(el, {
+                                    plugins: ['remove_button'],
+                                    maxOptions: 300,
+                                    create: false,
+                                    wrapperClass: 'ts-wrapper filter-ts',
+                                    placeholder: '— Semua —',
+                                    dropdownParent: 'body',
+                                });
+                            }
+                        });
+                    }
+                    document.addEventListener('DOMContentLoaded', initFilterTS);
+                    document.addEventListener('turbo:load', initFilterTS);
+                </script>
             </div>
         </div>
 

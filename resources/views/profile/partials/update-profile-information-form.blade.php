@@ -56,6 +56,19 @@
             @endif
         </div>
 
+        {{-- Telegram Phone --}}
+        <div>
+            <label for="telegram_phone" class="block text-sm font-medium text-slate-600 mb-1">Nomor Telegram (Opsional)</label>
+            <input id="telegram_phone" name="telegram_phone" type="text" value="{{ old('telegram_phone', $user->telegram_phone) }}"
+                placeholder="Contoh: 081234567890"
+                class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm
+                       focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition">
+            <p class="mt-1 text-xs text-slate-500">Gunakan nomor yang terdaftar di Telegram untuk menerima notifikasi otomatis.</p>
+            @error('telegram_phone')
+                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+            @enderror
+        </div>
+
         {{-- Submit --}}
         <div class="flex items-center gap-4">
             <button type="submit"
